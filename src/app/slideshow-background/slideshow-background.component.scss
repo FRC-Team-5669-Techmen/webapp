@@ -17,31 +17,30 @@
 
 @keyframes fade {
 	0% { opacity: 0; }
-	5% { opacity: 0; }
-	15% { opacity: 1; }
-	30% { opacity: 1; }
-	40% { opacity: 0; }
+	10% { opacity: 1; }
+	25% { opacity: 1; }
+	35% { opacity: 0; }
 	100% { opacity: 0; }
 }
 
 #image1 {
 	background-image: url("/assets/slide1.jpg");	
-	animation: fade 12s ease 0s infinite;
+	animation: fade 24s ease 0s infinite;
 }
 
 #image2 {
 	background-image: url("/assets/slide2.jpg");	
-	animation: fade 12s ease 3s infinite;
+	animation: fade 24s ease 6s infinite;
 }
 
 #image3 {
 	background-image: url("/assets/slide3.jpg");	
-	animation: fade 12s ease 6s infinite;
+	animation: fade 24s ease 12s infinite;
 }
 
 #image4 {
 	background-image: url("/assets/slide4.jpg");	
-	animation: fade 12s ease 9s infinite;
+	animation: fade 24s ease 18s infinite;
 }
 
 img {
