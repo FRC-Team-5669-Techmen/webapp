@@ -1,11 +1,50 @@
 :host {
 	display: block;
 	width: 100%;
+	height: 100%;
 	position: fixed;
 }
 
+.image {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+	filter: brightness(40%);
+	opacity: 0;
+}
+
+@keyframes fade {
+	0% { opacity: 0; }
+	5% { opacity: 0; }
+	15% { opacity: 1; }
+	30% { opacity: 1; }
+	40% { opacity: 0; }
+	100% { opacity: 0; }
+}
+
+#image1 {
+	background-image: url("/assets/slide1.jpg");	
+	animation: fade 12s ease 0s infinite;
+}
+
+#image2 {
+	background-image: url("/assets/slide2.jpg");	
+	animation: fade 12s ease 3s infinite;
+}
+
+#image3 {
+	background-image: url("/assets/slide3.jpg");	
+	animation: fade 12s ease 6s infinite;
+}
+
+#image4 {
+	background-image: url("/assets/slide4.jpg");	
+	animation: fade 12s ease 9s infinite;
+}
 
 img {
-	width: 100%;
 	filter: brightness(25%);
+	position: absolute;
 }

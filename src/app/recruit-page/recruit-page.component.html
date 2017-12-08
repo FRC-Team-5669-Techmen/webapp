@@ -1,43 +1,47 @@
 <app-slideshow-background></app-slideshow-background>
-<mat-card id="root">
-	<h2 class='mat-h2'>
-		Tell us a bit about yourself.
-	</h2>
-	<mat-card-content>
-		<mat-form-field>
-			<input #firstName matInput required placeholder="First Name">
-		</mat-form-field>
-		<mat-form-field>
-			<input #lastName matInput required placeholder="Last Name">
-		</mat-form-field>
-		<mat-form-field>
-			<input #email matInput required placeholder="Email Address">
-		</mat-form-field>
-		<mat-form-field>
-			<mat-select #gradeLevel required placeholder="Grade Level">
-				<mat-option value="9">Freshman</mat-option>
-				<mat-option value="10">Sophomore</mat-option>
-				<mat-option value="11">Junior</mat-option>
-				<mat-option value="12">Senior</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-select #team required placeholder="Area of Interest">
-				<mat-option value="Construction">Construction</mat-option>
-				<mat-option value="Design">Design</mat-option>
-				<mat-option value="Programming">Programming</mat-option>
-				<mat-option value="Publicity">Publicity</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<textarea #prevExp matInput placeholder="Previous Experience" matTextareaAutosize matAutosizeMinRows="2" matAutosizeMaxRows="10"></textarea>
-		</mat-form-field>
-		<mat-checkbox>I would like to receive emails about important news or upcoming events.</mat-checkbox>
-	</mat-card-content>
-	<h1>THIS</h1><br><br><br><br><br><br>
-	<h1>IS</h1><br><br><br><br><br><br>
-	<h1>FIIIIILERRR</h1><br><br><br><br><br><br>
-	<h1>FILLER</h1><br><br><br><br><br><br>
-	<h1>NIGHT!</h1><br><br><br><br><br><br>
-	yes.
-</mat-card>
+<div id="center">
+	<mat-card id="root">
+		<h2 class='mat-h2'>
+			Tell us a bit about yourself.
+		</h2>
+		<mat-card-content>
+			<mat-form-field>
+				<input #firstName matInput required placeholder="First Name">
+			</mat-form-field>
+			<mat-form-field>
+				<input #lastName matInput required placeholder="Last Name">
+			</mat-form-field>
+			<mat-form-field>
+				<input #email matInput required placeholder="Email Address">
+			</mat-form-field>
+			<mat-form-field>
+				<mat-select #gradeLevel required placeholder="Grade Level">
+					<mat-option value="9">Freshman</mat-option>
+					<mat-option value="10">Sophomore</mat-option>
+					<mat-option value="11">Junior</mat-option>
+					<mat-option value="12">Senior</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field>
+				<mat-select #team required placeholder="Area of Interest">
+					<mat-option value="Construction">Construction</mat-option>
+					<mat-option value="Design">Design</mat-option>
+					<mat-option value="Programming">Programming</mat-option>
+					<mat-option value="Publicity">Publicity</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field>
+				<textarea #prevExp matInput placeholder="Previous Experience" matTextareaAutosize matAutosizeMinRows="2" matAutosizeMaxRows="10"></textarea>
+			</mat-form-field>
+			<mat-checkbox>
+				<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
+			</mat-checkbox>				
+		</mat-card-content>
+		<h1>THIS</h1><br><br><br><br><br><br>
+		<h1>IS</h1><br><br><br><br><br><br>
+		<h1>FIIIIILERRR</h1><br><br><br><br><br><br>
+		<h1>FILLER</h1><br><br><br><br><br><br>
+		<h1>NIGHT!</h1><br><br><br><br><br><br>
+		yes.
+	</mat-card>
+</div>

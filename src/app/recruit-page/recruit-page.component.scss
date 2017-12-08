@@ -1,15 +1,15 @@
+#center {
+	margin: auto;
+	width: fit-content;
+}
+
 mat-card {
 	max-width: 50em;
-	margin: auto;
 	top: 2em;
-	margin-bottom: 2em;
+	margin: 2em;
 }
 
 mat-card-content {
 	display: flex;
 	flex-direction: column;
-}
-
-div#root > * {
-	width: 100%;
 }
