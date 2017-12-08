@@ -1,0 +1,8 @@
+<div id="root" class="mat-typography">
+	<ul>
+		<li><a mat-button>Home</a></li>
+		<li *ngFor="let button of buttons">
+			<a mat-button [routerLink]="button.url">{{button.text}}</a>
+		</li>
+	</ul>
+</div>
