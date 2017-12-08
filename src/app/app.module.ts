@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { TitleBarComponent } from './title-bar/title-bar.component';
 import { HomePageComponent } from './home-page/home-page.component';
 import { RecruitPageComponent } from './recruit-page/recruit-page.component';
+import { SlideshowBackgroundComponent } from './slideshow-background/slideshow-background.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
@@ -22,7 +23,8 @@ const appRoutes: Routes = [
     AppComponent,
     TitleBarComponent,
     HomePageComponent,
-    RecruitPageComponent
+    RecruitPageComponent,
+    SlideshowBackgroundComponent
   ],
   imports: [
     BrowserModule,

@@ -1,3 +1,15 @@
+/* :host {
+	perspective: 1px;
+	height: 100vh;
+} */
+
+header {
+	overflow: hidden;
+	position: fixed;
+	top: 0;
+	z-index: 10;
+	width: 100%;
+}
+
 div#content {
-	padding: 0.5em;
 }
