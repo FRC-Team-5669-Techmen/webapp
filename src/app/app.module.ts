@@ -3,7 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-  MatToolbarModule } from '@angular/material';
+  MatToolbarModule, MatIconModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -14,6 +14,7 @@ import { HomePageComponent } from './home-page/home-page.component';
 import { RecruitPageComponent } from './recruit-page/recruit-page.component';
 import { SlideshowBackgroundComponent } from './slideshow-background/slideshow-background.component';
 import { WebappBackendService } from './webapp-backend.service';
+import { YoloClientService } from './yolo-client.service';
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
@@ -37,13 +38,15 @@ const appRoutes: Routes = [
     MatCardModule,
     MatCheckboxModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatSelectModule,
     MatToolbarModule,
-    RouterModule.forRoot(appRoutes, { enableTracing: true })
+    RouterModule.forRoot(appRoutes, { enableTracing: false })
   ],
   providers: [
-    WebappBackendService
+    WebappBackendService,
+    YoloClientService
   ],
   bootstrap: [AppComponent]
 })

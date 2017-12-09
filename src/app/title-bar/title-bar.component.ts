@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TitleBarComponent implements OnInit {
   buttons = [
-    {text: 'Hello There', url: '/recruit'}
+    {text: 'Sign Up', url: '/recruit'}
   ];
 
   constructor() { }

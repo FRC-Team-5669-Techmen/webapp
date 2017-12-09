@@ -13,6 +13,11 @@ h2 {
 mat-card {
 	box-sizing: border-box;
 	width: 100%;
+	margin-bottom: 2em;
+}
+
+mat-card:last-child {
+	margin-bottom: 0;
 }
 
 mat-card-content {

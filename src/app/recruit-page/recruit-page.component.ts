@@ -1,4 +1,5 @@
 import { WebappBackendService } from '../webapp-backend.service';
+import { YoloClientService, LoginDetails } from '../yolo-client.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatInput } from '@angular/material';
 
@@ -20,7 +21,7 @@ export class RecruitPageComponent implements OnInit {
     firstName: '',
     lastName: '',
     emailAddress: '',
-    wantsEmails: false,
+    wantsEmails: true,
     gradeLevel: null,
     preferredTeam: null,
     pastExperience: ''
@@ -35,9 +36,15 @@ export class RecruitPageComponent implements OnInit {
     return console;
   }
 
-  constructor(private backend: WebappBackendService) { }
+  constructor(private backend: WebappBackendService, private client: YoloClientService) { }
 
   ngOnInit() {
+    this.client.getLogin().then((res: LoginDetails) => {
+      const names = res.displayName.split(' ');
+      this.data.firstName = names[0];
+      this.data.lastName = names[1];
+      this.data.emailAddress = res.id;
+    });
   }
 
   submit(): void {

@@ -1,7 +1,13 @@
 <app-slideshow-background></app-slideshow-background>
 <div id="center">
-	<form #infoForm="ngForm" (ngSubmit)="submit()">
-		<mat-card id="root">
+	<mat-card id='login-prompt'>
+		<mat-icon svgIcon="thumbs-up"></mat-icon>
+		<h2 class='mat-h2'>
+			Sign in with Google
+		</h2>
+	</mat-card>
+	<mat-card id="root">
+		<form #infoForm="ngForm" (ngSubmit)="submit()">
 			<h2 class='mat-h2' *ngIf="status == Status.GettingData">
 				Tell us a bit about yourself.
 			</h2>
@@ -52,6 +58,6 @@
 				<div style="height: 1em"></div>
 				<button mat-button type="submit" [disabled]="!infoForm.form.valid" class="mat-raised-button mat-accent" color="accent" >Submit</button>
 			</ng-container>
-		</mat-card>	
-	</form>		
+		</form>			
+	</mat-card>	
 </div>

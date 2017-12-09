@@ -1,4 +1,6 @@
+import { YoloClientService } from './yolo-client.service';
 import { Component, ViewChild, OnInit, ElementRef, AfterContentInit, AfterViewInit } from '@angular/core';
+import { MatIconRegistry } from '@angular/material';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +11,10 @@ export class AppComponent implements AfterViewInit {
   title = 'app';
   @ViewChild('header') header: ElementRef;
   @ViewChild('headerSpacing') headerSpacing: ElementRef;
+
+  constructor (private yolo: YoloClientService, private reg: MatIconRegistry) {
+    //reg.addSvgIconSet();
+  }
 
   ngAfterViewInit() {
     const height = this.header.nativeElement.offsetHeight;
