@@ -1,6 +1,7 @@
 import { YoloClientService } from './yolo-client.service';
 import { Component, ViewChild, OnInit, ElementRef, AfterContentInit, AfterViewInit } from '@angular/core';
 import { MatIconRegistry } from '@angular/material';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -12,8 +13,8 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('header') header: ElementRef;
   @ViewChild('headerSpacing') headerSpacing: ElementRef;
 
-  constructor (private yolo: YoloClientService, private reg: MatIconRegistry) {
-    //reg.addSvgIconSet();
+  constructor (private yolo: YoloClientService, private reg: MatIconRegistry, private domSanitizer: DomSanitizer) {
+    reg.addSvgIconSet(domSanitizer.bypassSecurityTrustResourceUrl('/assets/mdi.svg'));
   }
 
   ngAfterViewInit() {

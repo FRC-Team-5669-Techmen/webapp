@@ -6,8 +6,18 @@
 	max-width: 40em;
 }
 
+mat-card > mat-checkbox {
+	pointer-events: none;
+}
+
+mat-icon {
+	display: inline-block;
+	vertical-align: baseline;
+}
+
 h2 {
-	display: block;
+	display: inline;
+	vertical-align: bottom;
 }
 
 mat-card {

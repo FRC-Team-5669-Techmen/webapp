@@ -1,63 +1,78 @@
 <app-slideshow-background></app-slideshow-background>
-<div id="center">
+<div id='center'>
 	<mat-card id='login-prompt'>
-		<mat-icon svgIcon="thumbs-up"></mat-icon>
-		<h2 class='mat-h2'>
-			Sign in with Google
-		</h2>
+		<mat-checkbox>
+			<h2 class='mat-h2' #signInCheckbox>
+				Sign in with Google
+			</h2>
+		</mat-checkbox>
+		<mat-card-content> <!-- *ngIf="(status == Status.Login) || (status == Status.SeperateLogin)" -->
+			<p *ngIf="status == Status.Login">
+				Select your account in the login window. If you use multiple accounts, select whichever 
+				one you normally use for professional purposes.
+			</p>
+			<p *ngIf="status == Status.SeperateLogin">
+				It appears that you have never logged in to your google account on this browser before.
+				Click <a [href]='client.createFirstTimeSignInUrl()' target='_blank'>here</a> to do so, and then refresh the page.
+			</p>
+		</mat-card-content>
 	</mat-card>
-	<mat-card id="root">
-		<form #infoForm="ngForm" (ngSubmit)="submit()">
-			<h2 class='mat-h2' *ngIf="status == Status.GettingData">
-				Tell us a bit about yourself.
-			</h2>
-			<h2 class='mat-h2' *ngIf="status == Status.Submitting">
-				Submitting response...
-			</h2>
-			<h2 class='mat-h2' *ngIf="status == Status.Submitted">
-				Success! (Todo: add somewhere to go after this.)
-			</h2>
-			<h2 class='mat-h2' *ngIf="status == Status.OverlappingEmail">
-				There is already a registered member with this email! You might have already signed up.
-			</h2>
-			<ng-container *ngIf="status == Status.GettingData">
+	<mat-card id='root'>
+		<form #infoForm='ngForm' (ngSubmit)='submit()'>
+			<mat-checkbox>
+				<h2 class='mat-h2' #formCheckbox>
+					Tell us a bit about yourself.
+				</h2>
+			</mat-checkbox>
+			<ng-container *ngIf='status == Status.GettingData'>
 				<mat-card-content>
 					<mat-form-field>
-						<input matInput required placeholder="First Name" [(ngModel)]="data.firstName" name="firstName">
+						<input matInput required placeholder='First Name' [(ngModel)]='data.firstName' name='firstName'>
 					</mat-form-field>
 					<mat-form-field>
-						<input matInput required placeholder="Last Name" [(ngModel)]="data.lastName" name="lastName">
+						<input matInput required placeholder='Last Name' [(ngModel)]='data.lastName' name='lastName'>
 					</mat-form-field>
 					<mat-form-field>
-						<input matInput required placeholder="Email Address" [(ngModel)]="data.emailAddress" name="email">
+						<input matInput required placeholder='Email Address' [(ngModel)]='data.emailAddress' name='email'>
 					</mat-form-field>
 					<mat-form-field>
-						<mat-select required placeholder="Grade Level" [(ngModel)]="data.gradeLevel" name="grade">
-							<mat-option value="Freshman">Freshman</mat-option>
-							<mat-option value="Sophomore">Sophomore</mat-option>
-							<mat-option value="Junior">Junior</mat-option>
-							<mat-option value="Senior">Senior</mat-option>
+						<mat-select required placeholder='Grade Level' [(ngModel)]='data.gradeLevel' name='grade'>
+							<mat-option value='Freshman'>Freshman</mat-option>
+							<mat-option value='Sophomore'>Sophomore</mat-option>
+							<mat-option value='Junior'>Junior</mat-option>
+							<mat-option value='Senior'>Senior</mat-option>
 						</mat-select>
 					</mat-form-field>
 					<mat-form-field>
-						<mat-select required placeholder="Area of Interest" [(ngModel)]="data.preferredTeam" name="team">
-							<mat-option value="Construction">Construction</mat-option>
-							<mat-option value="Design">Design</mat-option>
-							<mat-option value="Programming">Programming</mat-option>
-							<mat-option value="Publicity">Publicity</mat-option>
+						<mat-select required placeholder='Area of Interest' [(ngModel)]='data.preferredTeam' name='team'>
+							<mat-option value='Construction'>Construction</mat-option>
+							<mat-option value='Design'>Design</mat-option>
+							<mat-option value='Programming'>Programming</mat-option>
+							<mat-option value='Publicity'>Publicity</mat-option>
 						</mat-select>
 					</mat-form-field>
 					<mat-form-field>
-						<textarea matInput placeholder="Previous Experience" [(ngModel)]="data.pastExperience" name="experience" 
-						matTextareaAutosize matAutosizeMinRows="2" matAutosizeMaxRows="10"></textarea>
+						<textarea matInput placeholder='Previous Experience' [(ngModel)]='data.pastExperience' name='experience' 
+						matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
 					</mat-form-field>
-					<mat-checkbox [(ngModel)]="data.wantsEmails" name="wantsEmails">
+					<mat-checkbox [(ngModel)]='data.wantsEmails' name='wantsEmails'>
 						<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
 					</mat-checkbox>		
 				</mat-card-content>
-				<div style="height: 1em"></div>
-				<button mat-button type="submit" [disabled]="!infoForm.form.valid" class="mat-raised-button mat-accent" color="accent" >Submit</button>
+				<div style='height: 1em'></div>
+				<button mat-button type='submit' [disabled]='!infoForm.form.valid' class='mat-raised-button mat-accent' color='accent' >Submit</button>
 			</ng-container>
 		</form>			
-	</mat-card>	
+	</mat-card>
+	<mat-card *ngIf='status > Status.GettingData'>
+		<h2 class='mat-h2' *ngIf='status == Status.Submitting'>
+			Submitting response...
+		</h2>
+		<h2 class='mat-h2' *ngIf='status == Status.Submitted'>
+			Success! (Todo: add somewhere to go after this.)
+		</h2>
+		<h2 class='mat-h2' *ngIf='status == Status.OverlappingEmail'>
+			There is already a registered member with this email! You might have already signed up.
+		</h2>
+	</mat-card>
 </div>

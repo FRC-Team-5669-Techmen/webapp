@@ -1,13 +1,15 @@
 import { WebappBackendService } from '../webapp-backend.service';
 import { YoloClientService, LoginDetails } from '../yolo-client.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { MatInput } from '@angular/material';
+import { MatInput, MatCheckbox } from '@angular/material';
 
 enum Status {
-  GettingData = 0,
-  Submitting = 1,
-  Submitted = 2,
-  OverlappingEmail = 3
+  Login,
+  SeperateLogin,
+  GettingData,
+  Submitting,
+  Submitted,
+  OverlappingEmail
 }
 
 @Component({
@@ -16,7 +18,7 @@ enum Status {
   styleUrls: ['./recruit-page.component.scss']
 })
 export class RecruitPageComponent implements OnInit {
-  status: Status = Status.GettingData;
+  status: Status = Status.Login;
   data = {
     firstName: '',
     lastName: '',
@@ -26,7 +28,8 @@ export class RecruitPageComponent implements OnInit {
     preferredTeam: null,
     pastExperience: ''
   };
-  @ViewChild('lastName') lastName: ElementRef;
+  @ViewChild('signInCheckbox') signInCheckBox: ElementRef;
+  @ViewChild('formCheckbox') formCheckbox: ElementRef;
 
   get Status() { // For ngIfs in the HTML file.
     return Status;
@@ -44,11 +47,19 @@ export class RecruitPageComponent implements OnInit {
       this.data.firstName = names[0];
       this.data.lastName = names[1];
       this.data.emailAddress = res.id;
+      this.status = Status.GettingData;
+      this.signInCheckBox.nativeElement.click();
+    }).catch((err) => {
+      // User has never logged into google before (at least not that we can tell.)
+      if (err.type === 'noCredentialsAvailable') {
+        this.status = Status.SeperateLogin;
+      }
     });
   }
 
   submit(): void {
     this.status = Status.Submitting;
+    this.formCheckbox.nativeElement.click();
     this.backend.registerMember(this.data, (res) => {
       if (res.ok) {
         this.status = Status.Submitted;
