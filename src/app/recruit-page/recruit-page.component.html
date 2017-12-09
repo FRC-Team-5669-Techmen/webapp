@@ -1,43 +1,57 @@
 <app-slideshow-background></app-slideshow-background>
 <div id="center">
-	<mat-card id="root">
-		<h2 class='mat-h2'>
-			Tell us a bit about yourself.
-		</h2>
-		<mat-card-content>
-			<mat-form-field>
-				<input #firstName matInput required placeholder="First Name">
-			</mat-form-field>
-			<mat-form-field>
-				<input #lastName matInput required placeholder="Last Name">
-			</mat-form-field>
-			<mat-form-field>
-				<input #email matInput required placeholder="Email Address">
-			</mat-form-field>
-			<mat-form-field>
-				<mat-select #gradeLevel required placeholder="Grade Level">
-					<mat-option value="9">Freshman</mat-option>
-					<mat-option value="10">Sophomore</mat-option>
-					<mat-option value="11">Junior</mat-option>
-					<mat-option value="12">Senior</mat-option>
-				</mat-select>
-			</mat-form-field>
-			<mat-form-field>
-				<mat-select #team required placeholder="Area of Interest">
-					<mat-option value="Construction">Construction</mat-option>
-					<mat-option value="Design">Design</mat-option>
-					<mat-option value="Programming">Programming</mat-option>
-					<mat-option value="Publicity">Publicity</mat-option>
-				</mat-select>
-			</mat-form-field>
-			<mat-form-field>
-				<textarea #prevExp matInput placeholder="Previous Experience" matTextareaAutosize matAutosizeMinRows="2" matAutosizeMaxRows="10"></textarea>
-			</mat-form-field>
-			<mat-checkbox>
-				<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
-			</mat-checkbox>				
-		</mat-card-content>
-		<div style="height: 1em"></div>
-		<button mat-button class="mat-raised-button mat-accent" color="accent">Submit</button>
-	</mat-card>
+	<form #infoForm="ngForm" (ngSubmit)="submit()">
+		<mat-card id="root">
+			<h2 class='mat-h2' *ngIf="status == Status.GettingData">
+				Tell us a bit about yourself.
+			</h2>
+			<h2 class='mat-h2' *ngIf="status == Status.Submitting">
+				Submitting response...
+			</h2>
+			<h2 class='mat-h2' *ngIf="status == Status.Submitted">
+				Success! (Todo: add somewhere to go after this.)
+			</h2>
+			<h2 class='mat-h2' *ngIf="status == Status.OverlappingEmail">
+				There is already a registered member with this email! You might have already signed up.
+			</h2>
+			<ng-container *ngIf="status == Status.GettingData">
+				<mat-card-content>
+					<mat-form-field>
+						<input matInput required placeholder="First Name" [(ngModel)]="data.firstName" name="firstName">
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder="Last Name" [(ngModel)]="data.lastName" name="lastName">
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder="Email Address" [(ngModel)]="data.emailAddress" name="email">
+					</mat-form-field>
+					<mat-form-field>
+						<mat-select required placeholder="Grade Level" [(ngModel)]="data.gradeLevel" name="grade">
+							<mat-option value="Freshman">Freshman</mat-option>
+							<mat-option value="Sophomore">Sophomore</mat-option>
+							<mat-option value="Junior">Junior</mat-option>
+							<mat-option value="Senior">Senior</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field>
+						<mat-select required placeholder="Area of Interest" [(ngModel)]="data.preferredTeam" name="team">
+							<mat-option value="Construction">Construction</mat-option>
+							<mat-option value="Design">Design</mat-option>
+							<mat-option value="Programming">Programming</mat-option>
+							<mat-option value="Publicity">Publicity</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field>
+						<textarea matInput placeholder="Previous Experience" [(ngModel)]="data.pastExperience" name="experience" 
+						matTextareaAutosize matAutosizeMinRows="2" matAutosizeMaxRows="10"></textarea>
+					</mat-form-field>
+					<mat-checkbox [(ngModel)]="data.wantsEmails" name="wantsEmails">
+						<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
+					</mat-checkbox>		
+				</mat-card-content>
+				<div style="height: 1em"></div>
+				<button mat-button type="submit" [disabled]="!infoForm.form.valid" class="mat-raised-button mat-accent" color="accent" >Submit</button>
+			</ng-container>
+		</mat-card>	
+	</form>		
 </div>

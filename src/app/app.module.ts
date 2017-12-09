@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { NgModel } from '@angular/forms';
-import { RouterModule, Routes } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule,
   MatToolbarModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule, Routes } from '@angular/router';
 
 
 import { AppComponent } from './app.component';
@@ -12,6 +13,7 @@ import { TitleBarComponent } from './title-bar/title-bar.component';
 import { HomePageComponent } from './home-page/home-page.component';
 import { RecruitPageComponent } from './recruit-page/recruit-page.component';
 import { SlideshowBackgroundComponent } from './slideshow-background/slideshow-background.component';
+import { WebappBackendService } from './webapp-backend.service';
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
@@ -29,6 +31,8 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
+    HttpClientModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
@@ -38,7 +42,9 @@ const appRoutes: Routes = [
     MatToolbarModule,
     RouterModule.forRoot(appRoutes, { enableTracing: true })
   ],
-  providers: [],
+  providers: [
+    WebappBackendService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

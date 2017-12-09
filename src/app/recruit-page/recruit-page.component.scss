@@ -1,12 +1,18 @@
 #center {
 	margin: auto;
-	width: fit-content;
+	padding: 2em;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 40em;
+}
+
+h2 {
+	display: block;
 }
 
 mat-card {
-	max-width: 50em;
-	top: 2em;
-	margin: 2em;
+	box-sizing: border-box;
+	width: 100%;
 }
 
 mat-card-content {
