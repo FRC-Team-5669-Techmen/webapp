@@ -58,7 +58,14 @@ class SheetDatabase {
 			for(let row of res.values) {
 				let item = {}
 				for(let i = 0; i < row.length; i++) {
-					item[this.jsNames[i]] = row[i];
+					let field = row[i];
+					// Special cases
+					if (field == 'TRUE') {
+						field = true;
+					} else if (field == 'FALSE') {
+						field = false;
+					}
+					item[this.jsNames[i]] = field;
 				}
 				items.push(item);
 			}

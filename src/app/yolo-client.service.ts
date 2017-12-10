@@ -103,14 +103,10 @@ export class YoloClientService {
     }
   }
 
-  // Send users to this url to log in to their google account if they have never done it before.
-  // The user will be sent back to [returnUrl] once they finish signing in (defaults to the current page).
-  // Nevermind, I can't get the returnUrl to work. I will leave it here for now in case I figure out a way
-  // to make it work.
-  createFirstTimeSignInUrl(returnUrl?: string) {
-    if (returnUrl == null) {
-      returnUrl = window.location.href; // Wherever the user is right now.
-    }
-    return 'https://accounts.google.com/signin/v2/identifier';
+  // Lets the user sign in using the old auth method, then redirects them back to the current page.
+  // (Still requires calling hint() afterwards to log in using YOLO.)
+  getOldLoginUrl(): string {
+    return encodeURI('https://accounts.google.com/o/oauth2/v2/auth?client_id=' + oAuthClientId + '&redirect_uri=' + window.location.href +
+      '&response_type=token&scope=email');
   }
 }

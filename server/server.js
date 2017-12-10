@@ -9,7 +9,7 @@ const sd = require('./sheetDatabase');
 const dbs = require('./databases');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
-const port = 25565;
+const port = 4200;
 
 var app = express();
 app.use(compression());
@@ -36,7 +36,20 @@ app.post('/api/v1/registerMember', (req, res) => {
 			})
 		})
 	});
-})
+});
+app.get('/api/v1/members/findByEmail/:email', (req, res) => {
+	let address = req.params.email
+	dbs.members.getAllValues('emailAddress', (values) => {
+		let index = values.indexOf(address); 
+		if (index == -1) {
+			res.status(404).send({error: 'No members have that email address.'});
+		} else {
+			dbs.members.getItem(index, (data) => {
+				res.status(200).send(data);
+			});
+		}
+	});
+});
 
 app.get('/*.*', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*', (req, res) => res.sendFile(rootDir + '/index.html'));

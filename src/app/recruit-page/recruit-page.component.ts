@@ -1,4 +1,4 @@
-import { WebappBackendService } from '../webapp-backend.service';
+import { Member, WebappBackendService } from '../webapp-backend.service';
 import { YoloClientService, LoginDetails } from '../yolo-client.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatInput, MatCheckbox } from '@angular/material';
@@ -19,7 +19,7 @@ enum Status {
 })
 export class RecruitPageComponent implements OnInit {
   status: Status = Status.Login;
-  data = {
+  data: Member = {
     firstName: '',
     lastName: '',
     emailAddress: '',
@@ -48,7 +48,13 @@ export class RecruitPageComponent implements OnInit {
       this.data.lastName = names[1];
       this.data.emailAddress = res.id;
       this.status = Status.GettingData;
-      this.signInCheckBox.nativeElement.click();
+      setTimeout(() => this.signInCheckBox.nativeElement.click(), 100);
+      // If it successfully finds a user with the same email, then stop asking for info. They have already signed up.
+      this.backend.findMemberByEmail(res.id).then((res2) => {
+        this.status = Status.OverlappingEmail;
+        this.data = res2.body;
+        setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
+      });
     }).catch((err) => {
       // User has never logged into google before (at least not that we can tell.)
       if (err.type === 'noCredentialsAvailable') {
@@ -59,13 +65,11 @@ export class RecruitPageComponent implements OnInit {
 
   submit(): void {
     this.status = Status.Submitting;
-    this.formCheckbox.nativeElement.click();
-    this.backend.registerMember(this.data, (res) => {
-      if (res.ok) {
-        this.status = Status.Submitted;
-      } else {
-        this.status = Status.OverlappingEmail;
-      }
+    this.backend.registerMember(this.data).then((res) => {
+      this.status = Status.Submitted;
+    setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
+    }).catch((err) => {
+      this.status = Status.OverlappingEmail;
     });
   }
 }
