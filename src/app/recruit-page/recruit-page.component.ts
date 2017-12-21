@@ -60,6 +60,7 @@ export class RecruitPageComponent implements OnInit {
         this.status = Status.OverlappingEmail;
         this.data = res2.body;
         setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
+        this.backend.userIsRegistered = true;
       });
     }).catch((err) => {
       // User has never logged into google before (at least not that we can tell.)
@@ -73,9 +74,11 @@ export class RecruitPageComponent implements OnInit {
     this.status = Status.Submitting;
     this.backend.registerMember(this.data).then((res) => {
       this.status = Status.Submitted;
-    setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
+      setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
+      this.backend.userIsRegistered = true;
     }).catch((err) => {
       this.status = Status.OverlappingEmail;
+      this.backend.userIsRegistered = true;
     });
   }
 }

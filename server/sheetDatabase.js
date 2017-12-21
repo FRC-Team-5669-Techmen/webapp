@@ -27,7 +27,7 @@ class SheetDatabase {
 		data.spreadsheetId = this.sheetId;
 		func(data, (err, res) => {
 			if(err) {
-				console.log('Error in SheetDatabase API call: ' + err);
+				console.error('Error in SheetDatabase API call: ' + err);
 			} else {
 				callback(res);
 			}

@@ -19,6 +19,8 @@ export interface Member {
 
 @Injectable()
 export class WebappBackendService {
+  public userIsRegistered = false;
+
   constructor(private client: HttpClient) { }
 
   private post<T>(url: string, data: any): Promise<HttpResponse<T>> {

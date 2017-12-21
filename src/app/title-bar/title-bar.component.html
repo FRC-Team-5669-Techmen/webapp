@@ -1,7 +1,7 @@
 <mat-toolbar id="root" class="mat-typography mat-elevation-z6" color="primary">
 	<ul>
-		<li><a mat-button routerLink="/">Home</a></li>
-		<li *ngFor="let button of buttons">
+		<li><a mat-button routerLink="/"><img src="/assets/logo.png"></a></li>
+		<li *ngFor="let button of (backend.userIsRegistered) ? signedInButtons : signedOutButtons">
 			<a mat-button [routerLink]="button.url">{{button.text}}</a>
 		</li>
 	</ul>

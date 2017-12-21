@@ -1,3 +1,4 @@
+import { WebappBackendService } from '../webapp-backend.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -6,11 +7,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./title-bar.component.scss']
 })
 export class TitleBarComponent implements OnInit {
-  buttons = [
-    {text: 'Sign Up', url: '/recruit'}
+  signedOutButtons = [
+    {text: 'Sign In / Sign Up', url: '/public/register'}
+  ];
+  signedInButtons = [
+    {text: 'Request Parts', url: '/private/parts'},
+    {text: 'Sign Out', url: '/private/logout'}
   ];
 
-  constructor() { }
+  constructor(private backend: WebappBackendService) { }
 
   ngOnInit() {
   }

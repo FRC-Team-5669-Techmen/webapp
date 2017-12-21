@@ -17,8 +17,11 @@ import { WebappBackendService } from './webapp-backend.service';
 import { YoloClientService } from './yolo-client.service';
 
 const appRoutes: Routes = [
-  { path: '', component: HomePageComponent },
-  { path: 'recruit', component: RecruitPageComponent }
+  { path: '', redirectTo: '/public/home', pathMatch: 'full'},
+  { path: 'public/home', component: HomePageComponent },
+  { path: 'public/register', component: RecruitPageComponent },
+  { path: 'private/logout', component: HomePageComponent },
+  { path: 'private/parts', component: HomePageComponent }
 ];
 
 @NgModule({

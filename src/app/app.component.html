@@ -3,5 +3,9 @@
 </header>
 <div #headerSpacing></div>
 <div id="content">
-	<router-outlet></router-outlet>
+	<!-- Only show the background on public pages. Do not have it crowd up the UI of internal stuff. -->
+	<app-slideshow-background *ngIf="router.url.search('public') != -1"></app-slideshow-background>
+	<div id='center'>
+		<router-outlet></router-outlet>
+	</div>
 </div>
