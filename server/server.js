@@ -9,7 +9,7 @@ const sd = require('./sheetDatabase');
 const dbs = require('./databases');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
-const port = 4200;
+const port = 25565;
 
 var app = express();
 app.use(compression());

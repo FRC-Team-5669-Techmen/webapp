@@ -106,7 +106,10 @@ export class YoloClientService {
   // Lets the user sign in using the old auth method, then redirects them back to the current page.
   // (Still requires calling hint() afterwards to log in using YOLO.)
   getOldLoginUrl(): string {
-    return encodeURI('https://accounts.google.com/o/oauth2/v2/auth?client_id=' + oAuthClientId + '&redirect_uri=' + window.location.href +
+    let current: string = window.location.href;
+    // Google does not allow straight IP addresses, so add in .xip.io to get around that.
+    current = current.replace(/(https?:\/\/(?:[0-9]{1,3}\.){1,3}[0-9]{1,3})/, '$1.xip.io');
+    return encodeURI('https://accounts.google.com/o/oauth2/v2/auth?client_id=' + oAuthClientId + '&redirect_uri=' + current +
       '&response_type=token&scope=email');
   }
 }

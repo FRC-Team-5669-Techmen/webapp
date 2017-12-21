@@ -23,10 +23,14 @@ export class RecruitPageComponent implements OnInit {
     firstName: '',
     lastName: '',
     emailAddress: '',
+    phone: '',
     wantsEmails: true,
     gradeLevel: null,
     preferredTeam: null,
-    pastExperience: ''
+    pastExperience: '',
+    parentName: '',
+    parentEmail: '',
+    parentPhone: ''
   };
   @ViewChild('signInCheckbox') signInCheckBox: ElementRef;
   @ViewChild('formCheckbox') formCheckbox: ElementRef;

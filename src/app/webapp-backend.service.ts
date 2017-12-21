@@ -6,9 +6,13 @@ export interface Member {
   lastName?: string;
   emailAddress?: string;
   wantsEmails?: boolean;
+  phone?: string;
   gradeLevel?: string;
   preferredTeam?: string;
   pastExperience?: string;
+  parentName?: string;
+  parentPhone?: string;
+  parentEmail?: string;
 }
 
 @Injectable()

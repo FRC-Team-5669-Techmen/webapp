@@ -16,8 +16,8 @@
 				you want is not listed, you make click <a [href]='client.getOldLoginUrl()'>here</a> to log in to a different one.
 			</p>
 			<p *ngIf="status == Status.SeperateLogin">
-				It appears that you have never logged in to your google account on this browser before.
-				Click <a [href]='client.getOldLoginUrl()'>here</a> to do so.
+				It looks like you will have to log in using the manual method, as none of your google accounts are currently
+				logged in. Click <a [href]='client.getOldLoginUrl()'>here</a> to do so.
 			</p>
 		</mat-card-content>
 	</mat-card>
@@ -43,6 +43,12 @@
 						<input matInput required disabled placeholder='Email Address' [(ngModel)]='data.emailAddress' name='email'>
 						<mat-hint>You must use the email address of the account you selected.</mat-hint>
 					</mat-form-field>
+					<mat-checkbox [(ngModel)]='data.wantsEmails' name='wantsEmails'>
+						<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
+					</mat-checkbox>
+					<mat-form-field>
+						<input matInput required placeholder='Phone Number' [(ngModel)]='data.phone' name='phone'>
+					</mat-form-field>
 					<mat-form-field>
 						<mat-select required placeholder='Grade Level' [(ngModel)]='data.gradeLevel' name='grade'>
 							<mat-option value='Freshman'>Freshman</mat-option>
@@ -63,9 +69,15 @@
 						<textarea matInput placeholder='Previous Experience' [(ngModel)]='data.pastExperience' name='experience' 
 						matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
 					</mat-form-field>
-					<mat-checkbox [(ngModel)]='data.wantsEmails' name='wantsEmails'>
-						<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
-					</mat-checkbox>		
+					<mat-form-field>
+						<input matInput required placeholder='Parent Name' [(ngModel)]='data.parentName' name='parentName'>
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder='Parent Phone Number' [(ngModel)]='data.parentPhone' name='parentPhone'>
+					</mat-form-field>		
+					<mat-form-field>
+						<input matInput required placeholder='Parent Email' [(ngModel)]='data.parentEmail' name='parentEmail'>
+					</mat-form-field>
 				</mat-card-content>
 				<div style='height: 1em'></div>
 				<button mat-button type='submit' [disabled]='!infoForm.form.valid' class='mat-raised-button mat-accent' color='accent' >Submit</button>
