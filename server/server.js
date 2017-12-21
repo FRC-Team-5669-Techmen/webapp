@@ -29,6 +29,10 @@ app.post('/api/v1/registerMember', (req, res) => {
 			res.status(400).send({error: 'A member with that email address already exists.'});
 			return;
 		}
+		// These could be set to true by a 1337 hacker trying to get access.
+		// So server-side validation is required.
+		data.allowAccess = false;
+		data.administrator = false;
 		dbs.members.push(data);
 		dbs.members.getSize((size) => {
 			dbs.members.getItem(size - 1, (item) => {

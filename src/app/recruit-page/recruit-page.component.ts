@@ -30,7 +30,9 @@ export class RecruitPageComponent implements OnInit {
     pastExperience: '',
     parentName: '',
     parentEmail: '',
-    parentPhone: ''
+    parentPhone: '',
+    allowAccess: false,
+    administrator: false
   };
   @ViewChild('signInCheckbox') signInCheckBox: ElementRef;
   @ViewChild('formCheckbox') formCheckbox: ElementRef;

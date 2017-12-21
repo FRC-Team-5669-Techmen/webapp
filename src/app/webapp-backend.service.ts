@@ -13,6 +13,8 @@ export interface Member {
   parentName?: string;
   parentPhone?: string;
   parentEmail?: string;
+  allowAccess?: boolean;
+  administrator?: boolean;
 }
 
 @Injectable()

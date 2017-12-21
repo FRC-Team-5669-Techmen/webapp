@@ -101,7 +101,6 @@ class SheetDatabase {
 			for(let key of this.jsNames) {
 				arrayedItem.push(item[key]);
 			}
-			console.log(arrayedItem);
 			arrayed.push(arrayedItem);
 		}
 		let data = {
