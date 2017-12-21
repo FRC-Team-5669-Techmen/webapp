@@ -7,7 +7,8 @@ const jwtClient = new gapis.auth.JWT(
 		sadata.client_email,
 		null,
 		sadata.private_key,
-		['https://www.googleapis.com/auth/spreadsheets']);
+		['https://www.googleapis.com/auth/spreadsheets',
+			'https://www.googleapis.com/auth/drive']);
 jwtClient.authorize((err, tokens) => {
 	if (err) {
 		console.log(err);
