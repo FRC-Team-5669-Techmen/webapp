@@ -1,123 +1,125 @@
-<mat-card id='login-prompt'>
-	<mat-checkbox *ngIf='status > Status.SeperateLogin' color='primary'>
-		<h2 class='mat-h2' #signInCheckbox>
+<app-centered-layout>
+	<mat-card id='login-prompt'>
+		<mat-checkbox *ngIf='status > Status.SeperateLogin' color='primary'>
+			<h2 class='mat-h2' #signInCheckbox>
+				1. Sign in with Google
+			</h2>
+		</mat-checkbox>
+		<h2 class='mat-h2' *ngIf='status <= Status.SeperateLogin'>
 			1. Sign in with Google
 		</h2>
-	</mat-checkbox>
-	<h2 class='mat-h2' *ngIf='status <= Status.SeperateLogin'>
-		1. Sign in with Google
-	</h2>
-	<mat-card-content> <!-- *ngIf="(status == Status.Login) || (status == Status.SeperateLogin)" -->
-		<p *ngIf="status == Status.Login">
-			Select your account in the login window. This account will be used to confirm your identity. If you 
-			use multiple accounts, select whichever one you normally use for professional purposes. If the account
-			you want is not listed, you make click <a [href]='client.getOldLoginUrl()'>here</a> to log in to a different one.
-		</p>
-		<p *ngIf="status == Status.SeperateLogin">
-			It looks like you will have to log in using the manual method, as none of your google accounts are currently
-			logged in. Click <a [href]='client.getOldLoginUrl()'>here</a> to do so.
-		</p>
-	</mat-card-content>
-</mat-card>
-<mat-card id='root'>
-	<mat-checkbox *ngIf='status > Status.Submitting' color='primary'>
-		<h2 class='mat-h2' #formCheckbox>
-			2. Tell us a bit about yourself
+		<mat-card-content> <!-- *ngIf="(status == Status.Login) || (status == Status.SeperateLogin)" -->
+			<p *ngIf="status == Status.Login">
+				Select your account in the login window. This account will be used to confirm your identity. If you 
+				use multiple accounts, select whichever one you normally use for professional purposes. If the account
+				you want is not listed, you make click <a [href]='client.getOldLoginUrl()'>here</a> to log in to a different one.
+			</p>
+			<p *ngIf="status == Status.SeperateLogin">
+				It looks like you will have to log in using the manual method, as none of your google accounts are currently
+				logged in. Click <a [href]='client.getOldLoginUrl()'>here</a> to do so.
+			</p>
+		</mat-card-content>
+	</mat-card>
+	<mat-card id='root'>
+		<mat-checkbox *ngIf='status > Status.Submitting' color='primary'>
+			<h2 class='mat-h2' #formCheckbox>
+				2. Tell us a bit about yourself
+			</h2>
+		</mat-checkbox>
+		<form #infoForm='ngForm' (ngSubmit)='submit()'>
+			<h2 class='mat-h2' #formCheckbox *ngIf='status <= Status.Submitting'>
+				2. Tell us a bit about yourself
+			</h2>
+			<ng-container *ngIf='status == Status.GettingData'>
+				<mat-card-content>
+					<mat-form-field>
+						<input matInput required placeholder='First Name' [(ngModel)]='data.firstName' name='firstName'>
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder='Last Name' [(ngModel)]='data.lastName' name='lastName'>
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required disabled placeholder='Email Address' [(ngModel)]='data.emailAddress' name='email'>
+						<mat-hint>You must use the email address of the account you selected.</mat-hint>
+					</mat-form-field>
+					<mat-checkbox [(ngModel)]='data.wantsEmails' name='wantsEmails'>
+						<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
+					</mat-checkbox>
+					<mat-form-field>
+						<input matInput required placeholder='Phone Number' [(ngModel)]='data.phone' name='phone'>
+					</mat-form-field>
+					<mat-form-field>
+						<mat-select required placeholder='Grade Level' [(ngModel)]='data.gradeLevel' name='grade'>
+							<mat-option value='Freshman'>Freshman</mat-option>
+							<mat-option value='Sophomore'>Sophomore</mat-option>
+							<mat-option value='Junior'>Junior</mat-option>
+							<mat-option value='Senior'>Senior</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field>
+						<mat-select required placeholder='Area of Interest' [(ngModel)]='data.preferredTeam' name='team'>
+							<mat-option value='Construction'>Construction</mat-option>
+							<mat-option value='Design'>Design</mat-option>
+							<mat-option value='Programming'>Programming</mat-option>
+							<mat-option value='Publicity'>Publicity</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field>
+						<textarea matInput placeholder='Previous Experience' [(ngModel)]='data.pastExperience' name='experience' 
+						matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder='Parent Name' [(ngModel)]='data.parentName' name='parentName'>
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder='Parent Phone Number' [(ngModel)]='data.parentPhone' name='parentPhone'>
+					</mat-form-field>		
+					<mat-form-field>
+						<input matInput required placeholder='Parent Email' [(ngModel)]='data.parentEmail' name='parentEmail'>
+					</mat-form-field>
+				</mat-card-content>
+				<div style='height: 1em'></div>
+				<button mat-button type='submit' [disabled]='!infoForm.form.valid' class='mat-raised-button mat-accent' color='accent' >Submit</button>
+			</ng-container>
+		</form>			
+	</mat-card>
+	<mat-card *ngIf='status == Status.Submitting'>
+		<h2 class='mat-h2'>
+			Submitting response...
 		</h2>
-	</mat-checkbox>
-	<form #infoForm='ngForm' (ngSubmit)='submit()'>
-		<h2 class='mat-h2' #formCheckbox *ngIf='status <= Status.Submitting'>
-			2. Tell us a bit about yourself
+	</mat-card>
+	<mat-card>
+		<h2 class='mat-h2'>
+			3. Connect with the rest of the team
 		</h2>
-		<ng-container *ngIf='status == Status.GettingData'>
-			<mat-card-content>
-				<mat-form-field>
-					<input matInput required placeholder='First Name' [(ngModel)]='data.firstName' name='firstName'>
-				</mat-form-field>
-				<mat-form-field>
-					<input matInput required placeholder='Last Name' [(ngModel)]='data.lastName' name='lastName'>
-				</mat-form-field>
-				<mat-form-field>
-					<input matInput required disabled placeholder='Email Address' [(ngModel)]='data.emailAddress' name='email'>
-					<mat-hint>You must use the email address of the account you selected.</mat-hint>
-				</mat-form-field>
-				<mat-checkbox [(ngModel)]='data.wantsEmails' name='wantsEmails'>
-					<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
-				</mat-checkbox>
-				<mat-form-field>
-					<input matInput required placeholder='Phone Number' [(ngModel)]='data.phone' name='phone'>
-				</mat-form-field>
-				<mat-form-field>
-					<mat-select required placeholder='Grade Level' [(ngModel)]='data.gradeLevel' name='grade'>
-						<mat-option value='Freshman'>Freshman</mat-option>
-						<mat-option value='Sophomore'>Sophomore</mat-option>
-						<mat-option value='Junior'>Junior</mat-option>
-						<mat-option value='Senior'>Senior</mat-option>
-					</mat-select>
-				</mat-form-field>
-				<mat-form-field>
-					<mat-select required placeholder='Area of Interest' [(ngModel)]='data.preferredTeam' name='team'>
-						<mat-option value='Construction'>Construction</mat-option>
-						<mat-option value='Design'>Design</mat-option>
-						<mat-option value='Programming'>Programming</mat-option>
-						<mat-option value='Publicity'>Publicity</mat-option>
-					</mat-select>
-				</mat-form-field>
-				<mat-form-field>
-					<textarea matInput placeholder='Previous Experience' [(ngModel)]='data.pastExperience' name='experience' 
-					matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
-				</mat-form-field>
-				<mat-form-field>
-					<input matInput required placeholder='Parent Name' [(ngModel)]='data.parentName' name='parentName'>
-				</mat-form-field>
-				<mat-form-field>
-					<input matInput required placeholder='Parent Phone Number' [(ngModel)]='data.parentPhone' name='parentPhone'>
-				</mat-form-field>		
-				<mat-form-field>
-					<input matInput required placeholder='Parent Email' [(ngModel)]='data.parentEmail' name='parentEmail'>
-				</mat-form-field>
-			</mat-card-content>
-			<div style='height: 1em'></div>
-			<button mat-button type='submit' [disabled]='!infoForm.form.valid' class='mat-raised-button mat-accent' color='accent' >Submit</button>
-		</ng-container>
-	</form>			
-</mat-card>
-<mat-card *ngIf='status == Status.Submitting'>
-	<h2 class='mat-h2'>
-		Submitting response...
-	</h2>
-</mat-card>
-<mat-card>
-	<h2 class='mat-h2'>
-		3. Connect with the rest of the team
-	</h2>
-	<mat-card-content *ngIf='status > Status.Submitting'>
-		<span style='height: 0.5em;'></span>
-		<span>Congradulations, you are now part of the team! Here is some information to help you get started:</span>
-		<span style='height: 1em;'></span>
-		<span class='logo-and-info'>
-			<img class='logo' src="/assets/gears.svg">
-			<span class='logo-info'>
-				Meetings happen Wednesdays and Fridays after school in IDEA from 3:05-4:15, as well as on Mondays during the second half of 
-				lunch. More days will be added to this schedule once the season officially starts, on January 6<sup>th</sup>. 
+		<mat-card-content *ngIf='status > Status.Submitting'>
+			<span style='height: 0.5em;'></span>
+			<span>Congradulations, you are now part of the team! Here is some information to help you get started:</span>
+			<span style='height: 1em;'></span>
+			<span class='logo-and-info'>
+				<img class='logo' src="/assets/gears.svg">
+				<span class='logo-info'>
+					Meetings happen Wednesdays and Fridays after school in IDEA from 3:05-4:15, as well as on Mondays during the second half of 
+					lunch. More days will be added to this schedule once the season officially starts, on January 6<sup>th</sup>. 
+				</span>
 			</span>
-		</span>
-		<span style='height: 1em;'></span>
-		<span class='logo-and-info'>
-			<img class='logo' src="https://lh3.googleusercontent.com/dAfqJ1So-Ljc-mVIj2Gr4Rhi8lWNG0j6FmoFvqcXIw5I122jOsTKn_sCoesR2AoQ5hg=w300">
-			<span class='logo-info'>
-				We use the TeamReach app for communication amongst our members. You can join our group using the group code 
-				<strong>5669</strong>. This is the best place besides meetings to ask questions.
+			<span style='height: 1em;'></span>
+			<span class='logo-and-info'>
+				<img class='logo' src="https://lh3.googleusercontent.com/dAfqJ1So-Ljc-mVIj2Gr4Rhi8lWNG0j6FmoFvqcXIw5I122jOsTKn_sCoesR2AoQ5hg=w300">
+				<span class='logo-info'>
+					We use the TeamReach app for communication amongst our members. You can join our group using the group code 
+					<strong>5669</strong>. This is the best place besides meetings to ask questions.
+				</span>
 			</span>
-		</span>
-		<span style='height: 1em;'></span>
-		<span class='logo-and-info'>
-			<img class='logo' src="https://cdn.worldvectorlogo.com/logos/google-drive.svg">
-			<span class='logo-info'>
-				We use Google Drive to store drawings, designs, and other files related to the club. You can check out what we have in 
-				it by going <a href="https://drive.google.com/open?id=1epAk56th7SwpM4cX-jl1eQyE2wFjymHJ">here</a>. Once you start working
-				with the {{data.preferredTeam.toLowerCase()}} team, you will be granted editing access to the {{data.preferredTeam.toLowerCase()}} folder.
+			<span style='height: 1em;'></span>
+			<span class='logo-and-info'>
+				<img class='logo' src="https://cdn.worldvectorlogo.com/logos/google-drive.svg">
+				<span class='logo-info'>
+					We use Google Drive to store drawings, designs, and other files related to the club. You can check out what we have in 
+					it by going <a href="https://drive.google.com/open?id=1epAk56th7SwpM4cX-jl1eQyE2wFjymHJ">here</a>. Once you start working
+					with the {{(data.preferredTeam || '').toLowerCase()}} team, you will be granted editing access to the {{(data.preferredTeam || '').toLowerCase()}} folder.
+				</span>
 			</span>
-		</span>
-	</mat-card-content>
-</mat-card>
+		</mat-card-content>
+	</mat-card>
+<app-centered-layout>

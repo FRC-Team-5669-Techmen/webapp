@@ -15,11 +15,14 @@ import { RecruitPageComponent } from './recruit-page/recruit-page.component';
 import { SlideshowBackgroundComponent } from './slideshow-background/slideshow-background.component';
 import { WebappBackendService } from './webapp-backend.service';
 import { YoloClientService } from './yolo-client.service';
+import { CenteredLayoutComponent } from './centered-layout/centered-layout.component';
+import { MembersPageComponent } from './members-page/members-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
   { path: 'public/home', component: HomePageComponent },
   { path: 'public/register', component: RecruitPageComponent },
+  { path: 'private/members', component: MembersPageComponent },
   { path: 'private/logout', component: HomePageComponent },
   { path: 'private/parts', component: HomePageComponent }
 ];
@@ -30,7 +33,9 @@ const appRoutes: Routes = [
     TitleBarComponent,
     HomePageComponent,
     RecruitPageComponent,
-    SlideshowBackgroundComponent
+    SlideshowBackgroundComponent,
+    CenteredLayoutComponent,
+    MembersPageComponent
   ],
   imports: [
     BrowserModule,

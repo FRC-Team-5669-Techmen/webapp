@@ -5,7 +5,5 @@
 <div id="content">
 	<!-- Only show the background on public pages. Do not have it crowd up the UI of internal stuff. -->
 	<app-slideshow-background *ngIf="router.url.search('public') != -1"></app-slideshow-background>
-	<div id='center'>
-		<router-outlet></router-outlet>
-	</div>
+	<router-outlet></router-outlet>
 </div>
