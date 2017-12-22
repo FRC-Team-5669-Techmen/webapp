@@ -37,48 +37,47 @@ export class WebappBackendService {
 
   constructor(private client: HttpClient, private yolo: YoloClientService) { }
 
+  private createOptions(contentType?: string): {
+    headers: {
+      'content-type'?: string,
+      authorization?: string
+    },
+    observe: 'response',
+    responseType: 'json'
+  } {
+    const headers = {};
+    if (contentType) {
+      headers['content-type'] = contentType;
+    }
+    if (this.yolo.isLoggedIn) {
+      // idToken is already safe to put in a header, no b64llshit necessary.
+      headers['authorization'] = 'Bearer ' + this.yolo.loginDetails.idToken;
+    }
+    return {
+      observe: 'response',
+      headers: headers,
+      responseType: 'json'
+    };
+  }
+
   private patch<T>(url: string, data: any): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
-      const headers = {'content-type': 'application/merge-patch+json'};
-      if (this.yolo.isLoggedIn) {
-        // idToken is already safe to put in a header, no b64llshit necessary.
-        headers['authorization'] = 'Bearer ' + this.yolo.loginDetails.idToken;
-      }
-      this.client.patch<T>(url, data, {
-        observe: 'response',
-        headers: headers,
-        responseType: 'json'
-      }).subscribe(resolve, reject);
+      this.client.patch<T>(url, data, this.createOptions('application/merge-patch+json'))
+        .subscribe(resolve, reject);
     });
   }
 
   private post<T>(url: string, data: any): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
-      const headers = {'content-type': 'application/json'};
-      if (this.yolo.isLoggedIn) {
-        // idToken is already safe to put in a header, no b64llshit necessary.
-        headers['authorization'] = 'Bearer ' + this.yolo.loginDetails.idToken;
-      }
-      this.client.post<T>(url, data, {
-        observe: 'response',
-        headers: headers,
-        responseType: 'json'
-      }).subscribe(resolve, reject);
+      this.client.post<T>(url, data, this.createOptions('application/json'))
+        .subscribe(resolve, reject);
     });
   }
 
   private get<T>(url: string): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
-      const headers = {};
-      if (this.yolo.isLoggedIn) {
-        // idToken is already safe to put in a header, no b64llshit necessary.
-        headers['authorization'] = 'Bearer ' + this.yolo.loginDetails.idToken;
-      }
-      this.client.get<T>(url, {
-        observe: 'response',
-        headers: headers,
-        responseType: 'json'
-      }).subscribe(resolve, reject);
+      this.client.get<T>(url, this.createOptions())
+        .subscribe(resolve, reject);
     });
   }
 
