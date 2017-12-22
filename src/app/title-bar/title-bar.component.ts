@@ -11,7 +11,8 @@ export class TitleBarComponent implements OnInit {
     {text: 'Sign In / Sign Up', url: '/public/register'}
   ];
   signedInButtons = [
-    {text: 'Request Parts', url: '/private/parts'},
+    {text: 'Members', url: '/private/members'},
+    {text: 'Part Requests', url: '/private/parts'},
     {text: 'Sign Out', url: '/private/logout'}
   ];
 

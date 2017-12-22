@@ -1,4 +1,4 @@
-import { Member, WebappBackendService } from '../webapp-backend.service';
+import { Member, WebappBackendService, AccessLevel } from '../webapp-backend.service';
 import { YoloClientService, LoginDetails } from '../yolo-client.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatInput, MatCheckbox } from '@angular/material';
@@ -31,8 +31,7 @@ export class RecruitPageComponent implements OnInit {
     parentName: '',
     parentEmail: '',
     parentPhone: '',
-    allowAccess: false,
-    administrator: false
+    accessLevel: AccessLevel.RESTRICTED
   };
   @ViewChild('signInCheckbox') signInCheckBox: ElementRef;
   @ViewChild('formCheckbox') formCheckbox: ElementRef;
@@ -55,12 +54,18 @@ export class RecruitPageComponent implements OnInit {
       this.data.emailAddress = res.id;
       this.status = Status.GettingData;
       setTimeout(() => this.signInCheckBox.nativeElement.click(), 100);
-      // If it successfully finds a user with the same email, then stop asking for info. They have already signed up.
-      this.backend.findMemberByEmail(res.id).then((res2) => {
-        this.status = Status.OverlappingEmail;
-        this.data = res2.body;
-        setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
-        this.backend.userIsRegistered = true;
+      // The only way to check if we are registered is to check our access level. If it is AccessLevel.VISITOR, we have not registered.
+      this.backend.getAccessLevel().then((res2) => {
+        console.log(res2.body);
+        if (res2.body.accessLevel !== AccessLevel.VISITOR) {
+          this.status = Status.OverlappingEmail;
+          setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
+          // Now that we know we are registered, retrieve our own data.
+          this.backend.getMember(this.data.emailAddress).then((res3) => {
+            this.data = res3.body;
+            this.backend.currentMember = res3.body;
+          });
+        }
       });
     }).catch((err) => {
       // User has never logged into google before (at least not that we can tell.)
@@ -75,10 +80,7 @@ export class RecruitPageComponent implements OnInit {
     this.backend.registerMember(this.data).then((res) => {
       this.status = Status.Submitted;
       setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
-      this.backend.userIsRegistered = true;
-    }).catch((err) => {
-      this.status = Status.OverlappingEmail;
-      this.backend.userIsRegistered = true;
+        this.backend.currentMember = res.body;
     });
   }
 }
