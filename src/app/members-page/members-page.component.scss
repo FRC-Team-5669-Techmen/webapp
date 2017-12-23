@@ -1,0 +1,22 @@
+.message{
+	width: 100%;
+	margin: auto;
+	padding: 2em;
+}
+
+.user-icon {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.user-description {
+	display: inline-block;
+}
+
+.user-description > * {
+	margin: 0;
+}
+
+mat-card {
+	cursor: pointer;
+}

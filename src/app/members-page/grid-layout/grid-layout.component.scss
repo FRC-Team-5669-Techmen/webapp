@@ -1,0 +1,17 @@
+:host {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 1em;
+}
+
+:host /deep/ > * {
+	margin: 1em;
+	flex: 1;
+	min-width: 20em;
+}
+
+div.spacing {
+	height: 0;
+	min-width: 25em;
+	margin: 0;
+}

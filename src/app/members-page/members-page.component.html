@@ -1,3 +1,12 @@
-<app-centered-layout>
-	Nothing here yet...
-</app-centered-layout>
+<div *ngIf="!members" class="mat-typography message">
+	Loading member list...
+</div>
+<app-grid-layout>
+	<mat-card *ngFor="let member of members">
+		<img mat-card-avatar [src]="member.profilePic" class="user-icon">
+		<div class="user-description">
+			<div class="mat-h2">{{member.firstName}} {{member.lastName}}</div>
+			<div class="mat-h4">{{member.preferredTeam}}</div>
+		</div>
+	</mat-card>
+</app-grid-layout>

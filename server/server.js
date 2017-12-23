@@ -97,7 +97,8 @@ app.get('/api/v1/accessLevel', (req, res) => {
 });
 
 app.post('/api/v1/members/register', (req, res) => {
-	validateAuthorizatoin(req, (content) => {
+	data = req.body;
+	validateAuthorization(req, (content) => {
 		if(!content || !content.email_verified) {
 			res.status(401).send({error: 'A valid Google login token is required for authorization.'});			
 		}
@@ -122,6 +123,14 @@ app.post('/api/v1/members/register', (req, res) => {
 	});
 });
 
+app.get('/api/v1/members/list', (req, res) => {
+	dbs.members.getSize((size) => {
+		dbs.members.getItems(0, size, (data) => {
+			res.status(200).send(data);
+		});
+	});
+});
+
 app.get('/api/v1/members/:email', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_RESTRICTED, (member) => {
 		let address = req.params.email;
@@ -134,6 +143,12 @@ app.get('/api/v1/members/:email', (req, res) => {
 				res.status(404).send({error: 'No members have that email address.'});
 			} else {
 				dbs.members.getItem(index, (data) => {
+					if(member.accessLevel != ACCESS_LEVEL_ADMIN) {
+						// This should only be necessary for admins to view.
+						data.parentName = undefined;
+						data.parentPhone = undefined;
+						data.parentEmail = undefined;
+					}
 					res.status(200).send(data);
 				});
 			}

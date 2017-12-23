@@ -3,7 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-  MatToolbarModule, MatIconModule, MatIconRegistry } from '@angular/material';
+  MatToolbarModule, MatIconModule, MatIconRegistry, MatRippleModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -17,6 +17,7 @@ import { WebappBackendService } from './webapp-backend.service';
 import { YoloClientService } from './yolo-client.service';
 import { CenteredLayoutComponent } from './centered-layout/centered-layout.component';
 import { MembersPageComponent } from './members-page/members-page.component';
+import { GridLayoutComponent } from './members-page/grid-layout/grid-layout.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
@@ -35,7 +36,8 @@ const appRoutes: Routes = [
     RecruitPageComponent,
     SlideshowBackgroundComponent,
     CenteredLayoutComponent,
-    MembersPageComponent
+    MembersPageComponent,
+    GridLayoutComponent
   ],
   imports: [
     BrowserModule,

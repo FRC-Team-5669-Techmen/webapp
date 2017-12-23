@@ -1,4 +1,5 @@
 import { YoloClientService } from './yolo-client.service';
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
@@ -91,5 +92,22 @@ export class WebappBackendService {
 
   getMember(email: string): Promise<HttpResponse<Member>> {
     return this.get<Member>('/api/v1/members/' + email);
+  }
+
+  getMemberList(): Promise<HttpResponse<Array<Member>>> {
+    return this.get<Array<Member>>('/api/v1/members/list');
+  }
+
+  getUserProfilePicture(email: string): Promise<string> { // Does not work.
+    return new Promise<string>((resolve, reject) => {
+      const params = new HttpParams().set('alt', 'json');
+      this.client.get<any>('https://picasaweb.google.com/data/entry/api/user/' + email, {
+        observe: 'response',
+        responseType: 'json',
+        params: params,
+      }).subscribe((response) => {
+        resolve(response.body['entry']['gphoto$thumbnail']['$t']);
+      }, reject);
+    });
   }
 }
