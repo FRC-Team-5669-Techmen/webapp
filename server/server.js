@@ -18,7 +18,7 @@ const port = 25565;
 
 var app = express();
 app.use(compression());
-app.use(bodyParser.json());
+app.use(bodyParser.json({type:"*/*"}));
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
@@ -124,9 +124,21 @@ app.post('/api/v1/members/register', (req, res) => {
 });
 
 app.get('/api/v1/members/list', (req, res) => {
-	dbs.members.getSize((size) => {
-		dbs.members.getItems(0, size, (data) => {
-			res.status(200).send(data);
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (_) => {
+		dbs.members.getSize((size) => {
+			dbs.members.getItems(0, size, (data) => {
+				// Only show some information, use /members/:email to get more.
+				let trimmedData = [];
+				for (let member of data) {
+					member.parentName = undefined;
+					member.parentPhone = undefined;
+					member.parentEmail = undefined;
+					member.phone = undefined;
+					member.wantsEmails = undefined;
+					trimmedData.push(member);
+				}
+				res.status(200).send(trimmedData);
+			});
 		});
 	});
 });
@@ -143,11 +155,14 @@ app.get('/api/v1/members/:email', (req, res) => {
 				res.status(404).send({error: 'No members have that email address.'});
 			} else {
 				dbs.members.getItem(index, (data) => {
-					if(member.accessLevel != ACCESS_LEVEL_ADMIN) {
-						// This should only be necessary for admins to view.
+					// If a member is requesting their own data or an admin is requesting it, show everything.
+					if((member.emailAddress != address) && (member.accessLevel != ACCESS_LEVEL_ADMIN)) {
+						// Censor sensitive or useless information.
 						data.parentName = undefined;
 						data.parentPhone = undefined;
 						data.parentEmail = undefined;
+						data.phone = undefined;
+						data.wantsEmails = undefined;
 					}
 					res.status(200).send(data);
 				});
@@ -158,8 +173,8 @@ app.get('/api/v1/members/:email', (req, res) => {
 
 app.patch('/api/v1/members/:email', (req, res) => {
 	const data = req.body;
-	// If the user wants to modify the access level of a member, they must be an admin.
-	checkLogin(req, res, (data.accessLevel) ? ACCESS_LEVEL_ADMIN : ACCESS_LEVEL_MEMBER, (member) => {
+	// If the user wants to modify the access level or the team of a member, they must be an admin.
+	checkLogin(req, res, (data.accessLevel || data.preferredTeam) ? ACCESS_LEVEL_ADMIN : ACCESS_LEVEL_MEMBER, (member) => {
 		let address = req.params.email;
 		if((member.emailAddress !== address) && (member.accessLevel != ACCESS_LEVEL_ADMIN)) {
 			res.status(403).send({error: 'Only admins can edit details of users other than themselves.'});
@@ -175,7 +190,7 @@ app.patch('/api/v1/members/:email', (req, res) => {
 							item[key] = data[key];
 						}
 					}
-					dbs.members.setItem(index, item)
+					dbs.members.setItem(index, item);
 					res.status(200).send(item);
 				});
 			}
@@ -183,7 +198,8 @@ app.patch('/api/v1/members/:email', (req, res) => {
 	});	
 });
 
-app.get('/*.*', (req, res) => res.sendFile(rootDir + req.path));
+app.get('/assets/*', (req, res) => res.sendFile(rootDir + req.path));
+app.get('/*.js', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*', (req, res) => res.sendFile(rootDir + '/index.html'));
 
 console.log('Initialization complete!');
