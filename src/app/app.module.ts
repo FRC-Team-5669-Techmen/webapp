@@ -18,12 +18,14 @@ import { YoloClientService } from './yolo-client.service';
 import { CenteredLayoutComponent } from './centered-layout/centered-layout.component';
 import { MembersPageComponent } from './members-page/members-page.component';
 import { GridLayoutComponent } from './members-page/grid-layout/grid-layout.component';
+import { MemberPageComponent } from './member-page/member-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
   { path: 'public/home', component: HomePageComponent },
   { path: 'public/register', component: RecruitPageComponent },
   { path: 'private/members', component: MembersPageComponent },
+  { path: 'private/members/:email', component: MemberPageComponent },
   { path: 'private/logout', component: HomePageComponent },
   { path: 'private/parts', component: HomePageComponent }
 ];
@@ -37,7 +39,8 @@ const appRoutes: Routes = [
     SlideshowBackgroundComponent,
     CenteredLayoutComponent,
     MembersPageComponent,
-    GridLayoutComponent
+    GridLayoutComponent,
+    MemberPageComponent
   ],
   imports: [
     BrowserModule,

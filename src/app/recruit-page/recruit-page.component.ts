@@ -54,17 +54,14 @@ export class RecruitPageComponent implements OnInit {
       this.data.emailAddress = res.id;
       this.status = Status.GettingData;
       setTimeout(() => this.signInCheckBox.nativeElement.click(), 100);
-      // The only way to check if we are registered is to check our access level. If it is AccessLevel.VISITOR, we have not registered.
-      this.backend.getAccessLevel().then((res2) => {
-        console.log(res2.body);
-        if (res2.body.accessLevel !== AccessLevel.VISITOR) {
+      // The only way to check if we are registered is to attempt to get our information.
+      this.backend.getMember(this.data.emailAddress).then((res2) => {
+        if (res2.ok) { // If we were found in the database.
           this.status = Status.OverlappingEmail;
           setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
           // Now that we know we are registered, retrieve our own data.
-          this.backend.getMember(this.data.emailAddress).then((res3) => {
-            this.data = res3.body;
-            this.backend.currentMember = res3.body;
-          });
+          this.data = res2.body;
+          this.backend.currentMember = res2.body;
         }
       });
     }).catch((err) => {

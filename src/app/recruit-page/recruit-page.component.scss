@@ -27,6 +27,11 @@ mat-card-content {
 	flex-direction: column;
 }
 
+mat-checkbox#emailConsent {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
 span.logo-and-info {
 	display: flex;
 	flex-direction: row;

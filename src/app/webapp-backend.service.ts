@@ -36,7 +36,9 @@ export interface Member {
 export class WebappBackendService {
   public currentMember: Member = null;
 
-  constructor(private client: HttpClient, private yolo: YoloClientService) { }
+  constructor(private client: HttpClient, private yolo: YoloClientService) {
+    yolo.yoloObj.then((obj) => this.loginExistingUser());
+  }
 
   private createOptions(contentType?: string): {
     headers: {
@@ -82,12 +84,30 @@ export class WebappBackendService {
     });
   }
 
-  getAccessLevel(): Promise<HttpResponse<{accessLevel: AccessLevel}>> {
-    return this.get<{accessLevel: AccessLevel}>('/api/v1/accessLevel');
+  loginExistingUser() {
+    this.yolo.getLogin(true).then((res) => {
+      this.getMember(res.id).then((res2) => {
+        if (res2.ok) {
+          this.currentMember = res2.body;
+        }
+      });
+    });
+  }
+
+  getAccessLevel(): AccessLevel {
+    if (this.currentMember) {
+      return this.currentMember.accessLevel;
+    } else {
+      return AccessLevel.VISITOR;
+    }
   }
 
   registerMember(memberData: Member): Promise<HttpResponse<Member>> {
     return this.post<Member>('/api/v1/members/register', memberData);
+  }
+
+  patchMember(email: string, memberData: Member): Promise<HttpResponse<Member>> {
+    return this.patch<Member>('/api/v1/members/' + email, memberData);
   }
 
   getMember(email: string): Promise<HttpResponse<Member>> {
@@ -96,18 +116,5 @@ export class WebappBackendService {
 
   getMemberList(): Promise<HttpResponse<Array<Member>>> {
     return this.get<Array<Member>>('/api/v1/members/list');
-  }
-
-  getUserProfilePicture(email: string): Promise<string> { // Does not work.
-    return new Promise<string>((resolve, reject) => {
-      const params = new HttpParams().set('alt', 'json');
-      this.client.get<any>('https://picasaweb.google.com/data/entry/api/user/' + email, {
-        observe: 'response',
-        responseType: 'json',
-        params: params,
-      }).subscribe((response) => {
-        resolve(response.body['entry']['gphoto$thumbnail']['$t']);
-      }, reject);
-    });
   }
 }

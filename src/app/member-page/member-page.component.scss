@@ -1,0 +1,21 @@
+mat-card-content {
+	display: flex;
+	flex-direction: column;
+}
+
+mat-checkbox {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.centered {
+	text-align: center;
+}
+
+#explanation .can {
+	color: #2e7d32;
+}
+
+#explanation .cant {
+	color: #c62828;
+}

@@ -20,3 +20,12 @@
 mat-card {
 	cursor: pointer;
 }
+
+mat-icon {
+	float: right;
+	/* Hard-coded to match the height of cards. */
+	height: 2.3em;
+	line-height: 2.3em;
+	width: 2.3em;
+	text-align: center;
+}

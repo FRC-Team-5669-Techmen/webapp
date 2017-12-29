@@ -1,4 +1,4 @@
-import { WebappBackendService, Member } from '../webapp-backend.service';
+import { WebappBackendService, Member, AccessLevel } from '../webapp-backend.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -8,10 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MembersPageComponent implements OnInit {
   private members: Array<Member & {profilePic: string}> = null;
+  private access = true;
+
+  get AccessLevel() { // For *ngIfs
+    return AccessLevel;
+  }
 
   constructor(private backend: WebappBackendService) { }
 
   ngOnInit() {
+    const level = this.backend.getAccessLevel();
+    if ((level === AccessLevel.VISITOR) || (level === AccessLevel.RESTRICTED)) {
+      this.access = false;
+      return;
+    }
     this.backend.getMemberList().then((list) => {
       let i = 0;
       this.members = [];
@@ -19,9 +29,6 @@ export class MembersPageComponent implements OnInit {
         const mmember = <Member & {profilePic: string}> member;
         mmember.profilePic = '/assets/default-profile.jpg';
         this.members.push(mmember);
-        this.backend.getUserProfilePicture(member.emailAddress).then((url) => {
-          this.members[i].profilePic = url;
-        });
         i++;
       }
     });

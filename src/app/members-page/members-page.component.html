@@ -1,12 +1,19 @@
-<div *ngIf="!members" class="mat-typography message">
+<div *ngIf="!members && access" class="mat-typography message">
 	Loading member list...
 </div>
-<app-grid-layout>
-	<mat-card *ngFor="let member of members">
+<div *ngIf="!access" class="mat-typography message">
+	You must be signed in to view this page!
+</div>
+<app-grid-layout *ngIf="members && access">
+	<mat-card *ngFor="let member of members" routerLink="/private/members/{{member.emailAddress}}">
 		<img mat-card-avatar [src]="member.profilePic" class="user-icon">
 		<div class="user-description">
 			<div class="mat-h2">{{member.firstName}} {{member.lastName}}</div>
-			<div class="mat-h4">{{member.preferredTeam}}</div>
+			<div class="mat-h4">
+				{{member.gradeLevel}}, {{member.preferredTeam}} Team<ng-container *ngIf="member.accessLevel === 'admin'">, Admin</ng-container>
+			</div>
 		</div>
+		<mat-icon *ngIf="(backend.currentMember.accessLevel === AccessLevel.ADMIN) || (backend.currentMember.emailAddress === member.emailAddress)">mode_edit</mat-icon>
+		<mat-icon *ngIf="(backend.currentMember.accessLevel === AccessLevel.MEMBER) && (backend.currentMember.emailAddress !== member.emailAddress)">visibility</mat-icon>
 	</mat-card>
 </app-grid-layout>

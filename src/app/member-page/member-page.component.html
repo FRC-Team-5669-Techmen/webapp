@@ -1,0 +1,108 @@
+<app-centered-layout *ngIf="!member" class="mat-typography">
+	Loading member...
+</app-centered-layout>
+<app-centered-layout *ngIf="member">
+	<mat-card id='root'>
+		<form *ngIf="(backend.currentMember.accessLevel === AccessLevel.ADMIN) || (backend.currentMember.emailAddress === member.emailAddress);else justDisplay"
+			#infoForm='ngForm' (ngSubmit)='submit()'>
+			<mat-card-content>
+				<mat-form-field>
+					<input matInput required placeholder='First Name' [(ngModel)]='member.firstName' name='firstName'>
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required placeholder='Last Name' [(ngModel)]='member.lastName' name='lastName'>
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required disabled placeholder='Email Address' [(ngModel)]='member.emailAddress' name='email'>
+					<mat-hint>You must use the email address of the account you signed up with.</mat-hint>
+				</mat-form-field>
+				<mat-checkbox [(ngModel)]='member.wantsEmails' name='wantsEmails'>
+					<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
+				</mat-checkbox>
+				<mat-form-field>
+					<input matInput required placeholder='Phone Number' [(ngModel)]='member.phone' name='phone'>
+				</mat-form-field>
+				<mat-form-field>
+					<mat-select required placeholder='Grade Level' [(ngModel)]='member.gradeLevel' name='grade'>
+						<mat-option value='Freshman'>Freshman</mat-option>
+						<mat-option value='Sophomore'>Sophomore</mat-option>
+						<mat-option value='Junior'>Junior</mat-option>
+						<mat-option value='Senior'>Senior</mat-option>
+					</mat-select>
+				</mat-form-field>
+				<mat-form-field *ngIf="backend.currentMember.accessLevel === AccessLevel.ADMIN">
+					<mat-select required placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
+						<mat-option value='Construction'>Construction</mat-option>
+						<mat-option value='Design'>Design</mat-option>
+						<mat-option value='Programming'>Programming</mat-option>
+						<mat-option value='Publicity'>Publicity</mat-option>
+					</mat-select>
+				</mat-form-field>
+				<mat-form-field *ngIf="backend.currentMember.accessLevel !== AccessLevel.ADMIN">
+					<mat-select required disabled placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
+						<mat-option value='Construction'>Construction</mat-option>
+						<mat-option value='Design'>Design</mat-option>
+						<mat-option value='Programming'>Programming</mat-option>
+						<mat-option value='Publicity'>Publicity</mat-option>
+					</mat-select>
+					<mat-hint>Only an admin can switch you from one team to another.</mat-hint>
+				</mat-form-field>
+				<mat-form-field>
+					<textarea matInput placeholder='Previous Experience' [(ngModel)]='member.pastExperience' name='experience' 
+					matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required placeholder='Parent / Guardian Name' [(ngModel)]='member.parentName' name='parentName'>
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required placeholder='Parent / Guardian Phone Number' [(ngModel)]='member.parentPhone' name='parentPhone'>
+				</mat-form-field>		
+				<mat-form-field>
+					<input matInput required placeholder='Parent / Guardian Email' [(ngModel)]='member.parentEmail' name='parentEmail'>
+				</mat-form-field>
+				<mat-form-field *ngIf="backend.currentMember.accessLevel === AccessLevel.ADMIN">
+					<mat-select required placeholder='Access Level' [(ngModel)]='member.accessLevel' name='accessLevel'>
+						<mat-option value='{{AccessLevel.RESTRICTED}}'>Restricted (almost no read/write access.)</mat-option>
+						<mat-option value='{{AccessLevel.MEMBER}}'>Member (limited read/write access.)</mat-option>
+						<mat-option value='{{AccessLevel.ADMIN}}'>Admin (unlimited read/write access.)</mat-option>
+					</mat-select>
+				</mat-form-field>
+				<div id="explanation" class="mat-typography" *ngIf="backend.currentMember.accessLevel === AccessLevel.ADMIN">
+					<div class="can">+ Can edit their own personal information</div>
+					<div class="can">+ Can join our Teamreach group</div>
+					<ng-container *ngIf="member.accessLevel == AccessLevel.RESTRICTED">
+						<div class="can">+ Can view our Google drive and its contents</div>
+						<div class="cant">- Cannot view the administration folder</div>
+						<div class="cant">- Cannot see other team members</div>
+						<div class="cant">- Cannot request parts</div>
+					</ng-container>
+					<ng-container *ngIf="member.accessLevel == AccessLevel.MEMBER">
+						<div class="can">+ Can view our Google drive and its contents</div>
+						<div class="can">+ Can add, edit, and delete files in the folder for their sub-team</div>
+						<div class="cant">- Cannot view the administration folder</div>
+						<div class="can">+ Can view names, teams, email addresses of other members</div>
+						<div class="cant">- Cannot view emergency contact details or phone numbers of members</div>
+						<div class="can">+ Can request parts</div>
+					</ng-container>
+					<ng-container *ngIf="member.accessLevel == AccessLevel.ADMIN">
+						<div class="can">+ Can view and edit all files on our Google drive</div>
+						<div class="can">+ Can view and edit all details of all team members</div>
+						<div class="can">+ Can request parts</div>
+					</ng-container>
+				</div>
+			</mat-card-content>
+			<div style='height: 1em'></div>
+			<button mat-button type='submit' [disabled]='!infoForm.form.valid' class='mat-raised-button mat-accent' color='accent' >Apply Changes</button>
+		</form>
+		<ng-template #justDisplay>
+			<div id="picture"></div>
+			<div class="mat-h2 centered">{{member.firstName.toUpperCase()}} {{member.lastName.toUpperCase()}}</div>
+			<div class="mat-h3 centered">A {{member.gradeLevel}} on the {{member.preferredTeam.toLowerCase()}} team.</div>
+			<div class="mat-h3 centered">
+				Email: 
+				<a href="mailto:{{member.emailAddress}}">{{member.emailAddress}}</a>
+			</div>
+			<div class="mat-h3 centered">Previous experience:<br>{{member.pastExperience}}</div>		
+		</ng-template>	
+	</mat-card>
+</app-centered-layout>

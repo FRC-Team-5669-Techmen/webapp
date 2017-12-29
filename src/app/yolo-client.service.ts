@@ -60,7 +60,6 @@ export class YoloClientService {
           }]
         }).then((res: LoginDetails) => {
           this.loginDetails = res;
-          console.log(this.loginDetails.idToken);
           resolve(res);
         }).catch(reject);
       });
