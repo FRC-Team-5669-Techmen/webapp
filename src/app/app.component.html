@@ -2,8 +2,8 @@
 	<app-title-bar></app-title-bar>
 </header>
 <div #headerSpacing></div>
+<!-- Only show the background on public pages. Do not have it crowd up the UI of internal stuff. -->
+<app-slideshow-background *ngIf="router.url.search('public') != -1"></app-slideshow-background>
 <div id="content">
-	<!-- Only show the background on public pages. Do not have it crowd up the UI of internal stuff. -->
-	<app-slideshow-background *ngIf="router.url.search('public') != -1"></app-slideshow-background>
 	<router-outlet></router-outlet>
 </div>

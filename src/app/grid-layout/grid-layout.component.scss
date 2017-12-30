@@ -1,7 +1,8 @@
 :host {
 	display: flex;
 	flex-wrap: wrap;
-	padding: 1em;
+	margin-left: -1em; /* To counteract the weird combination of 1em page padding and 1em card margin */
+	margin-right: -1em;
 }
 
 :host /deep/ > * {

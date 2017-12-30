@@ -1,0 +1,8 @@
+@import '~@angular/material/theming';
+@include mat-core();
+
+$frc-app-primary: mat-palette($mat-indigo);
+$frc-app-accent: mat-palette($mat-red, A700, A400, A900);
+$frc-app-theme: mat-light-theme($frc-app-primary, $frc-app-accent);
+
+@include angular-material-theme($frc-app-theme);

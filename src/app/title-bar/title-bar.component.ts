@@ -12,8 +12,7 @@ export class TitleBarComponent implements OnInit {
   ];
   signedInButtons = [
     {text: 'Members', url: '/private/members'},
-    {text: 'Part Requests', url: '/private/parts'},
-    {text: 'Sign Out', url: '/private/logout'}
+    {text: 'Part Requests', url: '/private/parts'}
   ];
 
   constructor(private backend: WebappBackendService) { }

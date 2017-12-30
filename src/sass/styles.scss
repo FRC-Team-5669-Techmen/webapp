@@ -1,1 +1,9 @@
-@import 'indigo-pink.css';
+@import 'blue-red-theme.scss';
+
+h1 {
+	border-bottom: 1px solid mat-color($frc-app-accent, lighter);
+}
+
+div.spacing {
+	height: 1em;
+}

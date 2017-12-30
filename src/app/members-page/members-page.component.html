@@ -4,16 +4,46 @@
 <div *ngIf="!access" class="mat-typography message">
 	You must be signed in to view this page!
 </div>
-<app-grid-layout *ngIf="members && access">
-	<mat-card *ngFor="let member of members" routerLink="/private/members/{{member.emailAddress}}">
-		<img mat-card-avatar [src]="member.profilePic" class="user-icon">
-		<div class="user-description">
-			<div class="mat-h2">{{member.firstName}} {{member.lastName}}</div>
-			<div class="mat-h4">
-				{{member.gradeLevel}}, {{member.preferredTeam}} Team<ng-container *ngIf="member.accessLevel === 'admin'">, Admin</ng-container>
+<ng-container *ngIf="members && access">
+	<ng-template #card let-member="member">
+		<mat-card routerLink="/private/members/{{member.emailAddress}}">
+			<img mat-card-avatar [src]="member.profilePic" class="user-icon">
+			<div class="user-description">
+				<div class="mat-h2">{{member.firstName}} {{member.lastName}}</div>
+				<div class="mat-h4">
+					{{member.gradeLevel}}, {{member.preferredTeam}} Team<ng-container *ngIf="member.accessLevel === 'admin'">, Admin</ng-container>
+				</div>
 			</div>
-		</div>
-		<mat-icon *ngIf="(backend.currentMember.accessLevel === AccessLevel.ADMIN) || (backend.currentMember.emailAddress === member.emailAddress)">mode_edit</mat-icon>
-		<mat-icon *ngIf="(backend.currentMember.accessLevel === AccessLevel.MEMBER) && (backend.currentMember.emailAddress !== member.emailAddress)">visibility</mat-icon>
-	</mat-card>
-</app-grid-layout>
+			<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.ADMIN) || (backend.pollAccessLevel() === member.emailAddress)">mode_edit</mat-icon>
+			<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.MEMBER) && (backend.pollAccessLevel() !== member.emailAddress)">visibility</mat-icon>
+		</mat-card>		
+	</ng-template>
+	<h1 class="mat-h1">Admins</h1>
+	<app-grid-layout>
+		<ng-container *ngFor="let member of members"> 
+			<ng-container *ngIf="member.accessLevel === AccessLevel.ADMIN">
+				<ng-container *ngTemplateOutlet="card;context:{member:member}"></ng-container>
+			</ng-container>
+		</ng-container>
+	</app-grid-layout>
+	<div class="spacing"></div>
+	<h1 class="mat-h1">Members</h1>
+	<app-grid-layout>
+		<ng-container *ngFor="let member of members"> 
+			<ng-container *ngIf="member.accessLevel === AccessLevel.MEMBER">
+				<ng-container *ngTemplateOutlet="card;context:{member:member}"></ng-container>
+			</ng-container>
+		</ng-container>
+	</app-grid-layout>
+	<ng-container *ngIf="members.find(matchesAccessLevelLambda(AccessLevel.RESTRICTED))">
+		<div class="spacing"></div>
+		<h1 class="mat-h1">Unconfirmed Members</h1>
+		<app-grid-layout>
+			<ng-container *ngFor="let member of members"> 
+				<ng-container *ngIf="member.accessLevel === AccessLevel.RESTRICTED">
+					<ng-container *ngTemplateOutlet="card;context:{member:member}"></ng-container>
+				</ng-container>
+			</ng-container>
+		</app-grid-layout>
+	</ng-container>
+</ng-container>

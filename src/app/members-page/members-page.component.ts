@@ -14,10 +14,14 @@ export class MembersPageComponent implements OnInit {
     return AccessLevel;
   }
 
+  matchesAccessLevelLambda(target: AccessLevel): (e: Member & {profilePic: string}) => boolean {
+    return (e: Member & {profilePic: string}) => (e.accessLevel === target);
+  }
+
   constructor(private backend: WebappBackendService) { }
 
   ngOnInit() {
-    const level = this.backend.getAccessLevel();
+    const level = this.backend.pollAccessLevel();
     if ((level === AccessLevel.VISITOR) || (level === AccessLevel.RESTRICTED)) {
       this.access = false;
       return;

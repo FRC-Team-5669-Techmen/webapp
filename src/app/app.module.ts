@@ -17,7 +17,7 @@ import { WebappBackendService } from './webapp-backend.service';
 import { YoloClientService } from './yolo-client.service';
 import { CenteredLayoutComponent } from './centered-layout/centered-layout.component';
 import { MembersPageComponent } from './members-page/members-page.component';
-import { GridLayoutComponent } from './members-page/grid-layout/grid-layout.component';
+import { GridLayoutComponent } from './grid-layout/grid-layout.component';
 import { MemberPageComponent } from './member-page/member-page.component';
 
 const appRoutes: Routes = [
