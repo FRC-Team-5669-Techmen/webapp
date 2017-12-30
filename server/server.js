@@ -1,3 +1,5 @@
+const fs = require('fs');
+const https = require('https');
 const path = require('path');
 //Express framework stuff
 const bodyParser = require('body-parser');
@@ -10,7 +12,6 @@ const drive = require('./drive')
 const dbs = require('./databases');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
-const port = 25565;
 
 // Begin testing area
 
@@ -22,8 +23,6 @@ app.use(bodyParser.json({type:"*/*"}));
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
-app.listen(port, function() {});
-app.get('/', (req, res) => res.sendFile(rootDir + '/index.html'));
 
 // API code.
 const ACCESS_LEVEL_VISITOR = 'visitor', ACCESS_LEVEL_RESTRICTED = 'restricted', ACCESS_LEVEL_MEMBER = 'member' 
@@ -200,5 +199,25 @@ app.patch('/api/v1/members/:email', (req, res) => {
 app.get('/assets/*', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*.js', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*', (req, res) => res.sendFile(rootDir + '/index.html'));
+app.get('/', (req, res) => res.sendFile(rootDir + '/index.html'));
+
+// Arg 0 is node. Arg 1 is script name. This code will switch how the server runs depending on whether or not arg2 is 'prod' (production mode)
+if ((process.argv.length >= 3) && (process.argv[2].toLowerCase() == 'prod')) {
+	// Just bumps the user to HTTPS. Serves no content.
+	console.log('Starting in production mode.');
+	var redirector = express();
+	redirector.get('*', (req, res) => {
+		res.redirect('https://' + req.headers.host + req.url);
+	});
+	redirector.listen(80);
+
+	https.createServer({
+		key: fs.readFileSync('../private/key.pem'),
+		cert: fs.readFileSync('../private/cert.pem')
+	}, app).listen(443);	
+} else {
+	console.log('Starting in development mode');
+	app.listen(4200);
+}
 
 console.log('Initialization complete!');
