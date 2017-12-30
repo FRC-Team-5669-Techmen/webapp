@@ -34,8 +34,13 @@ export interface YoloObj {
 @Injectable()
 export class YoloClientService {
   yoloObj: Promise<YoloObj>;
-  loginDetails: LoginDetails = null;
+  private loginDetails: Promise<LoginDetails>; // Promise is fulfilled whenever the user logs in to their google account.
+  private loginPromise: Promise<LoginDetails>; // Holds a smaller promise for whatever method is currently being attempted (fg, bg).
+  private resolveLoginDetails: (LoginDetails) => void;
+  private polledLoginDetails: LoginDetails = null; // For when something only needs login details if they're available right at that moment.
+  private loginResolved = false;
 
+  // Loads Google's YOLO one-click sign in library and attempts to automatically log in returning users.
   constructor() {
     this.yoloObj = new Promise<YoloObj>((resolve, reject) => {
       window['onGoogleYoloLoad'] = (yoloObj: YoloObj) => {
@@ -46,62 +51,82 @@ export class YoloClientService {
       element.type = 'text/javascript';
       document.getElementsByTagName('head')[0].appendChild(element);
     });
-  }
-
-  // Promise returns true if login is successful.
-  retrieve(): Promise<LoginDetails> {
-    return new Promise((resolve, reject) => {
-      this.yoloObj.then((yolo) => {
-        yolo.retrieve({
+    // Wrapper promise. resolveLoginDetails() is called whenever any login method succeeds.
+    this.loginDetails = new Promise<LoginDetails>((resolve, reject) => {
+      this.resolveLoginDetails = (e) => {
+        this.loginResolved = true;
+        this.polledLoginDetails = e;
+        resolve(e);
+      };
+    });
+    // Smaller promise. Resolved or rejected when a particular login method fails or succeeds. In this case, it is for
+    // the background login method.
+    this.loginPromise = new Promise<LoginDetails>((resolve, reject) => {
+      this.yoloObj.then((yoloObj: YoloObj) => {
+        yoloObj.retrieve({
           supportedAuthMethods: ['https://accounts.google.com'],
           supportedIdTokenProviders: [{
             uri: 'https://accounts.google.com',
             clientId: oAuthClientId
           }]
-        }).then((res: LoginDetails) => {
-          this.loginDetails = res;
-          resolve(res);
-        }).catch(reject);
+        }).then(resolve).catch(reject);
       });
     });
+    this.loginPromise.then(this.resolveLoginDetails); // If this method succeeds, resolve the wrapper promise.
+  }
+
+  // Returns a promise that is resolved / rejected when the current login attempt finishes. If hint() has never been called, the current
+  // login attempt is a simple no-user-interaction-required background login. If hint() has been called and the previous login attempt has
+  // finished, the current login attempt will be prompting the user to select one of their accounts that they are already logged in to.
+  // Note that this method will fail if the user is not currently logged into any of their google accounts.
+  getCurrentLoginAttempt(): Promise<LoginDetails> {
+    return this.loginPromise;
   }
 
   hint(): Promise<LoginDetails> {
-    return new Promise((resolve, reject) => {
-      this.yoloObj.then((yolo) => {
-        yolo.hint({
-          supportedAuthMethods: ['https://accounts.google.com'],
-          supportedIdTokenProviders: [{
-            uri: 'https://accounts.google.com',
-            clientId: oAuthClientId
-          }]
-        }).then((res: LoginDetails) => {
-          this.loginDetails = res;
-          console.log(this.loginDetails.idToken);
-          resolve(res);
-        }).catch(reject);
+    if (this.loginResolved) {
+      return Promise.resolve(this.polledLoginDetails);
+    } else { // Only do this if we have not gotten a login from the user before.
+      // We are now trying a different method of authentication. loginPromise should be replaced with what we are currently trying.
+      const oldLoginPromise = this.loginPromise;
+      this.loginPromise = new Promise<LoginDetails>((resolve, reject) => {
+        oldLoginPromise
+          .then(resolve) // If the old promise succeeds (maybe it was still WIP when we started) resolve this one too, for anything
+                         // waiting specifically on this particular login attempt.
+          .catch(() => { // Only do this when (if ever) the previous attempt finishes failing.
+            this.yoloObj.then((yoloObj) => {
+              yoloObj.hint({
+                supportedAuthMethods: ['https://accounts.google.com'],
+                supportedIdTokenProviders: [{
+                  uri: 'https://accounts.google.com',
+                  clientId: oAuthClientId
+                }]
+              }).then((loginDetails: LoginDetails) => {
+                // If this method succeeds, resolve both this and the wrapper promise.
+                this.resolveLoginDetails(loginDetails);
+                resolve(loginDetails);
+              }).catch(reject);
+            });
+          });
       });
-    });
+      return this.loginPromise;
+    }
   }
 
   get isLoggedIn(): boolean {
-    return (this.loginDetails != null);
+    return this.loginResolved;
   }
 
-  getLogin(silent = false): Promise<LoginDetails> {
-    if (this.isLoggedIn) {
-      return Promise.resolve(this.loginDetails);
-    }
+  // Returns a promise that will resolve when the user logs in.
+  // (Asyncronous)
+  getLoginDetailsAsync(): Promise<LoginDetails> {
+    return this.loginDetails;
+  }
 
-    if (silent) {
-      return this.retrieve();
-    } else {
-      return new Promise<LoginDetails>((resolve, reject) => {
-        this.retrieve().then(resolve).catch((err) => {
-          this.hint().then(resolve).catch(reject);
-        });
-      });
-    }
+  // Returns login details if someone has logged in, or null if no one has logged in yet.
+  // (Synchronous non-blocking)
+  pollLoginDetails(): LoginDetails {
+    return this.polledLoginDetails;
   }
 
   // Lets the user sign in using the old auth method, then redirects them back to the current page.

@@ -1,4 +1,4 @@
-import { YoloClientService } from './yolo-client.service';
+import { YoloClientService, LoginDetails } from './yolo-client.service';
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -34,10 +34,21 @@ export interface Member {
 
 @Injectable()
 export class WebappBackendService {
-  public currentMember: Member = null;
+  private currentMember: Promise<Member>; // Resolved whenever someone logs in and is a valid user.
+  private resolveCurrentMember: (e: Member) => void;
+  private polledCurrentMember: Member = null; // Used for things that only need member details if they are logged in right now, not later.
 
   constructor(private client: HttpClient, private yolo: YoloClientService) {
-    yolo.yoloObj.then((obj) => this.loginExistingUser());
+    this.currentMember = new Promise<Member>((resolve, reject) => {
+      this.resolveCurrentMember = (e: Member) => {
+        this.polledCurrentMember = e;
+        resolve(e);
+      };
+    });
+    // If a google account is successfully logged in, check if they are an FRC member.
+    this.yolo.getLoginDetailsAsync().then((details: LoginDetails) => {
+      this.loginExistingUser();
+    });
   }
 
   private createOptions(contentType?: string): {
@@ -54,7 +65,7 @@ export class WebappBackendService {
     }
     if (this.yolo.isLoggedIn) {
       // idToken is already safe to put in a header, no b64llshit necessary.
-      headers['authorization'] = 'Bearer ' + this.yolo.loginDetails.idToken;
+      headers['authorization'] = 'Bearer ' + this.yolo.pollLoginDetails().idToken;
     }
     return {
       observe: 'response',
@@ -84,19 +95,40 @@ export class WebappBackendService {
     });
   }
 
-  loginExistingUser() {
-    this.yolo.getLogin(true).then((res) => {
-      this.getMember(res.id).then((res2) => {
+  // If the user has logged in with their google account, checks if the google account belongs to a valid FRC member. If so, it saves their
+  // information, resolves the currentMember promise, etc.
+  private loginExistingUser() {
+    if (this.yolo.isLoggedIn) {
+      this.getMember(this.yolo.pollLoginDetails().id).then((res2) => {
         if (res2.ok) {
-          this.currentMember = res2.body;
+          this.resolveCurrentMember(res2.body);
         }
       });
-    });
+    }
   }
 
-  getAccessLevel(): AccessLevel {
-    if (this.currentMember) {
-      return this.currentMember.accessLevel;
+  // Returns a promise that is resolved whenever a valid user logs in.
+  // (Asynchronous)
+  getCurrentMemberAsync(): Promise<Member> {
+    return this.currentMember;
+  }
+
+  // Returns the currently logged in member, if there is one. If not, returns null.
+  // (Synchronous non-blocking)
+  pollCurrentMember(): Member {
+    return this.polledCurrentMember;
+  }
+
+  // This is ONLY used for when a new user registers.
+  setMember(member: Member) {
+    this.resolveCurrentMember(member);
+  }
+
+  // Returns the access level of the current logged in member. If no valid user is currently logged in, returns AccessLevel.VISITOR.
+  // (Synchronous non-blocking)
+  pollAccessLevel(): AccessLevel {
+    if (this.polledCurrentMember) {
+      return this.polledCurrentMember.accessLevel;
     } else {
       return AccessLevel.VISITOR;
     }

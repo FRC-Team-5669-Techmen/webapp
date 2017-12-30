@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class MemberPageComponent implements OnInit {
   private member: Member = null;
+  private submitting = false;
 
   get AccessLevel() { // For *ngIfs
     return AccessLevel;
@@ -22,14 +23,15 @@ export class MemberPageComponent implements OnInit {
 
   submit() {
     const id = this.member.emailAddress;
+    this.submitting = true; // Show the user that their button click was processed.
     // Clean up data that should not be sent to be patched.
-    this.member.emailAddress = undefined;
-    if (this.backend.currentMember.accessLevel !== AccessLevel.ADMIN) {
+    const data = Object.assign({}, this.member); // Otherwise data censoring will be shown to the user.
+    data.emailAddress = undefined;
+    if (this.backend.pollAccessLevel() !== AccessLevel.ADMIN) {
       // Do not try to change admin-only things
-      this.member.accessLevel = undefined;
-      this.member.preferredTeam = undefined;
+      data.accessLevel = undefined;
+      data.preferredTeam = undefined;
     }
-    this.backend.patchMember(id, this.member);
-    this.router.navigate(['private', 'members']);
+    this.backend.patchMember(id, data).then(() => this.router.navigate(['private', 'members']));
   }
 }

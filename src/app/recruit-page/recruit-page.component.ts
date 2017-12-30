@@ -57,7 +57,7 @@ export class RecruitPageComponent implements OnInit {
       // The webapp backend checks if a google account belongs to an FRC member whenever they log in. If this promise resolves, the backend
       // found the user's details, and we thus do not need to fill out the form anymore. This is also handily resolved when the user fills
       // in the form, so no need to duplicate this code in the submit() function.
-      this.backend.getMemberAsync().then((member: Member) => {
+      this.backend.getCurrentMemberAsync().then((member: Member) => {
         this.data = member;
         this.status = Status.Submitted;
         setTimeout(() => this.formCheckbox.nativeElement.click(), 100);

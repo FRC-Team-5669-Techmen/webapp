@@ -3,7 +3,7 @@
 </app-centered-layout>
 <app-centered-layout *ngIf="member">
 	<mat-card id='root'>
-		<form *ngIf="(backend.currentMember.accessLevel === AccessLevel.ADMIN) || (backend.currentMember.emailAddress === member.emailAddress);else justDisplay"
+		<form *ngIf="(backend.pollAccessLevel() === AccessLevel.ADMIN) || (backend.pollCurrentMember().emailAddress === member.emailAddress);else justDisplay"
 			#infoForm='ngForm' (ngSubmit)='submit()'>
 			<mat-card-content>
 				<mat-form-field>
@@ -30,7 +30,7 @@
 						<mat-option value='Senior'>Senior</mat-option>
 					</mat-select>
 				</mat-form-field>
-				<mat-form-field *ngIf="backend.currentMember.accessLevel === AccessLevel.ADMIN">
+				<mat-form-field *ngIf="backend.pollAccessLevel() === AccessLevel.ADMIN">
 					<mat-select required placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
 						<mat-option value='Construction'>Construction</mat-option>
 						<mat-option value='Design'>Design</mat-option>
@@ -38,7 +38,7 @@
 						<mat-option value='Publicity'>Publicity</mat-option>
 					</mat-select>
 				</mat-form-field>
-				<mat-form-field *ngIf="backend.currentMember.accessLevel !== AccessLevel.ADMIN">
+				<mat-form-field *ngIf="backend.pollAccessLevel() !== AccessLevel.ADMIN">
 					<mat-select required disabled placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
 						<mat-option value='Construction'>Construction</mat-option>
 						<mat-option value='Design'>Design</mat-option>
@@ -60,14 +60,14 @@
 				<mat-form-field>
 					<input matInput required placeholder='Parent / Guardian Email' [(ngModel)]='member.parentEmail' name='parentEmail'>
 				</mat-form-field>
-				<mat-form-field *ngIf="backend.currentMember.accessLevel === AccessLevel.ADMIN">
+				<mat-form-field *ngIf="backend.pollAccessLevel() === AccessLevel.ADMIN">
 					<mat-select required placeholder='Access Level' [(ngModel)]='member.accessLevel' name='accessLevel'>
 						<mat-option value='{{AccessLevel.RESTRICTED}}'>Restricted (almost no read/write access.)</mat-option>
 						<mat-option value='{{AccessLevel.MEMBER}}'>Member (limited read/write access.)</mat-option>
 						<mat-option value='{{AccessLevel.ADMIN}}'>Admin (unlimited read/write access.)</mat-option>
 					</mat-select>
 				</mat-form-field>
-				<div id="explanation" class="mat-typography" *ngIf="backend.currentMember.accessLevel === AccessLevel.ADMIN">
+				<div id="explanation" class="mat-typography" *ngIf="backend.pollAccessLevel() === AccessLevel.ADMIN">
 					<div class="can">+ Can edit their own personal information</div>
 					<div class="can">+ Can join our Teamreach group</div>
 					<ng-container *ngIf="member.accessLevel == AccessLevel.RESTRICTED">
@@ -92,7 +92,7 @@
 				</div>
 			</mat-card-content>
 			<div style='height: 1em'></div>
-			<button mat-button type='submit' [disabled]='!infoForm.form.valid' class='mat-raised-button mat-accent' color='accent' >Apply Changes</button>
+			<button mat-button type='submit' [disabled]='!infoForm.form.valid || submitting' class='mat-raised-button mat-accent' color='accent' >{{(submitting) ?  "Applying Changes..." : "Apply Changes"}}</button>
 		</form>
 		<ng-template #justDisplay>
 			<div id="picture"></div>
