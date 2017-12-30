@@ -55,9 +55,9 @@ function checkLogin(req, res, accessLevel, next) {
 			return;			
 		}
 		dbs.members.findItemWithValue('emailAddress', content.email, (item) => {
-			if(item == null) { // User is not registered.
+			if(!item) { // User is not registered.
 				res.status(403).send({error: 'This action requires that the user have signed up, which they have not done.'});
-				return
+				return;
 			}
 			// If admin / membership not required, don't check those.
 			if(accessLevel == ACCESS_LEVEL_RESTRICTED) {
@@ -155,8 +155,7 @@ app.get('/api/v1/members/:email', (req, res) => {
 				res.status(404).send({error: 'No members have that email address.'});
 			} else {
 				dbs.members.getItem(index, (data) => {
-					// If a member is requesting their own data or an admin is requesting it, show everything.
-					if((member.emailAddress != address) && (member.accessLevel != ACCESS_LEVEL_ADMIN)) {
+					if((member.emailAddress !== address) && (member.accessLevel !== ACCESS_LEVEL_ADMIN)) {
 						// Censor sensitive or useless information.
 						data.parentName = undefined;
 						data.parentPhone = undefined;
