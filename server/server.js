@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({
 
 // API code.
 const ACCESS_LEVEL_VISITOR = 'visitor', ACCESS_LEVEL_RESTRICTED = 'restricted', ACCESS_LEVEL_MEMBER = 'member' 
-	ACCESS_LEVEL_ADMIN = 'admin';
+	ACCESS_LEVEL_LEADER = 'leader';
 
 // Callback is passed the contents of the token in the authorization header of req if successful, null if not, and
 // undefined if header is not present.
@@ -58,21 +58,21 @@ function checkLogin(req, res, accessLevel, next) {
 				res.status(403).send({error: 'This action requires that the user have signed up, which they have not done.'});
 				return;
 			}
-			// If admin / membership not required, don't check those.
+			// If leadership / membership not required, don't check those.
 			if(accessLevel == ACCESS_LEVEL_RESTRICTED) {
 				next(item);
 				return;
 			}
-			if(item.accessLevel == ACCESS_LEVEL_ADMIN) { // Admins can access anything, no matter what.
+			if(item.accessLevel == ACCESS_LEVEL_LEADER) { // Leaders can access anything, no matter what.
 				next(item);
 			} else if((item.accessLevel == ACCESS_LEVEL_MEMBER) && (accessLevel == ACCESS_LEVEL_MEMBER)) {
 				// Members can access member-level and below stuff. (Below stuff handled earlier.)
 				next(item);
 			} else {
-				if(accessLevel == ACCESS_LEVEL_ADMIN) {
-					res.status(403).send({error: 'This action requires admin access, which the current user does not have.'});
+				if(accessLevel == ACCESS_LEVEL_LEADER) {
+					res.status(403).send({error: 'This action requires the current user to be a leader.'});
 				} else {
-					res.status(403).send({error: 'This action requires the user\'s membership to be confirmed by an admin, which has not happened.'});
+					res.status(403).send({error: 'This action requires the user\'s membership to be confirmed by a leader, which has not happened.'});
 				}
 			}
 		});
@@ -110,8 +110,9 @@ app.post('/api/v1/members/register', (req, res) => {
 				res.status(400).send({error: 'A member with that email address already exists.'});
 				return;
 			}
-			// This could be set to ACCESS_LEVEL_ADMIN by a 1337 hacker trying to get access, so make sure it is set to RESTRICTED.
+			// This could be set to ACCESS_LEVEL_LEADER by a 1337 hacker trying to get access, so make sure it is set to RESTRICTED.
 			data.accessLevel = ACCESS_LEVEL_RESTRICTED;
+			data.profilePicture = content.picture
 			dbs.members.push(data);
 			dbs.members.getSize((size) => {
 				dbs.members.getItem(size - 1, (item) => {
@@ -146,7 +147,7 @@ app.get('/api/v1/members/:email', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_RESTRICTED, (member) => {
 		let address = req.params.email;
 		if((address != member.emailAddress) && (member.accessLevel == ACCESS_LEVEL_RESTRICTED)) {
-			res.status(403).send({error: 'This action requires the user\'s membership to be confirmed by an admin, which has not happened.'});
+			res.status(403).send({error: 'This action requires the user\'s membership to be confirmed by a leader, which has not happened.'});
 		}
 		dbs.members.getAllValues('emailAddress', (values) => {
 			let index = values.indexOf(address);
@@ -154,7 +155,7 @@ app.get('/api/v1/members/:email', (req, res) => {
 				res.status(404).send({error: 'No members have that email address.'});
 			} else {
 				dbs.members.getItem(index, (data) => {
-					if((member.emailAddress !== address) && (member.accessLevel !== ACCESS_LEVEL_ADMIN)) {
+					if((member.emailAddress !== address) && (member.accessLevel !== ACCESS_LEVEL_LEADER)) {
 						// Censor sensitive or useless information.
 						data.parentName = undefined;
 						data.parentPhone = undefined;
@@ -171,11 +172,11 @@ app.get('/api/v1/members/:email', (req, res) => {
 
 app.patch('/api/v1/members/:email', (req, res) => {
 	const data = req.body;
-	// If the user wants to modify the access level or the team of a member, they must be an admin.
-	checkLogin(req, res, (data.accessLevel || data.preferredTeam) ? ACCESS_LEVEL_ADMIN : ACCESS_LEVEL_MEMBER, (member) => {
+	// If the user wants to modify the access level or the team of a member, they must be a leader.
+	checkLogin(req, res, (data.accessLevel || data.preferredTeam) ? ACCESS_LEVEL_LEADER : ACCESS_LEVEL_MEMBER, (member) => {
 		let address = req.params.email;
-		if((member.emailAddress !== address) && (member.accessLevel != ACCESS_LEVEL_ADMIN)) {
-			res.status(403).send({error: 'Only admins can edit details of users other than themselves.'});
+		if((member.emailAddress !== address) && (member.accessLevel != ACCESS_LEVEL_LEADER)) {
+			res.status(403).send({error: 'Only leaders can edit details of users other than themselves.'});
 		}
 		dbs.members.getAllValues('emailAddress', (values) => {
 			let index = values.indexOf(address);

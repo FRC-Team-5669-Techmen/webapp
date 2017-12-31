@@ -7,7 +7,7 @@ export enum AccessLevel {
   VISITOR = 'visitor',
   RESTRICTED = 'restricted',
   MEMBER = 'member',
-  ADMIN = 'admin'
+  LEADER = 'leader'
 }
 
 export enum GradeLevel {
@@ -30,6 +30,18 @@ export interface Member {
   parentPhone?: string;
   parentEmail?: string;
   accessLevel?: AccessLevel;
+  profilePicture?: string;
+}
+
+const quantifiedAccessLevels = {
+  visitor: 0,
+  restricted: 1,
+  member: 2,
+  leader: 3
+};
+
+export function quantifyAccessLevel(level: AccessLevel) {
+  return quantifiedAccessLevels[level];
 }
 
 @Injectable()
@@ -132,6 +144,10 @@ export class WebappBackendService {
     } else {
       return AccessLevel.VISITOR;
     }
+  }
+
+  shouldHaveAccess(minimumRequired: AccessLevel) {
+    return quantifyAccessLevel(this.pollAccessLevel()) >= quantifyAccessLevel(minimumRequired);
   }
 
   registerMember(memberData: Member): Promise<HttpResponse<Member>> {

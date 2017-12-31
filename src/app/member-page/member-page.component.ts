@@ -18,7 +18,9 @@ export class MemberPageComponent implements OnInit {
   constructor(private backend: WebappBackendService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.backend.getMember(this.route.snapshot.paramMap.get('email')).then((res) => this.member = res.body);
+    this.backend.getCurrentMemberAsync().then(() => {
+      this.backend.getMember(this.route.snapshot.paramMap.get('email')).then((res) => this.member = res.body);
+    });
   }
 
   submit() {
@@ -27,8 +29,8 @@ export class MemberPageComponent implements OnInit {
     // Clean up data that should not be sent to be patched.
     const data = Object.assign({}, this.member); // Otherwise data censoring will be shown to the user.
     data.emailAddress = undefined;
-    if (this.backend.pollAccessLevel() !== AccessLevel.ADMIN) {
-      // Do not try to change admin-only things
+    if (this.backend.pollAccessLevel() !== AccessLevel.LEADER) {
+      // Do not try to change leader-only things
       data.accessLevel = undefined;
       data.preferredTeam = undefined;
     }

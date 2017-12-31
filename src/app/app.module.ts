@@ -19,6 +19,8 @@ import { CenteredLayoutComponent } from './centered-layout/centered-layout.compo
 import { MembersPageComponent } from './members-page/members-page.component';
 import { GridLayoutComponent } from './grid-layout/grid-layout.component';
 import { MemberPageComponent } from './member-page/member-page.component';
+import { PageGuardComponent } from './page-guard/page-guard.component';
+import { PartRequestsPageComponent } from './part-requests-page/part-requests-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
@@ -26,8 +28,7 @@ const appRoutes: Routes = [
   { path: 'public/register', component: RecruitPageComponent },
   { path: 'private/members', component: MembersPageComponent },
   { path: 'private/members/:email', component: MemberPageComponent },
-  { path: 'private/logout', component: HomePageComponent },
-  { path: 'private/parts', component: HomePageComponent }
+  { path: 'private/parts', component: PartRequestsPageComponent }
 ];
 
 @NgModule({
@@ -40,7 +41,9 @@ const appRoutes: Routes = [
     CenteredLayoutComponent,
     MembersPageComponent,
     GridLayoutComponent,
-    MemberPageComponent
+    MemberPageComponent,
+    PageGuardComponent,
+    PartRequestsPageComponent
   ],
   imports: [
     BrowserModule,

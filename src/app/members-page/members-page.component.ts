@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./members-page.component.scss']
 })
 export class MembersPageComponent implements OnInit {
-  private members: Array<Member & {profilePic: string}> = null;
+  private members: Array<Member> = null;
   private access = true;
 
   get AccessLevel() { // For *ngIfs
@@ -21,20 +21,15 @@ export class MembersPageComponent implements OnInit {
   constructor(private backend: WebappBackendService) { }
 
   ngOnInit() {
-    const level = this.backend.pollAccessLevel();
-    if ((level === AccessLevel.VISITOR) || (level === AccessLevel.RESTRICTED)) {
-      this.access = false;
-      return;
-    }
-    this.backend.getMemberList().then((list) => {
-      let i = 0;
-      this.members = [];
-      for (const member of list.body) {
-        const mmember = <Member & {profilePic: string}> member;
-        mmember.profilePic = '/assets/default-profile.jpg';
-        this.members.push(mmember);
-        i++;
+    this.backend.getCurrentMemberAsync().then(() => {
+      const level = this.backend.pollAccessLevel();
+      if ((level === AccessLevel.VISITOR) || (level === AccessLevel.RESTRICTED)) {
+        this.access = false;
+        return;
       }
+      this.backend.getMemberList().then((list) => {
+        this.members = list.body;
+      });
     });
   }
 }

@@ -1,18 +1,23 @@
 :host {
 	display: flex;
 	flex-wrap: wrap;
-	margin-left: -1em; /* To counteract the weird combination of 1em page padding and 1em card margin */
-	margin-right: -1em;
+	margin: -0.5em; /* To counteract the 0.5em margin of cards, so the margin only adds spacing internally. */
 }
 
-:host /deep/ > * {
-	margin: 1em;
+:host /deep/ > mat-card {
+	margin: 0.5em; /* Because flexboxes makes margins act more like padding */
 	flex: 1;
 	min-width: 20em;
 }
 
 div.spacing {
+	flex: 1;
+	/* Act like cards, but have no height */
+	min-width: 20em;
 	height: 0;
-	min-width: 25em;
 	margin: 0;
+	padding-left: 24px;
+	padding-right: 24px;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
 }

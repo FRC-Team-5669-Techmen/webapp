@@ -1,0 +1,14 @@
+<div class="message mat-h1" *ngIf="loginInProgress && accessLevel != AccessLevel.VISITOR">Waiting for login to finish...</div>
+<ng-container *ngIf="!backend.shouldHaveAccess(accessLevel) && !loginInProgress">
+	<div class="message mat-h1" *ngIf="accessLevel == AccessLevel.LEADER">You need to be a leader to access this page.</div>
+	<div class="message mat-h1" *ngIf="(accessLevel == AccessLevel.MEMBER) && (backend.pollAccessLevel() == AccessLevel.VISITOR)">
+		You need to be a registered and confirmed member to access this page. If you have not registered, or if you have registered 
+		but need to log in, you can do so <a routerLink="/public/register">here</a>.
+	</div>
+	<div class="message mat-h1" *ngIf="(accessLevel == AccessLevel.MEMBER) && (backend.pollAccessLevel() == AccessLevel.RESTRICTED)">
+		Your membership needs to be confirmed by a leader before you can access this page. (This is to prevent random people that we
+		don't know from signing up and then accessing our data.) If it has been a while since you have registered and you are still
+		seeing this, you can ask a leader during the next meeting or on our Team Reach group.
+	</div>
+</ng-container>
+<div class="message mat-h1" *ngIf="!loaded && backend.shouldHaveAccess(accessLevel)">{{loadingMessage}}</div>
