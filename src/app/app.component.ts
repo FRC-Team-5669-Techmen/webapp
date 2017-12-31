@@ -14,7 +14,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('header') header: ElementRef;
   @ViewChild('headerSpacing') headerSpacing: ElementRef;
 
-  constructor (private yolo: YoloClientService, private router: Router, private reg: MatIconRegistry, private domSanitizer: DomSanitizer) {
+  constructor (private yolo: YoloClientService, public router: Router, private reg: MatIconRegistry, private domSanitizer: DomSanitizer) {
     reg.addSvgIconSet(domSanitizer.bypassSecurityTrustResourceUrl('/assets/mdi.svg'));
   }
 

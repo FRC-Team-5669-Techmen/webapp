@@ -8,14 +8,14 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./member-page.component.scss']
 })
 export class MemberPageComponent implements OnInit {
-  private member: Member = null;
-  private submitting = false;
+  public member: Member = null;
+  public submitting = false;
 
   get AccessLevel() { // For *ngIfs
     return AccessLevel;
   }
 
-  constructor(private backend: WebappBackendService, private router: Router, private route: ActivatedRoute) { }
+  constructor(public backend: WebappBackendService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
     this.backend.getCurrentMemberAsync().then(() => {

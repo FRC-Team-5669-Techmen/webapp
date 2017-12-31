@@ -44,7 +44,7 @@ export class RecruitPageComponent implements OnInit {
     return console;
   }
 
-  constructor(private backend: WebappBackendService, private client: YoloClientService) { }
+  constructor(private backend: WebappBackendService, public client: YoloClientService) { }
 
   ngOnInit() {
     this.client.hint().then((res: LoginDetails) => {

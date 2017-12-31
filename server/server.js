@@ -199,6 +199,7 @@ app.patch('/api/v1/members/:email', (req, res) => {
 
 app.get('/assets/*', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*.js', (req, res) => res.sendFile(rootDir + req.path));
+app.get('/*.css', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*', (req, res) => res.sendFile(rootDir + '/index.html'));
 app.get('/', (req, res) => res.sendFile(rootDir + '/index.html'));
 

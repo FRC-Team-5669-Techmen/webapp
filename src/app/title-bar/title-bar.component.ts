@@ -16,7 +16,7 @@ export class TitleBarComponent implements OnInit {
     {text: 'Part Requests', url: '/private/parts'}
   ];
 
-  constructor(private backend: WebappBackendService) { }
+  constructor(public backend: WebappBackendService) { }
 
   ngOnInit() {
   }

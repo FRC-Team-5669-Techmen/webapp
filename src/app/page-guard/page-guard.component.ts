@@ -11,7 +11,7 @@ export class PageGuardComponent implements OnInit {
   @Input() loaded = true;
   @Input() loadingMessage = 'Loading...';
   @Input() accessLevel = AccessLevel.VISITOR;
-  private loginInProgress = true;
+  public loginInProgress = true;
 
   get AccessLevel() { // For *ngIfs
     return AccessLevel;
@@ -21,7 +21,7 @@ export class PageGuardComponent implements OnInit {
     return this.loaded && this.backend.shouldHaveAccess(this.accessLevel);
   }
 
-  constructor(private backend: WebappBackendService, private yolo: YoloClientService) { }
+  constructor(public backend: WebappBackendService, private yolo: YoloClientService) { }
 
   ngOnInit() {
     const l = () => this.loginInProgress = false;

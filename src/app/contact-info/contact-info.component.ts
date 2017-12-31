@@ -8,7 +8,7 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class ContactInfoComponent implements OnInit {
   @Input() showMembersLink = false;
-  private team = '';
+  public team = '';
 
   constructor(private backend: WebappBackendService) {
     backend.getCurrentMemberAsync().then((member) => {

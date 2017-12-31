@@ -7,8 +7,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./members-page.component.scss']
 })
 export class MembersPageComponent implements OnInit {
-  private members: Array<Member> = null;
-  private access = true;
+  public members: Array<Member> = null;
 
   get AccessLevel() { // For *ngIfs
     return AccessLevel;
@@ -18,18 +17,16 @@ export class MembersPageComponent implements OnInit {
     return (e: Member & {profilePic: string}) => (e.accessLevel === target);
   }
 
-  constructor(private backend: WebappBackendService) { }
+  constructor(public backend: WebappBackendService) { }
 
   ngOnInit() {
     this.backend.getCurrentMemberAsync().then(() => {
       const level = this.backend.pollAccessLevel();
-      if ((level === AccessLevel.VISITOR) || (level === AccessLevel.RESTRICTED)) {
-        this.access = false;
-        return;
+      if (this.backend.shouldHaveAccess(AccessLevel.MEMBER)) {
+        this.backend.getMemberList().then((list) => {
+          this.members = list.body;
+        });
       }
-      this.backend.getMemberList().then((list) => {
-        this.members = list.body;
-      });
     });
   }
 }
