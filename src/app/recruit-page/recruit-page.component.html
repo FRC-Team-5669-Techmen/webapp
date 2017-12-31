@@ -93,33 +93,10 @@
 			3. Connect with the rest of the team
 		</h2>
 		<mat-card-content *ngIf='status > Status.Submitting'>
-			<span style='height: 0.5em;'></span>
-			<span>Congradulations, you are now part of the team! Here is some information to help you get started:</span>
-			<span style='height: 1em;'></span>
-			<span class='logo-and-info'>
-				<img class='logo' src="/assets/gears.svg">
-				<span class='logo-info'>
-					Meetings happen Wednesdays and Fridays after school in IDEA from 3:05-4:15, as well as on Mondays during the second half of 
-					lunch. More days will be added to this schedule once the season officially starts, on January 6<sup>th</sup>. 
-				</span>
-			</span>
-			<span style='height: 1em;'></span>
-			<span class='logo-and-info'>
-				<img class='logo' src="https://lh3.googleusercontent.com/dAfqJ1So-Ljc-mVIj2Gr4Rhi8lWNG0j6FmoFvqcXIw5I122jOsTKn_sCoesR2AoQ5hg=w300">
-				<span class='logo-info'>
-					We use the TeamReach app for communication amongst our members. You can join our group using the group code 
-					<strong>5669</strong>. This is the best place besides meetings to ask questions.
-				</span>
-			</span>
-			<span style='height: 1em;'></span>
-			<span class='logo-and-info'>
-				<img class='logo' src="https://cdn.worldvectorlogo.com/logos/google-drive.svg">
-				<span class='logo-info'>
-					We use Google Drive to store drawings, designs, and other files related to the club. You can check out what we have in 
-					it by going <a href="https://drive.google.com/open?id=1epAk56th7SwpM4cX-jl1eQyE2wFjymHJ">here</a>. Once you start working
-					with the {{(data.preferredTeam || '').toLowerCase()}} team, you will be granted editing access to the {{(data.preferredTeam || '').toLowerCase()}} folder.
-				</span>
-			</span>
+			<div style='height: 0.5em;'></div>
+			<div>Congradulations, you are now part of the team! Here is some information to help you get started:</div>
+			<div style='height: 1em;'></div>
+			<app-contact-info></app-contact-info>
 		</mat-card-content>
 	</mat-card>
 <app-centered-layout>

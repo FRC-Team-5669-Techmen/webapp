@@ -1,0 +1,18 @@
+div.logo-and-info {
+	display: flex;
+	flex-direction: row;
+}
+
+img.logo {
+	float: left;
+	width: 4em;
+	min-width: 4em;
+	height: 4em;
+	margin-right: 2em;
+	display: block;
+}
+
+span.logo-info {
+	display: inline-block;
+	margin: auto;
+}

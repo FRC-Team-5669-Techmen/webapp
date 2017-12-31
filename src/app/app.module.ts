@@ -21,11 +21,14 @@ import { GridLayoutComponent } from './grid-layout/grid-layout.component';
 import { MemberPageComponent } from './member-page/member-page.component';
 import { PageGuardComponent } from './page-guard/page-guard.component';
 import { PartRequestsPageComponent } from './part-requests-page/part-requests-page.component';
+import { ContactInfoComponent } from './contact-info/contact-info.component';
+import { ContactInfoPageComponent } from './contact-info-page/contact-info-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
   { path: 'public/home', component: HomePageComponent },
   { path: 'public/register', component: RecruitPageComponent },
+  { path: 'private/contact', component: ContactInfoPageComponent },
   { path: 'private/members', component: MembersPageComponent },
   { path: 'private/members/:email', component: MemberPageComponent },
   { path: 'private/parts', component: PartRequestsPageComponent }
@@ -43,7 +46,9 @@ const appRoutes: Routes = [
     GridLayoutComponent,
     MemberPageComponent,
     PageGuardComponent,
-    PartRequestsPageComponent
+    PartRequestsPageComponent,
+    ContactInfoComponent,
+    ContactInfoPageComponent
   ],
   imports: [
     BrowserModule,
