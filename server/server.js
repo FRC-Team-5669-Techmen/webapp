@@ -24,6 +24,13 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
+let requestLogger = function (req, res, next) {
+	console.log(req.ip || req.ips, req.method, req.path);
+	if(req.body && Object.keys(req.body).length != 0) console.log('body:', req.body);
+	next();
+}
+app.use(requestLogger);
+
 // API code.
 const ACCESS_LEVEL_VISITOR = 'visitor', ACCESS_LEVEL_RESTRICTED = 'restricted', ACCESS_LEVEL_MEMBER = 'member' 
 	ACCESS_LEVEL_LEADER = 'leader';
