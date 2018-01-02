@@ -17,5 +17,26 @@ li {
 }
 
 img {
-	height: 1.8em;
+	height: 24px;
+}
+
+div#mobile-bar {
+	width: 100%;
+}
+/*
+#mobile-bar button {
+	float: left;
+	min-width: 0;
+	margin: -1em;
+	padding: 1em;
+}*/
+
+#mobile-bar img {
+	height: 32px;
+	position: absolute;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
 }

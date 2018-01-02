@@ -3,7 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-  MatToolbarModule, MatIconModule, MatIconRegistry, MatRippleModule } from '@angular/material';
+  MatToolbarModule, MatIconModule, MatIconRegistry, MatMenuModule, MatRippleModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -23,6 +23,7 @@ import { PageGuardComponent } from './page-guard/page-guard.component';
 import { PartRequestsPageComponent } from './part-requests-page/part-requests-page.component';
 import { ContactInfoComponent } from './contact-info/contact-info.component';
 import { ContactInfoPageComponent } from './contact-info-page/contact-info-page.component';
+import { PlatformIdService } from './platform-id.service';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
@@ -61,11 +62,13 @@ const appRoutes: Routes = [
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     MatSelectModule,
     MatToolbarModule,
     RouterModule.forRoot(appRoutes, { enableTracing: false })
   ],
   providers: [
+    PlatformIdService,
     WebappBackendService,
     YoloClientService
   ],

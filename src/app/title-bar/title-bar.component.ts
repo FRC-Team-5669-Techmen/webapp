@@ -1,3 +1,4 @@
+import { PlatformIdService } from '../platform-id.service';
 import { WebappBackendService } from '../webapp-backend.service';
 import { Component, OnInit } from '@angular/core';
 
@@ -16,9 +17,8 @@ export class TitleBarComponent implements OnInit {
     {text: 'Part Requests', url: '/private/parts'}
   ];
 
-  constructor(public backend: WebappBackendService) { }
+  constructor(public backend: WebappBackendService, public platformId: PlatformIdService) { }
 
   ngOnInit() {
   }
-
 }

@@ -1,8 +1,21 @@
 <mat-toolbar id="root" class="mat-typography mat-elevation-z6" color="primary">
-	<ul>
+	<ul *ngIf="!platformId.isPhone">
 		<li><a mat-button routerLink="/"><img src="/assets/logo.png"></a></li>
 		<li *ngFor="let button of (backend.pollCurrentMember()) ? signedInButtons : signedOutButtons">
 			<a mat-button [routerLink]="button.url">{{button.text}}</a>
 		</li>
 	</ul>
+	<mat-menu id="mobile-menu" #mobileMenu>
+		<button mat-menu-item routerLink="/">Home</button>
+		<button *ngFor="let button of (backend.pollCurrentMember()) ? signedInButtons : signedOutButtons"
+			mat-menu-item [routerLink]="button.url">
+			{{button.text}}
+		</button>
+	</mat-menu>
+	<div *ngIf="platformId.isPhone" id="mobile-bar" [matMenuTriggerFor]="mobileMenu">
+		<button mat-icon-button>
+			<mat-icon>menu</mat-icon>
+		</button>
+		<img src="/assets/logo.png">
+	</div>
 </mat-toolbar>
