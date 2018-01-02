@@ -97,6 +97,7 @@ app.get('/api/v1/accessLevel', (req, res) => {
 
 app.post('/api/v1/members/register', (req, res) => {
 	data = req.body;
+	data.emailAddress = data.emailAddress.toLowerCase();
 	validateAuthorization(req, (content) => {
 		if(!content || !content.email_verified) {
 			res.status(401).send({error: 'A valid Google login token is required for authorization.'});			
@@ -170,6 +171,19 @@ app.get('/api/v1/members/:email', (req, res) => {
 	});	
 });
 
+function getTeamFolder(member) {
+	switch (member.preferredTeam) {
+	case 'Design':
+		return drive.DESIGN_FOLDER;
+	case 'Programming':
+		return drive.PROGRAMMING_FOLDER;
+	case 'Publicity':
+		return drive.RESOURCES_FOLDER;
+	default:
+		return null;
+	}
+}
+
 app.patch('/api/v1/members/:email', (req, res) => {
 	const data = req.body;
 	// If the user wants to modify the access level or the team of a member, they must be a leader.
@@ -184,6 +198,48 @@ app.patch('/api/v1/members/:email', (req, res) => {
 				res.status(404).send({error: 'No members have that email address.'});
 			} else {
 				dbs.members.getItem(index, (item) => {
+					// If their access level was changed, need to change what they have access to on google drive.
+					if((data.accessLevel) && (data.accessLevel !== item.accessLevel)) {
+						// Handles changing google drive access if access level changes.
+						// If member's team also changes in the same request, that is handled here as well.
+						if(data.accessLevel === ACCESS_LEVEL_RESTRICTED) {
+							if(item.accessLevel === ACCESS_LEVEL_MEMBER) {
+								let teamFolder = getTeamFolder(item); // What team they were
+								if(teamFolder) teamFolder.removeRole(item.emailAddress);
+								drive.COMPETITION_FOLDER.removeRole(item.emailAddress);
+							} else { // Was a leader
+								drive.ROOT_FOLDER.removeRole(item.emailAddress);
+								drive.ADMINISTRATION_FOLDER.removeRole(item.emailAddress);
+							}
+						} else if (data.accessLevel == ACCESS_LEVEL_MEMBER) {
+							if(item.accessLevel === ACCESS_LEVEL_LEADER) {
+								drive.ROOT_FOLDER.removeRole(item.emailAddress);
+								drive.ADMINISTRATION_FOLDER.removeRole(item.emailAddress);
+							}
+							let teamFolder = getTeamFolder({preferredTeam: data.preferredTeam || item.preferredTeam}); // In case their team was also changed.
+							if(teamFolder) teamFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
+									'Your application for FRC has been approved, and you can now create and modify files in your team\'s folder.');
+							drive.COMPETITION_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT, 
+									'Your application for FRC has been approved, and you can now create and modify files in the Competition folder.');
+						} else { // Becoming a leader
+							if(item.accessLevel === ACCESS_LEVEL_MEMBER) {
+								let teamFolder = getTeamFolder(item); // What team they were
+								if(teamFolder) teamFolder.removeRole(item.emailAddress);
+								drive.COMPETITION_FOLDER.removeRole(item.emailAddress);
+							}
+							drive.ROOT_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT,
+									'You have been promoted to a leader of FRC and can now create, edit, and delete files in all folders.');
+							drive.ADMINISTRATION_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT,
+									'You have been promoted to a leader of FRC and now have access to the (previously hidden) Administration folder.');
+						}
+					} else if ((data.preferredTeam) && (data.preferredTeam !== item.preferredTeam) && (item.accessLevel === ACCESS_LEVEL_MEMBER)) {
+						// Handles gdrive permissions if a member changes teams but not access levels.
+						let oldFolder = getTeamFolder(item);
+						if(oldFolder) oldFolder.removeRole(item.emailAddress);
+						let newFolder = getTeamFolder(data);
+						if(newFolder) newFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
+								'Your FRC subteam has been switched to ' + data.preferredTeam + ', and you have thus been granted access to its folder.');
+					}
 					for(let key in data) {
 						if((key != 'auth') && (key != 'emailAddress')) {
 							item[key] = data[key];
