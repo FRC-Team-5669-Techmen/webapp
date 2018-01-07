@@ -1,1 +1,34 @@
-<h1 class="mat-h1" style="text-align: center">[Not Yet Implemented]</h1>
+<app-page-guard loadingMessage="Loading part requests..." [loaded]="!!requests.length" [accessLevel]="AccessLevel.MEMBER" #guard>
+</app-page-guard>
+<ng-container *ngIf="guard.show">
+	<ng-template #grid let-list="list" let-title="title">
+		<ng-container *ngIf="list.length > 0">
+			<div class="spacing"></div>
+			<h1 class="mat-h1">{{title}}</h1>
+			<app-grid-layout>
+				<mat-card *ngFor="let request of list">
+					<mat-card-header>
+						<img mat-card-avatar>
+						<mat-card-title>{{request.quantity}}x {{request.itemDescription}}</mat-card-title>
+						<mat-card-subtitle>${{request.price}} from {{request.vendorName}}</mat-card-subtitle>
+						<mat-icon *ngIf="canEdit(request)">mode_edit</mat-icon>
+						<mat-icon *ngIf="!canEdit(request)">visibility</mat-icon>
+					</mat-card-header>
+				</mat-card>
+			</app-grid-layout>
+		</ng-container>
+	</ng-template>
+	<h1 class="mat-h1">Actions</h1>
+	<app-grid-layout>
+		<mat-card class="one-line">
+			<mat-card-header>
+				<img mat-card-avatar src="/assets/add_icon.svg">
+				<div class="mat-h2">Create Part Request</div>
+			</mat-card-header>
+		</mat-card>
+	</app-grid-layout>
+	<ng-container *ngTemplateOutlet="grid;context:{list:getAllRequestsByCurrentMember(), title:'Your Part Requests'}"></ng-container>
+	<ng-container *ngTemplateOutlet="grid;context:{list:getAllRequestsWithStatus(PartRequestStatus.PENDING), title:'Pending Part Requests'}"></ng-container>
+	<ng-container *ngTemplateOutlet="grid;context:{list:getAllRequestsWithStatus(PartRequestStatus.ORDERED), title:'Currently Being Shipped'}"></ng-container>
+	<ng-container *ngTemplateOutlet="grid;context:{list:getAllRequestsWithStatus(PartRequestStatus.RESOLVED), title:'Fulfilled'}"></ng-container>
+</ng-container>
