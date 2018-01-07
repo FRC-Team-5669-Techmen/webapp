@@ -19,14 +19,16 @@ base26 = function(base10) {
 class SheetDatabase {
 	constructor(sheetId) {
 		this.sheetId = sheetId;
+		this.cacheOpInProgress = true; // Preset it until we are ready to actually do the first cache op.
+		this.lastCacheGet = 0;
+		this.lastCacheChange = 0;
+		this.lastCacheFlush = 0;
+		this.staleInterval = 5000; // After 5 seconds, get a new copy.
+		this.pushDelay = 2000; // After 2 seconds of inactivity, push changes to google sheets.
+		this.queuedPush = null;
+		this.onCacheOpFinished = [];
 		this._getColumns(() => {
-			this.lastCacheGet = 0;
-			this.lastCacheChange = 0;
-			this.staleInterval = 5000; // After 5 seconds, get a new copy.
-			this.pushDelay = 2000; // After 2 seconds of inactivity, push changes to google sheets.
-			this.queuedPush = null;
 			this.cacheOpInProgress = false;
-			this.onCacheOpFinished = [];
 			this._getFromSource(() => {
 				// So that the code will know we have an up-to-date copy.
 				this.lastCacheFlush = Date.now();
@@ -63,10 +65,14 @@ class SheetDatabase {
 				let item = {};
 				for (let i = 0; i < this.jsNames.length; i++) {
 					// To handle special cases
-					if (row[i] == 'TRUE') {
+					if(this.colTitles[i].search(/\$/) !== -1) { // $ means interpret as string, no matter what.
+						item[this.jsNames[i]] = row[i];	
+					} else if (row[i] == 'TRUE') {
 						item[this.jsNames[i]] = true;
 					} else if (row[i] == 'FALSE') {
-						item[this.jsNames[i]] = false;						
+						item[this.jsNames[i]] = false;	
+					} else if (!isNaN(row[i])) { // If it can be expressed as a number...
+						item[this.jsNames[i]] = Number(row[i]);
 					} else {
 						item[this.jsNames[i]] = row[i];						
 					}
@@ -75,11 +81,11 @@ class SheetDatabase {
 			}
 			this.lastCacheGet = Date.now();
 			callback();
+			this.cacheOpInProgress = false;
+			for(let func of this.onCacheOpFinished) {
+				func();
+			}
 		});
-		this.cacheOpInProgress = false;
-		for(let func of this.onCacheOpFinished) {
-			func();
-		}
 	}
 	
 	_flushToSource(callback) {
