@@ -288,9 +288,11 @@ app.get('/api/v1/partRequests/list', (req, res) => {
 			for (let item of items) {
 				item.itemNumber = undefined;
 				item.taxExempt = undefined;
-				item.requestedBy = undefined;
-				item.dateRequested = undefined;
-				trimmedData.append(item);
+				if(item.requestedBy !== member.emailAddress) {
+					item.requestedBy = undefined;
+					item.dateRequested = undefined;
+				}
+				trimmedData.push(item);
 			}
 			res.status(200).send(trimmedData);
 		});
@@ -306,8 +308,11 @@ app.get('/api/v1/partRequests/:id', (req, res) => {
 				return;
 			}
 			if (member.accessLevel !== ACCESS_LEVEL_LEADER) {
-				item.requestedBy = undefined;
-				item.dateRequested = undefined;
+				if(item.requestedBy !== member.emailAddress) {
+					// So that client can check if it belongs to the current member.
+					item.requestedBy = undefined;
+					item.dateRequested = undefined;
+				}
 			}
 			res.status(200).send(item);
 		})
@@ -360,11 +365,10 @@ app.patch('/api/v1/partRequests/:id', (req, res) => {
 	});
 });
 
-app.get('/assets/*', (req, res) => res.sendFile(rootDir + req.path));
-app.get('/*.js', (req, res) => res.sendFile(rootDir + req.path));
-app.get('/*.css', (req, res) => res.sendFile(rootDir + req.path));
-app.get('/*', (req, res) => res.sendFile(rootDir + '/index.html'));
+app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));
+app.get('/private/*', (req, res) => res.sendFile(rootDir + '/index.html'));
 app.get('/', (req, res) => res.sendFile(rootDir + '/index.html'));
+app.get('/*', (req, res) => res.sendFile(rootDir + req.path));
 
 // Arg 0 is node. Arg 1 is script name. This code will switch how the server runs depending on whether or not arg2 is 'prod' (production mode)
 if ((process.argv.length >= 3) && (process.argv[2].toLowerCase() == 'prod')) {
