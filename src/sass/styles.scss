@@ -8,16 +8,24 @@ div.spacing {
 	height: 1em;
 }
 
-mat-card.one-line img {
-	float: left;
-	margin-right: 1em;
-}
-
-mat-card.two-line img {
-	float: left;
-	margin-right: 1em;
-}
-
-mat-card.one-line div.mat-h2 {
+mat-card .mat-h2 {
 	line-height: 2em;
+	margin: 0;
+}
+
+mat-card .mat-icon {
+	text-align: right;
+	line-height: 1.5em;
+}
+
+mat-card .mat-card-subtitle {
+	margin-bottom: 0;
+}
+
+mat-card .mat-card-header-text {
+	width: 100%;
+}
+
+mat-card img {
+	margin-right: 0.5em;
 }

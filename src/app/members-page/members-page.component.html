@@ -3,16 +3,14 @@
 <ng-container *ngIf="guard.show">
 	<ng-template #card let-member="member">
 		<mat-card routerLink="/private/members/{{member.emailAddress}}" class="two-line">
-			<img mat-card-avatar [src]="member.profilePicture" class="user-icon">
-			<div class="user-description">
-				<div class="mat-h2">{{member.firstName}} {{member.lastName}}</div>
-				<div class="mat-h4">
-					{{member.gradeLevel}}, {{member.preferredTeam}} Team
-				</div>
-			</div>
-			<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.LEADER) || (backend.pollCurrentMember().emailAddress === member.emailAddress)">mode_edit</mat-icon>
-			<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.MEMBER) && (backend.pollCurrentMember().emailAddress !== member.emailAddress)">visibility</mat-icon>
-		</mat-card>		
+			<mat-card-header>
+				<img mat-card-avatar [src]="member.profilePicture" class="user-icon">
+				<mat-card-title>{{member.firstName}} {{member.lastName}}</mat-card-title>
+				<mat-card-subtitle>{{member.gradeLevel}}, {{member.preferredTeam}} Team</mat-card-subtitle>
+				<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.LEADER) || (backend.pollCurrentMember().emailAddress === member.emailAddress)">mode_edit</mat-icon>
+				<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.MEMBER) && (backend.pollCurrentMember().emailAddress !== member.emailAddress)">visibility</mat-icon>
+			</mat-card-header>
+		</mat-card>
 	</ng-template>
 	<h1 class="mat-h1">Leaders</h1>
 	<app-grid-layout>
