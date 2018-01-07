@@ -7,3 +7,17 @@ h1 {
 div.spacing {
 	height: 1em;
 }
+
+mat-card.one-line img {
+	float: left;
+	margin-right: 1em;
+}
+
+mat-card.two-line img {
+	float: left;
+	margin-right: 1em;
+}
+
+mat-card.one-line div.mat-h2 {
+	line-height: 2em;
+}
