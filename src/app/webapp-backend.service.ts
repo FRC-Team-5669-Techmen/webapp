@@ -33,6 +33,34 @@ export interface Member {
   profilePicture?: string;
 }
 
+export interface PartVendor {
+  vendorName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  phone?: string;
+  email?: string;
+}
+
+export enum PartRequestStatus {
+  PENDING = 'Pending',
+  ORDERED = 'Order Submitted',
+  RESOLVED = 'Parts Received'
+}
+
+export interface PartRequest {
+  vendorName?: string;
+  itemDescription?: string;
+  itemNumber?: string;
+  taxExempt?: boolean;
+  quantity?: number;
+  price?: number;
+  requestedBy?: string;
+  dateRequested?: string;
+  status?: PartRequestStatus;
+}
+
 const quantifiedAccessLevels = {
   visitor: 0,
   restricted: 1,
@@ -164,5 +192,29 @@ export class WebappBackendService {
 
   getMemberList(): Promise<HttpResponse<Array<Member>>> {
     return this.get<Array<Member>>('/api/v1/members/list');
+  }
+
+  getVendors(): Promise<HttpResponse<Array<PartVendor>>> {
+    return this.get<Array<PartVendor>>('/api/v1/partVendors/list');
+  }
+
+  getVendor(name: string): Promise<HttpResponse<PartVendor>> {
+    return this.get<PartVendor>('/api/v1/partVendors/' + name);
+  }
+
+  getPartRequests(): Promise<HttpResponse<Array<PartRequest>>> {
+    return this.get<Array<PartRequest>>('/api/v1/partRequests/list');
+  }
+
+  getPartRequest(id: string): Promise<HttpResponse<PartRequest>> {
+    return this.get<PartRequest>('/api/v1/partRequests/' + id);
+  }
+
+  createPartRequest(partRequest: PartRequest): Promise<HttpResponse<PartRequest>> {
+    return this.post<PartRequest>('/api/v1/partRequests/create', partRequest);
+  }
+
+  patchPartRequest(id: string, requestData: PartRequest): Promise<HttpResponse<PartRequest>> {
+    return this.patch<PartRequest>('/api/v1/partRequests/' + id, requestData);
   }
 }

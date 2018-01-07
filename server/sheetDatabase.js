@@ -169,6 +169,16 @@ class SheetDatabase {
 		this.lastCacheChange = Date.now();
 		this._queuePush();		
 	}
+	
+	getAllItems(callback) {
+		this._checkStaleness(() => {
+			let result = [];
+			for (let item of this.data) {
+				result.push(Object.assign({}, item)); // Copy items to prevent overwriting cache data
+			}
+			callback(result);
+		})
+	}
 
 	getItems(startIndex, stopIndex, callback) {
 		this._checkStaleness(() => {

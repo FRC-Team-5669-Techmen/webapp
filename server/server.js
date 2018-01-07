@@ -260,6 +260,106 @@ app.patch('/api/v1/members/:email', (req, res) => {
 	});	
 });
 
+app.get('/api/v1/vendors/list', (req, res) => {
+	dbs.partVendors.getAllItems((items) => {
+		res.status(200).send(items);
+	})
+})
+
+app.get('/api/v1/vendors/:name', (req, res) => {
+	const name = req.params.name;
+	dbs.partVendors.getAllValues('vendorName', (values) => {
+		const index = values.indexOf(name);
+		if (index === -1) {
+			res.status(404).send({error: 'There is no vendor with that name.'});
+		} else {
+			dbs.partVendors.getItem(index, (item) => {
+				res.status(200).send(item);
+			})
+		}
+	});
+});
+
+app.get('/api/v1/partRequests/list', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
+		dbs.partRequests.getAllItems((items) => {
+			let trimmedData = [];
+			// Only show some data, use /partRequests/:id to get more info
+			for (let item of items) {
+				item.itemNumber = undefined;
+				item.taxExempt = undefined;
+				item.requestedBy = undefined;
+				item.dateRequested = undefined;
+				trimmedData.append(item);
+			}
+			res.status(200).send(trimmedData);
+		});
+	});
+});
+
+app.get('/api/v1/partRequests/:id', (req, res) => {
+	const id = req.params.id;
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
+		dbs.partRequests.findItemWithValue('requestId', id, (item) => {
+			if (!item) {
+				res.status(404).send({error: 'There is no part request with id ' + id + '.'});
+				return;
+			}
+			if (member.accessLevel !== ACCESS_LEVEL_LEADER) {
+				item.requestedBy = undefined;
+				item.dateRequested = undefined;
+			}
+			res.status(200).send(item);
+		})
+	});
+});
+
+const STATUS_PENDING = 'Pending', STATUS_ORDERED = 'Order Submitted', STATUS_RESOLVED = 'Parts Received'
+
+app.post('/api/v1/partRequests/create', (req, res) => {
+	const data = req.body;
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
+		// Generate random 10 digit number from decimal part of random float.
+		data.requestId = Math.random().toString().slice(2, 12);
+		data.requestedBy = member.emailAddress;
+		data.dateRequested = (new Date()).toString();
+		data.status = STATUS_PENDING;
+		dbs.partRequests.push(data);
+		res.status(201).send(data);
+	});
+});
+
+app.patch('/api/v1/partRequests/:id', (req, res) => {
+	const data = req.body;
+	let id = req.params.id;
+	dbs.partRequests.findItemWithValue('requestId', id, (item) => {
+		if (item.status === STATUS_ORDERED) {
+			res.status(423).send({error: 'This part request has already been submitted to the vendor, so it cannot be changed.'});
+			return;
+		} else if (item.status === STATUS_RESOLVED) {
+			res.status(423).send({error: 'This part request has already been fulfilled, so it cannot be changed.'});
+			return;			
+		}
+		checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
+			if ((item.requestedBy !== member.emailAddress) && (member.accessLevel !== ACCESS_LEVEL_LEADER)) {
+				res.status(403).send({error: 'The member must be a leader to be able to edit part requests created by other members.'});
+				return;
+			}
+			// Do not overwrite things that should not be overwritten.
+			data.requestId = undefined;
+			data.requestedBy = undefined;
+			data.dateRequested = undefined;
+			if (member.accessLevel !== ACCESS_LEVEL_LEADER) {
+				data.status = undefined;
+			}
+			for (let key in data) {
+				item[key] = data[key];
+			}
+			res.status(200).send(item);
+		});		
+	});
+});
+
 app.get('/assets/*', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*.js', (req, res) => res.sendFile(rootDir + req.path));
 app.get('/*.css', (req, res) => res.sendFile(rootDir + req.path));
