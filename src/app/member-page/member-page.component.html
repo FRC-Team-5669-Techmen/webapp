@@ -31,9 +31,9 @@
 				</mat-form-field>
 				<mat-form-field *ngIf="backend.pollAccessLevel() === AccessLevel.LEADER">
 					<mat-select required placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
-						<mat-option value='Construction'>Construction</mat-option>
 						<mat-option value='Design'>Design</mat-option>
 						<mat-option value='Programming'>Programming</mat-option>
+						<mat-option value='Prototyping'>Prototyping</mat-option>
 						<mat-option value='Publicity'>Publicity</mat-option>
 					</mat-select>
 				</mat-form-field>
