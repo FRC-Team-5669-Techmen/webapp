@@ -2,7 +2,7 @@
 </app-page-guard>
 <ng-container *ngIf="guard.show">
 	<ng-template #card let-member="member">
-		<mat-card routerLink="/private/members/{{member.emailAddress}}">
+		<mat-card routerLink="/private/members/{{member.emailAddress}}" class="two-line">
 			<img mat-card-avatar [src]="member.profilePicture" class="user-icon">
 			<div class="user-description">
 				<div class="mat-h2">{{member.firstName}} {{member.lastName}}</div>
