@@ -1,0 +1,7 @@
+mat-card-content > * {
+	width: 100%;
+}
+
+mat-checkbox /deep/ * {
+	white-space: initial;
+}

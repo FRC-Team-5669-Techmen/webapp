@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./part-requests-page.component.scss']
 })
 export class PartRequestsPageComponent implements OnInit {
-  requests: Array<PartRequest> = [];
+  requests: Array<PartRequest> = null;
 
   get AccessLevel() { // For *ngIfs
     return AccessLevel;
@@ -25,6 +25,7 @@ export class PartRequestsPageComponent implements OnInit {
       this.backend.getPartRequests().then((res) => {
         if (res.ok) {
           this.requests = res.body;
+          console.log(this.requests);
         }
       });
     });

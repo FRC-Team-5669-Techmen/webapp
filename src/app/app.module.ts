@@ -24,6 +24,7 @@ import { PartRequestsPageComponent } from './part-requests-page/part-requests-pa
 import { ContactInfoComponent } from './contact-info/contact-info.component';
 import { ContactInfoPageComponent } from './contact-info-page/contact-info-page.component';
 import { PlatformIdService } from './platform-id.service';
+import { PartRequestPageComponent } from './part-request-page/part-request-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
@@ -32,7 +33,8 @@ const appRoutes: Routes = [
   { path: 'private/contact', component: ContactInfoPageComponent },
   { path: 'private/members', component: MembersPageComponent },
   { path: 'private/members/:email', component: MemberPageComponent },
-  { path: 'private/parts', component: PartRequestsPageComponent }
+  { path: 'private/parts', component: PartRequestsPageComponent },
+  { path: 'private/parts/:id', component: PartRequestPageComponent }
 ];
 
 @NgModule({
@@ -49,7 +51,8 @@ const appRoutes: Routes = [
     PageGuardComponent,
     PartRequestsPageComponent,
     ContactInfoComponent,
-    ContactInfoPageComponent
+    ContactInfoPageComponent,
+    PartRequestPageComponent
   ],
   imports: [
     BrowserModule,

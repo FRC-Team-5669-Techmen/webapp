@@ -1,4 +1,4 @@
-<app-page-guard loadingMessage="Loading part requests..." [loaded]="!!requests.length" [accessLevel]="AccessLevel.MEMBER" #guard>
+<app-page-guard loadingMessage="Loading part requests..." [loaded]="!!requests" [accessLevel]="AccessLevel.MEMBER" #guard>
 </app-page-guard>
 <ng-container *ngIf="guard.show">
 	<ng-template #grid let-list="list" let-title="title">
@@ -6,7 +6,7 @@
 			<div class="spacing"></div>
 			<h1 class="mat-h1">{{title}}</h1>
 			<app-grid-layout>
-				<mat-card *ngFor="let request of list">
+				<mat-card *ngFor="let request of list" routerLink="/private/parts/{{request.requestId}}">
 					<mat-card-header>
 						<img mat-card-avatar>
 						<mat-card-title>{{request.quantity}}x {{request.itemDescription}}</mat-card-title>
@@ -20,7 +20,7 @@
 	</ng-template>
 	<h1 class="mat-h1">Actions</h1>
 	<app-grid-layout>
-		<mat-card class="one-line">
+		<mat-card class="one-line" routerLink="/private/parts/create">
 			<mat-card-header>
 				<img mat-card-avatar src="/assets/add_icon.svg">
 				<div class="mat-h2">Create Part Request</div>

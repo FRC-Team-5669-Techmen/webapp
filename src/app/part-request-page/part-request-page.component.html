@@ -1,0 +1,49 @@
+<app-page-guard loadingMessage="Loading part request..." [loaded]="partRequest && vendors" [accessLevel]="AccessLevel.MEMBER" #guard>
+</app-page-guard>
+<app-centered-layout *ngIf="guard.show">
+	<mat-card *ngIf="isNew || canEdit">
+		<form #partForm="ngForm" (submit)="submit()">
+			<mat-card-content>
+				<h2 class="mat-h2">{{(isNew) ? 'New Part Request' : 'Edit Part Request'}}</h2>
+				<div *ngIf="!isNew" style="margin-bottom: 1em;">
+					<div class="mat-body-1">Submitted by {{submitter || partRequest.requestedBy}}</div>
+					<div class="mat-body-1">Submitted on {{partRequest.dateRequested}}</div>
+				</div>
+				<mat-form-field>
+					<mat-select required placeholder='Vendor' [(ngModel)]='partRequest.vendorName' name='vendor'>
+						<mat-option *ngFor="let vendor of vendors" [value]="vendor.vendorName">{{vendor.vendorName}}</mat-option>
+					</mat-select>
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required placeholder="Item Number (e.g. am-1234)" [(ngModel)]="partRequest.itemNumber" name="itemNumber">
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required placeholder="Item Name / Description" [(ngModel)]="partRequest.itemDescription" name="itemDescription">
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required type="number" placeholder="Quantity" [(ngModel)]="partRequest.quantity" name="quantity">
+				</mat-form-field>
+				<p class="mat-caption" style="margin-top: -0.5em;">(If the item is a package containing multiple pieces [e.g. a 50 pack of screws], enter the number of packages, not the number of items.)</p>
+				<mat-form-field>
+					<span matPrefix>$</span>
+					<input matInput required type="number" placeholder="Price (per unit / package)" [(ngModel)]="partRequest.price" name="price" (blur)="validatePrice($event)">
+				</mat-form-field>
+				<ng-container *ngIf="!isNew && isLeader">
+					<mat-form-field>
+						<mat-select required placeholder="Status" [(ngModel)]='partRequest.status' name="status">
+							<mat-option value='{{PartRequestStatus.PENDING}}'>Pending (the parts have not been ordered yet.)</mat-option>
+							<mat-option value='{{PartRequestStatus.ORDERED}}'>Order Submitted</mat-option>
+							<mat-option value='{{PartRequestStatus.RESOLVED}}'>Parts Received</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<p class="mat-body-1" required *ngIf="partRequest.status !== PartRequestStatus.PENDING">
+						Note that you will not be able to modify details of this part request after changing its status to not be pending.
+					</p>
+				</ng-container>
+			</mat-card-content>
+			<button mat-button type='submit' [disabled]='!partForm.form.valid || submitting' class='mat-raised-button mat-accent' color='accent'>
+				{{(isNew) ? ((submitting) ? "Submitting..." : "Submit")  : ((submitting) ?  "Applying Changes..." : "Apply Changes")}}
+			</button>
+		</form>
+	</mat-card>
+</app-centered-layout>
