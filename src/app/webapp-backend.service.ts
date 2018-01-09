@@ -50,6 +50,7 @@ export enum PartRequestStatus {
 }
 
 export interface PartRequest {
+  requestId?: string;
   vendorName?: string;
   itemDescription?: string;
   itemNumber?: string;
@@ -195,11 +196,11 @@ export class WebappBackendService {
   }
 
   getVendors(): Promise<HttpResponse<Array<PartVendor>>> {
-    return this.get<Array<PartVendor>>('/api/v1/partVendors/list');
+    return this.get<Array<PartVendor>>('/api/v1/vendors/list');
   }
 
   getVendor(name: string): Promise<HttpResponse<PartVendor>> {
-    return this.get<PartVendor>('/api/v1/partVendors/' + name);
+    return this.get<PartVendor>('/api/v1/vendors/' + name);
   }
 
   getPartRequests(): Promise<HttpResponse<Array<PartRequest>>> {

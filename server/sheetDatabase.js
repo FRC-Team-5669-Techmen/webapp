@@ -85,6 +85,7 @@ class SheetDatabase {
 			for(let func of this.onCacheOpFinished) {
 				func();
 			}
+			this.onCacheOpFinished = [];
 		});
 	}
 	
@@ -112,11 +113,12 @@ class SheetDatabase {
 		}, () => {
 			this.lastCacheFlush = Date.now();
 			callback();
+			this.cacheOpInProgress = false;
+			for(let func of this.onCacheOpFinished) {
+				func();
+			}
+			this.onCacheOpFinished = [];
 		});
-		this.cacheOpInProgress = false;
-		for(let func of this.onCacheOpFinished) {
-			func();
-		}
 	}
 	
 	_queuePush() {
