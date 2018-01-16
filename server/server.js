@@ -1,3 +1,5 @@
+global.productionMode = (process.argv.length >= 3) && (process.argv[2].toLowerCase() == 'prod');
+
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
@@ -10,12 +12,9 @@ const google = require('./google');
 const sd = require('./sheetDatabase');
 const drive = require('./drive')
 const dbs = require('./databases');
+const pdf = require('./pdf');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
-
-// Begin testing area
-
-// End testing area
 
 var app = express();
 app.use(compression());
@@ -38,13 +37,19 @@ const ACCESS_LEVEL_VISITOR = 'visitor', ACCESS_LEVEL_RESTRICTED = 'restricted', 
 // Callback is passed the contents of the token in the authorization header of req if successful, null if not, and
 // undefined if header is not present.
 function validateAuthorization(req, callback) {
-	const authorization = req.get('authorization');
+	const authorization = req.get('authorization') || req.query.authorization;
 	if(!authorization) {
 		callback(undefined);
 		return;
 	}
 	const split = authorization.split(' ');
-	const method = split[0], token = split[1];
+	let method, token;
+	if(split.length === 1) {
+		token = split[0];
+	} else {
+		method = split[0];
+		token = split[1];
+	}
 	google.verify(token, callback);
 }
 
@@ -315,6 +320,35 @@ app.post('/api/v1/partRequests/create', (req, res) => {
 	});
 });
 
+// Parameters are passed as query strings because I can't get TS to download files.
+app.get('/api/v1/partRequests/generateForm', (req, res) => {
+	const ids = req.query.include;
+	const auth = req.query.authToken;
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+		let vendor = null;
+		let toList = [];
+		dbs.partRequests.getAllItems((requests) => {
+			for (request of requests) {
+				console.log(request.requestId);
+				if (ids.indexOf(request.requestId) !== -1) {
+					if (toList.length === 0) {
+						vendor = request.vendorName;
+					} else if (request.vendorName !== vendor) {
+						res.status(400).send({error: 'All part requests to be put in a printed form must be from the same vendor.'});
+						return;
+					}
+					toList.push(request);
+				}
+			}
+			console.log(vendor);
+			dbs.partVendors.findItemWithValue('vendorName', vendor, (vendorDetails) => {
+				console.log(vendorDetails);
+				pdf.createAndSendPurchaseForm(vendorDetails, toList, res);
+			})
+		});
+	});
+});
+
 app.get('/api/v1/partRequests/:id', (req, res) => {
 	const id = req.params.id;
 	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
@@ -374,13 +408,17 @@ app.patch('/api/v1/partRequests/:id', (req, res) => {
 	});
 });
 
+//Begin testing area
+
+//End testing area
+
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));
 app.get('/private/*', (req, res) => res.sendFile(rootDir + '/index.html'));
 app.get('/', (req, res) => res.sendFile(rootDir + '/index.html'));
 app.get('/*', (req, res) => res.sendFile(rootDir + req.path));
 
 // Arg 0 is node. Arg 1 is script name. This code will switch how the server runs depending on whether or not arg2 is 'prod' (production mode)
-if ((process.argv.length >= 3) && (process.argv[2].toLowerCase() == 'prod')) {
+if (productionMode) {
 	// Just bumps the user to HTTPS. Serves no content.
 	console.log('Starting in production mode.');
 	var redirector = express();

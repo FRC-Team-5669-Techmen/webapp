@@ -218,4 +218,13 @@ export class WebappBackendService {
   patchPartRequest(id: string, requestData: PartRequest): Promise<HttpResponse<PartRequest>> {
     return this.patch<PartRequest>('/api/v1/partRequests/' + id, requestData);
   }
+
+  getPartRequestFormDownloadUrl(partRequestIds: Array<string>): string {
+    let url = '/api/v1/partRequests/generateForm?include=';
+    url += encodeURIComponent(partRequestIds.join(','));
+    url += '&authorization=';
+    url += encodeURIComponent(this.yolo.pollLoginDetails().idToken);
+    console.log(url);
+    return url;
+  }
 }
