@@ -315,7 +315,6 @@ app.post('/api/v1/partRequests/create', (req, res) => {
 		data.dateRequested = (new Date()).toString();
 		data.status = STATUS_PENDING;
 		dbs.partRequests.push(data);
-		console.log(data);
 		res.status(201).send(data);
 	});
 });
@@ -325,26 +324,17 @@ app.get('/api/v1/partRequests/generateForm', (req, res) => {
 	const ids = req.query.include;
 	const auth = req.query.authToken;
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
-		let vendor = null;
-		let toList = [];
 		dbs.partRequests.getAllItems((requests) => {
-			for (request of requests) {
-				console.log(request.requestId);
-				if (ids.indexOf(request.requestId) !== -1) {
-					if (toList.length === 0) {
-						vendor = request.vendorName;
-					} else if (request.vendorName !== vendor) {
-						res.status(400).send({error: 'All part requests to be put in a printed form must be from the same vendor.'});
-						return;
-					}
-					toList.push(request);
+			let toList = [];
+			for(let i = 0; i < requests.length; i++) {
+				if(ids.indexOf(requests[i].requestId) !== -1) {
+					toList.push(requests[i]);
+					dbs.partRequests.set(i, 'status', STATUS_ORDERED);
 				}
 			}
-			console.log(vendor);
-			dbs.partVendors.findItemWithValue('vendorName', vendor, (vendorDetails) => {
-				console.log(vendorDetails);
-				pdf.createAndSendPurchaseForm(vendorDetails, toList, res);
-			})
+			dbs.partVendors.getAllItems((vendorList) => {
+				pdf.createAndSendPurchaseForm(vendorList, toList, res);
+			});
 		});
 	});
 });

@@ -1,7 +1,8 @@
+const { exec } = require('child_process');
 const fs = require('fs');
 const pdfFiller = require('pdffiller');
 
-module.exports.createAndSendPurchaseForm = function(vendor, partRequests, res) {
+function createFormPage(vendor, partRequests, filename) {
 	let data = {};
 	
 	data.vendor_name = vendor.vendorName;
@@ -32,19 +33,78 @@ module.exports.createAndSendPurchaseForm = function(vendor, partRequests, res) {
 	
 	if(productionMode) { // I do not have admin rights on the development computer to be able to install a required package.
 		var source = './fillablePurchaseRequestForm.pdf';
-		var dest = '/tmp/out.pdf';
-		pdfFiller.fillForm(source, dest, data, (err) => {
-			if(err) throw err;
-			res.setHeader('Content-disposition', 'attachment; filename=Purchase Request Form.pdf');
-			res.setHeader('Content-type', 'application/pdf');
-			res.status(200).sendFile('/tmp/out.pdf');
+		var dest = '/tmp/' + filename + '.pdf';
+		return new Promise((resolve, reject) => {
+			pdfFiller.fillForm(source, dest, data, (err) => {
+				if(err) {
+					reject(err);
+				} else {
+					resolve(dest);
+				}
+			});
 		});
 	} else {
-		fs.writeFile('/tmp/out.txt', 'This is test text!', (err) => {
-			if(err) throw err;
-			res.setHeader('Content-disposition', 'attachment; filename=Purchase Request Form.txt');
-			res.setHeader('Content-type', 'application/octet-stream');
-			res.status(200).send(JSON.stringify(data));
+		let dest = '/tmp/' + filename + '.txt';
+		return new Promise((resolve, reject) => {
+			fs.writeFile(dest, JSON.stringify(data), (err) => {
+				if(err) {
+					reject(err);
+				} else {
+					resolve(dest);
+				}
+			});
 		});
+	}	
+}
+
+module.exports.createAndSendPurchaseForm = function(vendorList, partRequests, res) {
+	// Group requests into individual vendors.
+	let buckets = {};
+	for(let request of partRequests) {
+		if(!buckets[request.vendorName]) {
+			buckets[request.vendorName] = [request];
+		} else {
+			buckets[request.vendorName].push(request);
+		}
 	}
+	
+	// Group each bucket into pages of 10 requests each.
+	let pages = [];
+	for(let vendor in buckets) {
+		for(let i = 0; i < buckets[vendor].length; i += 10) {
+			pages.push({
+				vendor: vendor, 
+				requests: buckets[vendor].slice(i, Math.min(i + 10, buckets[vendor].length)),
+				uuid: Math.random().toFixed(10).toString().slice(2)
+			});
+		}
+	}
+	
+	let promises = [];
+	for(let page of pages) {
+		promises.push(createFormPage(vendorList.find((e) => e.vendorName === page.vendor), page.requests, page.uuid));
+	}
+	
+	Promise.all(promises).then((filenames) => {
+		if(productionMode) {
+			res.setHeader('Content-disposition', 'attachment; filename=Part Request Form.pdf');
+			res.setHeader('Content-type', 'application/pdf');
+			exec('pdftk ' + filenames.join(' ') + ' cat output /tmp/out.pdf', () => {
+				res.status(200).sendFile('/tmp/out.pdf');
+			});
+		} else {
+			res.setHeader('Content-disposition', 'attachment; filename=Part Request Form.txt');
+			res.setHeader('Content-type', 'text/plain');
+			exec('cat ' + filenames.join(' ') + ' > /tmp/out.txt', () => {
+				res.status(200).sendFile('/tmp/out.txt');
+			});
+		}
+		/*
+		 * 
+				res.setHeader('Content-disposition', 'attachment; filename=Purchase Request Form.pdf');
+				res.setHeader('Content-type', 'application/pdf');
+				res.status(200).sendFile('/tmp/out.pdf');
+		 */
+		
+	});
 }
