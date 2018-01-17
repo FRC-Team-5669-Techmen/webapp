@@ -1,0 +1,27 @@
+<app-page-guard loadingMessage="Loading part requests..." [loaded]="!!requests" [accessLevel]="AccessLevel.MEMBER" #guard>
+</app-page-guard>
+<ng-container *ngIf="guard.show && requests">
+	<ng-template #grid let-list="list" let-title="title" let-add="add">
+		<ng-container *ngIf="(list.length > 0) || !add">
+			<div class="spacing"></div>
+			<h1 class="mat-h1">{{title}}</h1>
+			<h3 class="mat-h3" *ngIf="!add && !list.length">Add some part requests to be included in the form by clicking on them below.</h3>
+			<app-grid-layout>
+				<mat-card *ngFor="let request of list" (click)="(add) ? include(request.requestId) : remove(request.requestId)">
+					<mat-card-header>
+						<img mat-card-avatar>
+						<mat-card-title>{{request.quantity}}x {{request.itemDescription}}</mat-card-title>
+						<mat-card-subtitle>${{request.price}} from {{request.vendorName}}</mat-card-subtitle>
+						<mat-icon>{{(add) ? "add" : "clear"}}</mat-icon>
+					</mat-card-header>
+				</mat-card>
+			</app-grid-layout>
+		</ng-container>
+	</ng-template>
+	<a mat-button [disabled]="!included.length || downloading" [href]="downloadUrl" download="Part Request Form" 
+		class='mat-raised-button mat-accent' (click)="setDownload()">
+		{{(downloading) ? "Generating Form..." : "Generate Request Form"}}
+	</a>
+	<ng-container *ngTemplateOutlet="grid;context:{list:getIncludedRequests(), title:'Currently Included', add:false}"></ng-container>
+	<ng-container *ngTemplateOutlet="grid;context:{list:getAllPendingRequests(), title:'Pending Part Requests', add:true}"></ng-container>
+</ng-container>

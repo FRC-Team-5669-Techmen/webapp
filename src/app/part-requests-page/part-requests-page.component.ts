@@ -17,15 +17,22 @@ export class PartRequestsPageComponent implements OnInit {
     return PartRequestStatus;
   }
 
+  get pendingIdList() {
+    let tr = '';
+    for (const request of this.getAllRequestsWithStatus(PartRequestStatus.PENDING)) {
+      tr += request.requestId + ',';
+    }
+    return tr.slice(0, tr.length - 1);
+  }
+
   constructor(private backend: WebappBackendService) { }
 
   ngOnInit() {
-    this.requests = [];
+    this.requests = null;
     this.backend.getCurrentMemberAsync().then((member) => {
       this.backend.getPartRequests().then((res) => {
         if (res.ok) {
           this.requests = res.body;
-          console.log(this.requests);
         }
       });
     });

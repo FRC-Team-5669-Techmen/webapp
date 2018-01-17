@@ -26,6 +26,12 @@
 				<div class="mat-h2">Create Part Request</div>
 			</mat-card-header>
 		</mat-card>
+		<mat-card class="one-line" routerLink="/private/parts/generateForm" [queryParams]="{include: pendingIdList}">
+			<mat-card-header>
+				<img mat-card-avatar src="/assets/form_icon.svg">
+				<div class="mat-h2">Generate Form w/ Pending Requests</div>
+			</mat-card-header>
+		</mat-card>
 	</app-grid-layout>
 	<ng-container *ngTemplateOutlet="grid;context:{list:getAllRequestsByCurrentMember(), title:'Your Part Requests'}"></ng-container>
 	<ng-container *ngTemplateOutlet="grid;context:{list:getAllRequestsWithStatus(PartRequestStatus.PENDING), title:'Pending Part Requests'}"></ng-container>

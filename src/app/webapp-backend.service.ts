@@ -224,7 +224,6 @@ export class WebappBackendService {
     url += encodeURIComponent(partRequestIds.join(','));
     url += '&authorization=';
     url += encodeURIComponent(this.yolo.pollLoginDetails().idToken);
-    console.log(url);
     return url;
   }
 }

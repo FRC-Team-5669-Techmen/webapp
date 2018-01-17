@@ -25,6 +25,7 @@ import { ContactInfoComponent } from './contact-info/contact-info.component';
 import { ContactInfoPageComponent } from './contact-info-page/contact-info-page.component';
 import { PlatformIdService } from './platform-id.service';
 import { PartRequestPageComponent } from './part-request-page/part-request-page.component';
+import { RequestFormPageComponent } from './request-form-page/request-form-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
@@ -34,6 +35,7 @@ const appRoutes: Routes = [
   { path: 'private/members', component: MembersPageComponent },
   { path: 'private/members/:email', component: MemberPageComponent },
   { path: 'private/parts', component: PartRequestsPageComponent },
+  { path: 'private/parts/generateForm', component: RequestFormPageComponent },
   { path: 'private/parts/:id', component: PartRequestPageComponent }
 ];
 
@@ -52,7 +54,8 @@ const appRoutes: Routes = [
     PartRequestsPageComponent,
     ContactInfoComponent,
     ContactInfoPageComponent,
-    PartRequestPageComponent
+    PartRequestPageComponent,
+    RequestFormPageComponent
   ],
   imports: [
     BrowserModule,
