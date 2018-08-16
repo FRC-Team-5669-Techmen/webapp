@@ -14,7 +14,6 @@ import { HomePageComponent } from './home-page/home-page.component';
 import { RecruitPageComponent } from './recruit-page/recruit-page.component';
 import { SlideshowBackgroundComponent } from './slideshow-background/slideshow-background.component';
 import { WebappBackendService } from './webapp-backend.service';
-import { YoloClientService } from './yolo-client.service';
 import { CenteredLayoutComponent } from './centered-layout/centered-layout.component';
 import { MembersPageComponent } from './members-page/members-page.component';
 import { GridLayoutComponent } from './grid-layout/grid-layout.component';
@@ -78,7 +77,6 @@ const appRoutes: Routes = [
   providers: [
     PlatformIdService,
     WebappBackendService,
-    YoloClientService,
     DiscordService
   ],
   bootstrap: [AppComponent]

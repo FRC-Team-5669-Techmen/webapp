@@ -1,11 +1,10 @@
+import { DiscordService } from '../discord.service';
 import { Member, WebappBackendService, AccessLevel } from '../webapp-backend.service';
-import { YoloClientService, LoginDetails } from '../yolo-client.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatInput, MatCheckbox } from '@angular/material';
 
 enum Status {
   Login,
-  SeperateLogin,
   GettingData,
   Submitting,
   Submitted,
@@ -44,30 +43,16 @@ export class RecruitPageComponent implements OnInit {
     return console;
   }
 
-  constructor(private backend: WebappBackendService, public client: YoloClientService) { }
+  discordUrl = '';
+
+  constructor(private backend: WebappBackendService, public discord: DiscordService) {
+    this.discord.getAuthUrl().then((url) => {
+      this.discordUrl = url;
+    });
+  }
 
   ngOnInit() {
-    this.client.hint().then((res: LoginDetails) => {
-      const names = res.displayName.split(' ');
-      this.data.firstName = names[0];
-      this.data.lastName = names[1];
-      this.data.emailAddress = res.id;
-      this.status = Status.GettingData;
-      setTimeout(() => this.signInCheckBox.nativeElement.click(), 100);
-      // The webapp backend checks if a google account belongs to an FRC member whenever they log in. If this promise resolves, the backend
-      // found the user's details, and we thus do not need to fill out the form anymore. This is also handily resolved when the user fills
-      // in the form, so no need to duplicate this code in the submit() function.
-      this.backend.getCurrentMemberAsync().then((member: Member) => {
-        this.data = member;
-        this.status = Status.Submitted;
-        setTimeout(() => this.formCheckbox.nativeElement.click(), 100);
-      });
-    }).catch((err) => {
-      // User has never logged into google before (at least not that we can tell.)
-      if (err.type === 'noCredentialsAvailable') {
-        this.status = Status.SeperateLogin;
-      }
-    });
+    // TODO: this used to retrieve data from Google. Make it fill in with whatever we know about the user.
   }
 
   submit(): void {

@@ -1,5 +1,4 @@
 import { AccessLevel, WebappBackendService } from '../webapp-backend.service';
-import { YoloClientService } from '../yolo-client.service';
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
@@ -21,12 +20,12 @@ export class PageGuardComponent implements OnInit {
     return this.loaded && this.backend.shouldHaveAccess(this.accessLevel);
   }
 
-  constructor(public backend: WebappBackendService, private yolo: YoloClientService) { }
+  constructor(public backend: WebappBackendService) { }
 
   ngOnInit() {
     const l = () => this.loginInProgress = false;
     const m = () => setTimeout(l, 1000);
-    this.yolo.getCurrentLoginAttempt().then(m).catch(l);
+    // this.yolo.getCurrentLoginAttempt().then(m).catch(l); // TODO: Replace this.
     this.backend.getCurrentMemberAsync().then(l);
   }
 }

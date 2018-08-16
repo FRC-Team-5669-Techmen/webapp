@@ -1,34 +1,28 @@
 <app-centered-layout>
 	<mat-card id='login-prompt'>
-		<mat-checkbox *ngIf='status > Status.SeperateLogin' color='primary'>
+		<mat-checkbox *ngIf='status > Status.Login' color='primary'>
 			<h2 class='mat-h2' #signInCheckbox>
-				1. Sign in with Google
+				1. Sign in with your Discord account
 			</h2>
 		</mat-checkbox>
-		<h2 class='mat-h2' *ngIf='status <= Status.SeperateLogin'>
-			1. Sign in with Google
+		<h2 class='mat-h2' *ngIf='status == Status.Login'>
+			1. Sign in with your Discord account
 		</h2>
 		<mat-card-content> <!-- *ngIf="(status == Status.Login) || (status == Status.SeperateLogin)" -->
 			<p *ngIf="status == Status.Login">
-				Select your account in the login window. This account will be used to confirm your identity. If you 
-				use multiple accounts, select whichever one you normally use for professional purposes. If the account
-				you want is not listed, you make click <a [href]='client.getOldLoginUrl()'>here</a> to log in to a different one.
-			</p>
-			<p *ngIf="status == Status.SeperateLogin">
-				It looks like you will have to log in using the manual method, as no google accounts are currently
-				logged in. Click <a [href]='client.getOldLoginUrl()'>here</a> to do so.
+				Click <a [href]='discordUrl'>here</a> to log in with Discord.
 			</p>
 		</mat-card-content>
 	</mat-card>
 	<mat-card id='root'>
 		<mat-checkbox *ngIf='status > Status.Submitting' color='primary'>
 			<h2 class='mat-h2' #formCheckbox>
-				2. Tell us a bit about yourself
+				2. Add your personal information
 			</h2>
 		</mat-checkbox>
 		<form #infoForm='ngForm' (ngSubmit)='submit()'>
 			<h2 class='mat-h2' #formCheckbox *ngIf='status <= Status.Submitting'>
-				2. Tell us a bit about yourself
+				2. Add your personal information
 			</h2>
 			<ng-container *ngIf='status == Status.GettingData'>
 				<mat-card-content>
@@ -94,7 +88,7 @@
 		</h2>
 		<mat-card-content *ngIf='status > Status.Submitting'>
 			<div style='height: 0.5em;'></div>
-			<div>Congradulations, you are now part of the team! Here is some information to help you get started:</div>
+			<div>Congratulations, you are now part of the team! Here is some information to help you get started:</div>
 			<div style='height: 1em;'></div>
 			<app-contact-info></app-contact-info>
 		</mat-card-content>

@@ -1,4 +1,3 @@
-import { YoloClientService, LoginDetails } from './yolo-client.service';
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -94,16 +93,12 @@ export class WebappBackendService {
   private polledCurrentMember: Member = null; // Used for things that only need member details if they are logged in right now, not later.
   private sessionToken: Promise<string>; // Resolved when one is loaded from a cookie or a new one is created by the server.
 
-  constructor(private client: HttpClient, private yolo: YoloClientService, private cookieService: CookieService) {
+  constructor(private client: HttpClient, private cookieService: CookieService) {
     this.currentMember = new Promise<Member>((resolve, reject) => {
       this.resolveCurrentMember = (e: Member) => {
         this.polledCurrentMember = e;
         resolve(e);
       };
-    });
-    // If a google account is successfully logged in, check if they are an FRC member.
-    this.yolo.getLoginDetailsAsync().then((details: LoginDetails) => {
-      this.loginExistingUser();
     });
 
     // Get a session token to identify this session.
@@ -141,7 +136,7 @@ export class WebappBackendService {
       headers['content-type'] = contentType;
     }
     return this.sessionToken.then((token) => {
-      headers.authorization = 'Bearer ' + this.yolo.pollLoginDetails().idToken;
+      headers.authorization = 'Bearer ' + token;
       return {
         observe: <'response'> 'response',
         headers: headers,
@@ -264,7 +259,7 @@ export class WebappBackendService {
     let url = '/api/v1/partRequests/generateForm?include=';
     url += encodeURIComponent(partRequestIds.join(','));
     url += '&authorization=';
-    url += encodeURIComponent(this.yolo.pollLoginDetails().idToken);
+    url += encodeURIComponent(''); // TODO: promise stuff and session token
     return url;
   }
 }
