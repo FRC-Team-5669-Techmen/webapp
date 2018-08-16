@@ -476,7 +476,7 @@ app.get('/api/v1/discord/authCallback', (req, res) => {
 					user.connections.discord.accessToken = authData.access_token;
 					user.connections.discord.accessTokenExp = Date.now() / 1000 + authData.expires_in;
 					user.connections.discord.avatar = userData.avatar;
-					user.email = user.email || userData.email; // Only put it in if there is currently no email provided.
+					user.emailAddress = user.emailAddress || userData.email; // Only put it in if there is currently no email provided.
 					sessionStorage.storeDataInSession(sessionToken, 'memberId', user.id);
 				}
 				let foundUser = false;
