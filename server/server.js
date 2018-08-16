@@ -67,7 +67,7 @@ function checkLogin(req, res, accessLevel, next) {
 		return;
 	}
 	validateSession(req, (session) => {
-		if (!session || !session.memberid) {
+		if (!session || !session.memberId) {
 			res.status(401).send({error: 'A valid session token representing a session with an associated logged in user must be sent in the Authorization header. Either the token was not present, or the session associated with the token does not represent a logged in user.'});
 			return;			
 		}
