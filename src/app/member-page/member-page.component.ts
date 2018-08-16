@@ -24,11 +24,12 @@ export class MemberPageComponent implements OnInit {
   }
 
   submit() {
-    const id = this.member.emailAddress;
+    const id = this.member.id;
     this.submitting = true; // Show the user that their button click was processed.
-    // Clean up data that should not be sent to be patched.
+    // Clean up data that should not be sent to be patched. Don't worry, future maintainer, this is also validated server-side.
     const data = Object.assign({}, this.member); // Otherwise data censoring will be shown to the user.
     data.emailAddress = undefined;
+    data.id = undefined;
     if (this.backend.pollAccessLevel() !== AccessLevel.LEADER) {
       // Do not try to change leader-only things
       data.accessLevel = undefined;

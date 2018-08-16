@@ -350,7 +350,7 @@ app.post('/api/v1/partRequests/create', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
 		// Generate random 10 digit number from decimal part of random float.
 		data.requestId = Math.random().toString().slice(2, 12);
-		data.requestedBy = member.emailAddress;
+		data.requestedBy = member.id;
 		data.dateRequested = (new Date()).toString();
 		data.status = STATUS_PENDING;
 		dbs.partRequests.push(data);
@@ -387,7 +387,7 @@ app.get('/api/v1/partRequests/:id', (req, res) => {
 				return;
 			}
 			if (member.accessLevel !== ACCESS_LEVEL_LEADER) {
-				if (item.requestedBy !== member.emailAddress) {
+				if (item.requestedBy !== member.id) {
 					// So that client can check if it belongs to the current member.
 					item.requestedBy = undefined;
 					item.dateRequested = undefined;
@@ -415,7 +415,7 @@ app.patch('/api/v1/partRequests/:id', (req, res) => {
 					return;			
 				}
 				checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
-					if ((item.requestedBy !== member.emailAddress) && (member.accessLevel !== ACCESS_LEVEL_LEADER)) {
+					if ((item.requestedBy !== member.id) && (member.accessLevel !== ACCESS_LEVEL_LEADER)) {
 						res.status(403).send({error: 'The member must be a leader to be able to edit part requests created by other members.'});
 						return;
 					}

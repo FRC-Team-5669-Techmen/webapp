@@ -2,7 +2,7 @@
 </app-page-guard>
 <app-centered-layout *ngIf="guard.show">
 	<mat-card id='root'>
-		<form *ngIf="(backend.pollAccessLevel() === AccessLevel.LEADER) || (backend.pollCurrentMember().emailAddress === member.emailAddress);else justDisplay"
+		<form *ngIf="(backend.pollAccessLevel() === AccessLevel.LEADER) || (backend.pollCurrentMember().id === member.id);else justDisplay"
 			#infoForm='ngForm' (ngSubmit)='submit()'>
 			<mat-card-content>
 				<mat-form-field>

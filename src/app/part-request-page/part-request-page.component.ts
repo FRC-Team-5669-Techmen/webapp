@@ -46,7 +46,7 @@ export class PartRequestPageComponent implements OnInit {
           if (res.ok) {
             this.submitter = null;
             this.isLeader = (member.accessLevel === AccessLevel.LEADER);
-            this.canEdit = (res.body.requestedBy === member.emailAddress) || this.isLeader;
+            this.canEdit = (res.body.requestedBy === member.id) || this.isLeader;
             this.partRequest = res.body;
             this.backend.getMember(this.partRequest.requestedBy).then((res2) => {
               this.submitter = res2.body.firstName + ' ' + res2.body.lastName;

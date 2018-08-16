@@ -44,13 +44,13 @@ export class PartRequestsPageComponent implements OnInit {
 
   getAllRequestsByCurrentMember() {
     return this.requests.filter((e) => {
-      return (e.requestedBy === this.backend.pollCurrentMember().emailAddress) && (e.status === this.PartRequestStatus.PENDING);
+      return (e.requestedBy === this.backend.pollCurrentMember().id) && (e.status === this.PartRequestStatus.PENDING);
     });
   }
 
   canEdit(request: PartRequest) {
     const m = this.backend.pollCurrentMember();
-    return ((request.requestedBy === m.emailAddress) || (m.accessLevel === AccessLevel.LEADER))
+    return ((request.requestedBy === m.id) || (m.accessLevel === AccessLevel.LEADER))
         && (request.status === PartRequestStatus.PENDING);
   }
 }
