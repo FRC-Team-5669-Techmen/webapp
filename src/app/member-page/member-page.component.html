@@ -97,7 +97,7 @@
 			<button mat-button type='submit' [disabled]='!infoForm.form.valid || submitting' class='mat-raised-button mat-accent' color='accent' >{{(submitting) ?  "Applying Changes..." : "Apply Changes"}}</button>
 		</form>
 		<ng-template #justDisplay>
-			<div class="centered"><img [src]="https://placeholder.net/placeholder.jpg"></div> <!-- TODO: Replace with actual profile picture. -->
+			<div class="centered"><img src="https://placeholder.net/placeholder.jpg"></div> <!-- TODO: Replace with actual profile picture. -->
 			<div class="spacing"></div>
 			<div class="mat-h2 centered">{{member.firstName.toUpperCase()}} {{member.lastName.toUpperCase()}}</div>
 			<div class="mat-h3 centered">A {{member.gradeLevel}} on the {{member.team.toLowerCase()}} team.</div>
