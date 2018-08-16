@@ -6,7 +6,7 @@ import { MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, 
   MatToolbarModule, MatIconModule, MatIconRegistry, MatMenuModule, MatRippleModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
-
+import { CookieModule } from 'ngx-cookie';
 
 import { AppComponent } from './app.component';
 import { TitleBarComponent } from './title-bar/title-bar.component';
@@ -23,6 +23,7 @@ import { PageGuardComponent } from './page-guard/page-guard.component';
 import { PartRequestsPageComponent } from './part-requests-page/part-requests-page.component';
 import { ContactInfoComponent } from './contact-info/contact-info.component';
 import { ContactInfoPageComponent } from './contact-info-page/contact-info-page.component';
+import { DiscordService } from './discord.service';
 import { PlatformIdService } from './platform-id.service';
 import { PartRequestPageComponent } from './part-request-page/part-request-page.component';
 import { RequestFormPageComponent } from './request-form-page/request-form-page.component';
@@ -60,6 +61,7 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    CookieModule.forRoot(),
     FormsModule,
     HttpClientModule,
     MatButtonModule,
@@ -76,7 +78,8 @@ const appRoutes: Routes = [
   providers: [
     PlatformIdService,
     WebappBackendService,
-    YoloClientService
+    YoloClientService,
+    DiscordService
   ],
   bootstrap: [AppComponent]
 })
