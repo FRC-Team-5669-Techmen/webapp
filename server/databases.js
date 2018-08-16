@@ -1,5 +1,5 @@
-const SheetDatabase = require('./sheetDatabase').SheetDatabase;
+const FileDatabase = require('./fileDatabase').FileDatabase;
 
-module.exports.members = new SheetDatabase('183kjNgkZUMqluk8BTXE-HKdZDGDZX4TCsr3L0Ah2uLk');
-module.exports.partVendors = new SheetDatabase('1DkFsDYXN-RyMyRJHQbmxksIwRzKmMCb1BYMJShSDiiA');
-module.exports.partRequests = new SheetDatabase('19ifADgzcIzysUlaOrGR3gqOA2YgO6KjPqbYktqF4Gfw');
+module.exports.members = new FileDatabase('../private/members.json');
+module.exports.partVendors = new FileDatabase('../private/partVendors.json');
+module.exports.partRequests = new FileDatabase('../private/partRequests.json');
