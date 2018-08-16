@@ -13,6 +13,8 @@ const sd = require('./sheetDatabase');
 const drive = require('./drive')
 const dbs = require('./databases');
 const pdf = require('./pdf');
+const sessionStorage = require('./sessionStorage');
+const discord = require('./discord');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
 
@@ -25,7 +27,7 @@ app.use(bodyParser.urlencoded({
 
 let requestLogger = function (req, res, next) {
 	console.log(req.ip || req.ips, req.method, req.path);
-	if(req.body && Object.keys(req.body).length != 0) console.log('body:', req.body);
+	if (req.body && Object.keys(req.body).length != 0) console.log('body:', req.body);
 	next();
 }
 app.use(requestLogger);
@@ -36,52 +38,56 @@ const ACCESS_LEVEL_VISITOR = 'visitor', ACCESS_LEVEL_RESTRICTED = 'restricted', 
 
 // Callback is passed the contents of the token in the authorization header of req if successful, null if not, and
 // undefined if header is not present.
-function validateAuthorization(req, callback) {
-	const authorization = req.get('authorization') || req.query.authorization;
-	if(!authorization) {
+function validateSession(req, callback) {
+	const authorization = req.get('authorization') || req.query.sessionToken;
+	if (!authorization) {
 		callback(undefined);
 		return;
 	}
 	const split = authorization.split(' ');
 	let method, token;
-	if(split.length === 1) {
+	if (split.length === 1) {
 		token = split[0];
 	} else {
 		method = split[0];
 		token = split[1];
 	}
-	google.verify(token, callback);
+	if (sessionStorage.sessionExists(token)) {
+		callback(sessionStorage.getSessionByToken(token));
+	} else {
+		callback(null);
+	}
 }
 
 // Next is a (member?: Member) => void function called when it is determined the user meets access requirements.
 // member is only passed to next if access level is greater than ACCESS_LEVEL_VISITOR.
 function checkLogin(req, res, accessLevel, next) {
-	if(accessLevel == ACCESS_LEVEL_VISITOR) {
+	if (accessLevel == ACCESS_LEVEL_VISITOR) {
 		next();
 		return;
 	}
-	validateAuthorization(req, (content) => {
-		if(!content || !content.email_verified) {
-			res.status(401).send({error: 'A valid Google login token is required for authorization.'});
+	validateSession(req, (session) => {
+		if (!session || !session.memberid) {
+			res.status(401).send({error: 'A valid session token representing a session with an associated logged in user must be sent in the Authorization header. Either the token was not present, or the session associated with the token does not represent a logged in user.'});
 			return;			
 		}
-		dbs.members.findItemWithValue('emailAddress', content.email, (item) => {
-			if(!item) { // User is not registered.
-				res.status(403).send({error: 'This action requires that the user have signed up, which they have not done.'});
+		dbs.members.findItemWithValue('id', session.memberId, (item) => {
+			if (!item) { // User is not registered.
+				res.status(403).send({error: 'The currently logged in user has not completed registration.'});
 				return;
 			}
 			// If leadership / membership not required, don't check those.
-			if(accessLevel == ACCESS_LEVEL_RESTRICTED) {
+			if (accessLevel == ACCESS_LEVEL_RESTRICTED) {
 				next(item);
 				return;
 			}
-			if(item.accessLevel == ACCESS_LEVEL_LEADER) { // Leaders can access anything, no matter what.
+			if (item.accessLevel == ACCESS_LEVEL_LEADER) { // Leaders can access anything, no matter what.
 				next(item);
-			} else if((item.accessLevel == ACCESS_LEVEL_MEMBER) && (accessLevel == ACCESS_LEVEL_MEMBER)) {
+			} else if ((item.accessLevel == ACCESS_LEVEL_MEMBER) && (accessLevel == ACCESS_LEVEL_MEMBER)) {
 				// Members can access member-level and below stuff. (Below stuff handled earlier.)
 				next(item);
 			} else {
-				if(accessLevel == ACCESS_LEVEL_LEADER) {
+				if (accessLevel == ACCESS_LEVEL_LEADER) {
 					res.status(403).send({error: 'This action requires the current user to be a leader.'});
 				} else {
 					res.status(403).send({error: 'This action requires the user\'s membership to be confirmed by a leader, which has not happened.'});
@@ -92,13 +98,13 @@ function checkLogin(req, res, accessLevel, next) {
 }
 
 app.get('/api/v1/accessLevel', (req, res) => {
-	validateAuthorization(req, (content) => {
-		if(!content || !content.email_verified) {
+	validateSession(req, (session) => {
+		if (!session || !session.memberId) {
 			res.status(201).send({accessLevel: ACCESS_LEVEL_VISITOR});
 			return;
 		}
-		dbs.members.findItemWithValue('emailAddress', content.email, (item) => {
-			if(!item) { // Not registered.
+		dbs.members.findItemWithValue('id', session.memberId, (item) => {
+			if (!item) { // Not registered.
 				res.status(201).send({accessLevel: ACCESS_LEVEL_VISITOR});			
 			} else {
 				res.status(201).send({accessLevel: item.accessLevel});
@@ -110,27 +116,31 @@ app.get('/api/v1/accessLevel', (req, res) => {
 app.post('/api/v1/members/register', (req, res) => {
 	data = req.body;
 	data.emailAddress = data.emailAddress.toLowerCase();
-	validateAuthorization(req, (content) => {
-		if(!content || !content.email_verified) {
-			res.status(401).send({error: 'A valid Google login token is required for authorization.'});			
-		}
-		if(content.email != data.emailAddress) {
-			res.status(403).send({error: 'The email address of the user must match the email address of the auth token.'});
-			return;
+	validateSession(req, (session) => {
+		if (!session || !session.memberId) {
+			res.status(401).send({error: 'A valid session token representing a session with an associated logged in user must be sent in the Authorization header. Either the token was not present, or the session associated with the token does not represent a logged in user.'});		
 		}
 		dbs.members.getAllValues('emailAddress', (values) => {
-			if(values.indexOf(data.emailAddress) != -1) {
+			if (values.indexOf(data.emailAddress) !== -1) {
 				res.status(400).send({error: 'A member with that email address already exists.'});
 				return;
 			}
-			// This could be set to ACCESS_LEVEL_LEADER by a 1337 hacker trying to get access, so make sure it is set to RESTRICTED.
-			data.accessLevel = ACCESS_LEVEL_RESTRICTED;
-			data.profilePicture = content.picture
-			dbs.members.push(data);
-			dbs.members.getSize((size) => {
-				dbs.members.getItem(size - 1, (item) => {
-					res.status(201).send(item);
-				});
+			dbs.members.findItemWithValue('id', session.memberId, (member) => {				
+				// Only copy data that can be set by a user. This is to prevent the user trying to modify things they normally could not.
+				member.firstName = data.firstName;
+				member.lastName = data.lastName;
+				member.shirtSize = data.shirtSize;
+				member.emailAddress = data.emailAddress;
+				member.sendEmails = data.sendEmails;
+				member.phone = data.phone;
+				member.grade = data.grade;
+				member.team = data.team;
+				member.experience = data.experience;
+				member.parent.firstName = data.parent.firstName;
+				member.parent.lastName = data.parent.lastName;
+				member.parent.phone = data.parent.phone;
+				member.parent.emailAddress = data.parent.emailAddress;
+				res.status(201).send(member);
 			});
 		});
 	});
@@ -143,12 +153,14 @@ app.get('/api/v1/members/list', (req, res) => {
 				// Only show some information, use /members/:email to get more.
 				let trimmedData = [];
 				for (let member of data) {
-					member.parentName = undefined;
-					member.parentPhone = undefined;
-					member.parentEmail = undefined;
-					member.phone = undefined;
-					member.wantsEmails = undefined;
-					trimmedData.push(member);
+					trimmedData.push({
+						firstName: member.firstName,
+						lastName: member.lastName,
+						id: member.id,
+						grade: member.grade,
+						team: member.team,
+						accessLevel: member.accessLevel
+					});
 				}
 				res.status(200).send(trimmedData);
 			});
@@ -156,28 +168,54 @@ app.get('/api/v1/members/list', (req, res) => {
 	});
 });
 
-app.get('/api/v1/members/:email', (req, res) => {
+// 0 = less data, 1 = more data.
+function censorMember(member, level = 0) {
+	let trimmedMember = {
+		firstName: member.firstName,
+		lastName: member.lastName,
+		id: member.id,
+		grade: member.grade,
+		team: member.team,
+		accessLevel: member.accessLevel,
+		emailAddress: member.emailAddress,
+		experience: member.experience
+	};
+	if (level >= 1) {
+		trimmedMember.phone = found.phone;
+		trimmedMember.parent = found.parent;
+		trimmedMember.shirtSize = found.shirtSize;
+	}
+}
+
+app.get('/api/v1/members/me', (req, res) => {
+	validateSession(req, (session) => {
+		if (!session) {
+			res.status(400).send({error: 'A valid session token is required to check what member the session is associated with.'});
+		} else {
+			if (session.memberId) {
+				dbs.members.findItemWithValue('id', session.memberid, (member) => {
+					res.status(200).send(censorMember(found, 1));
+				});
+			} else {
+				res.status(404).send({'error': 'There is no member associated with the current session.'});
+			}
+		}
+	});
+});
+
+app.get('/api/v1/members/:id', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_RESTRICTED, (member) => {
-		let address = req.params.email;
-		if((address != member.emailAddress) && (member.accessLevel == ACCESS_LEVEL_RESTRICTED)) {
+		let id = req.params.id;
+		if ((id != member.memberId) && (member.accessLevel == ACCESS_LEVEL_RESTRICTED)) {
 			res.status(403).send({error: 'This action requires the user\'s membership to be confirmed by a leader, which has not happened.'});
 		}
-		dbs.members.getAllValues('emailAddress', (values) => {
-			let index = values.indexOf(address);
-			if (index == -1) {
-				res.status(404).send({error: 'No members have that email address.'});
+		dbs.members.findItemWithValue('id', id, (found) => {
+			if (!found) {
+				res.status(404).send({error: 'No members have that id.'});
 			} else {
-				dbs.members.getItem(index, (data) => {
-					if((member.emailAddress !== address) && (member.accessLevel !== ACCESS_LEVEL_LEADER)) {
-						// Censor sensitive or useless information.
-						data.parentName = undefined;
-						data.parentPhone = undefined;
-						data.parentEmail = undefined;
-						data.phone = undefined;
-						data.wantsEmails = undefined;
-					}
-					res.status(200).send(data);
-				});
+				let dataLevel = 0;
+				if (found.id === member.id || member.accessLevel === ACCESS_LEVEL_LEADER) dataLevel = 1;
+				res.status(200).send(censorMember(found, dataLevel));
 			}
 		});
 	});	
@@ -201,7 +239,7 @@ app.patch('/api/v1/members/:email', (req, res) => {
 	// If the user wants to modify the access level or the team of a member, they must be a leader.
 	checkLogin(req, res, (data.accessLevel || data.preferredTeam) ? ACCESS_LEVEL_LEADER : ACCESS_LEVEL_MEMBER, (member) => {
 		let address = req.params.email;
-		if((member.emailAddress !== address) && (member.accessLevel != ACCESS_LEVEL_LEADER)) {
+		if ((member.emailAddress !== address) && (member.accessLevel != ACCESS_LEVEL_LEADER)) {
 			res.status(403).send({error: 'Only leaders can edit details of users other than themselves.'});
 		}
 		dbs.members.getAllValues('emailAddress', (values) => {
@@ -211,32 +249,32 @@ app.patch('/api/v1/members/:email', (req, res) => {
 			} else {
 				dbs.members.getItem(index, (item) => {
 					// If their access level was changed, need to change what they have access to on google drive.
-					if((data.accessLevel) && (data.accessLevel !== item.accessLevel)) {
+					if ((data.accessLevel) && (data.accessLevel !== item.accessLevel)) {
 						// Handles changing google drive access if access level changes.
 						// If member's team also changes in the same request, that is handled here as well.
-						if(data.accessLevel === ACCESS_LEVEL_RESTRICTED) {
-							if(item.accessLevel === ACCESS_LEVEL_MEMBER) {
+						if (data.accessLevel === ACCESS_LEVEL_RESTRICTED) {
+							if (item.accessLevel === ACCESS_LEVEL_MEMBER) {
 								let teamFolder = getTeamFolder(item); // What team they were
-								if(teamFolder) teamFolder.removeRole(item.emailAddress);
+								if (teamFolder) teamFolder.removeRole(item.emailAddress);
 								drive.COMPETITION_FOLDER.removeRole(item.emailAddress);
 							} else { // Was a leader
 								drive.ROOT_FOLDER.removeRole(item.emailAddress);
 								drive.ADMINISTRATION_FOLDER.removeRole(item.emailAddress);
 							}
 						} else if (data.accessLevel == ACCESS_LEVEL_MEMBER) {
-							if(item.accessLevel === ACCESS_LEVEL_LEADER) {
+							if (item.accessLevel === ACCESS_LEVEL_LEADER) {
 								drive.ROOT_FOLDER.removeRole(item.emailAddress);
 								drive.ADMINISTRATION_FOLDER.removeRole(item.emailAddress);
 							}
 							let teamFolder = getTeamFolder({preferredTeam: data.preferredTeam || item.preferredTeam}); // In case their team was also changed.
-							if(teamFolder) teamFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
+							if (teamFolder) teamFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
 									'Your application for FRC has been approved, and you can now create and modify files in your team\'s folder.');
 							drive.COMPETITION_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT, 
 									'Your application for FRC has been approved, and you can now create and modify files in the Competition folder.');
 						} else { // Becoming a leader
-							if(item.accessLevel === ACCESS_LEVEL_MEMBER) {
+							if (item.accessLevel === ACCESS_LEVEL_MEMBER) {
 								let teamFolder = getTeamFolder(item); // What team they were
-								if(teamFolder) teamFolder.removeRole(item.emailAddress);
+								if (teamFolder) teamFolder.removeRole(item.emailAddress);
 								drive.COMPETITION_FOLDER.removeRole(item.emailAddress);
 							}
 							drive.ROOT_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT,
@@ -247,13 +285,13 @@ app.patch('/api/v1/members/:email', (req, res) => {
 					} else if ((data.preferredTeam) && (data.preferredTeam !== item.preferredTeam) && (item.accessLevel === ACCESS_LEVEL_MEMBER)) {
 						// Handles gdrive permissions if a member changes teams but not access levels.
 						let oldFolder = getTeamFolder(item);
-						if(oldFolder) oldFolder.removeRole(item.emailAddress);
+						if (oldFolder) oldFolder.removeRole(item.emailAddress);
 						let newFolder = getTeamFolder(data);
-						if(newFolder) newFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
+						if (newFolder) newFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
 								'Your FRC subteam has been switched to ' + data.preferredTeam + ', and you have thus been granted access to its folder.');
 					}
 					for(let key in data) {
-						if((key != 'auth') && (key != 'emailAddress')) {
+						if ((key != 'auth') && (key != 'emailAddress')) {
 							item[key] = data[key];
 						}
 					}
@@ -293,7 +331,7 @@ app.get('/api/v1/partRequests/list', (req, res) => {
 			for (let item of items) {
 				item.itemNumber = undefined;
 				item.taxExempt = undefined;
-				if(item.requestedBy !== member.emailAddress) {
+				if (item.requestedBy !== member.emailAddress) {
 					item.requestedBy = undefined;
 					item.dateRequested = undefined;
 				}
@@ -327,7 +365,7 @@ app.get('/api/v1/partRequests/generateForm', (req, res) => {
 		dbs.partRequests.getAllItems((requests) => {
 			let toList = [];
 			for(let i = 0; i < requests.length; i++) {
-				if(ids.indexOf(requests[i].requestId) !== -1) {
+				if (ids.indexOf(requests[i].requestId) !== -1) {
 					toList.push(requests[i]);
 					dbs.partRequests.set(i, 'status', STATUS_ORDERED);
 				}
@@ -348,7 +386,7 @@ app.get('/api/v1/partRequests/:id', (req, res) => {
 				return;
 			}
 			if (member.accessLevel !== ACCESS_LEVEL_LEADER) {
-				if(item.requestedBy !== member.emailAddress) {
+				if (item.requestedBy !== member.emailAddress) {
 					// So that client can check if it belongs to the current member.
 					item.requestedBy = undefined;
 					item.dateRequested = undefined;
@@ -399,7 +437,69 @@ app.patch('/api/v1/partRequests/:id', (req, res) => {
 });
 
 //Begin testing area
+app.get('/api/v1/session/new', (req, res) => {
+	res.status(201).send({
+		token: sessionStorage.createNewSession().token
+	});
+});
 
+app.get('/api/v1/session/isValid', (req, res) => {
+	validateSession(req, (session) => {
+		if (session) {
+			res.status(200).send({
+				valid: true,
+				recommendedToken: session.token
+			});
+		} else {
+			res.status(200).send({
+				valid: false,
+				recommendedToken: sessionStorage.createNewSession().token
+			});
+		}
+	});
+});
+
+app.get('/api/v1/discord/authCallback', (req, res) => {
+	let sessionToken = req.query.state, code = req.query.code;
+	if (!sessionStorage.sessionExists(sessionToken)) {
+		res.status(400).send({error: 'Must send a valid session token in query string.'});
+		return;
+	}
+	discord.exchangeToken(code, (productionMode ? 'https://' : 'http://') + req.headers.host, (authData) => {
+		authData.receivedOn = Date.now();
+		discord.getUserData(authData.access_token, (userData) => {
+			dbs.members.getAllItems((users) => {
+				let fillData = (user) => {
+					user.connections.discord.id = userData.id;
+					user.connections.discord.refreshToken = authData.refresh_token;
+					user.connections.discord.accessToken = authData.access_token;
+					user.connections.discord.accessTokenExp = Date.now() / 1000 + authData.expires_in;
+					user.connections.discord.avatar = userData.avatar;
+					user.email = user.email || userData.email; // Only put it in if there is currently no email provided.
+					sessionStorage.storeDataInSession(sessionToken, 'memberId', user.id);
+				}
+				let foundUser = false;
+				for (let user of users) {
+					if (user && user.connections && user.connections.discord && user.connections.discord.id === userData.id) {
+						foundUser = true;
+						fillData(user);
+						break;
+					}
+				}
+				if (!foundUser) {
+					let user = dbs.members.createMember();
+					fillData(user);
+				}
+				res.redirect('/public/register');
+			});
+			//res.sendStatus(204);
+		});
+	});
+});
+
+app.get('/api/v1/discord/tokenCallback', (req, res) => {
+	console.log(req.body, req.query);
+});
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));
