@@ -32,7 +32,7 @@ export class MemberPageComponent implements OnInit {
     if (this.backend.pollAccessLevel() !== AccessLevel.LEADER) {
       // Do not try to change leader-only things
       data.accessLevel = undefined;
-      data.preferredTeam = undefined;
+      data.team = undefined;
     }
     this.backend.patchMember(id, data).then(() => this.router.navigate(['private', 'members']));
   }

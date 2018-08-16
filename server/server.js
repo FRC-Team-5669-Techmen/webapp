@@ -133,7 +133,7 @@ app.post('/api/v1/members/register', (req, res) => {
 				member.emailAddress = data.emailAddress;
 				member.sendEmails = data.sendEmails;
 				member.phone = data.phone;
-				member.grade = data.grade;
+				member.gradeLevel = data.gradeLevel;
 				member.team = data.team;
 				member.experience = data.experience;
 				member.parent.firstName = data.parent.firstName;
@@ -157,7 +157,7 @@ app.get('/api/v1/members/list', (req, res) => {
 						firstName: member.firstName,
 						lastName: member.lastName,
 						id: member.id,
-						grade: member.grade,
+						gradeLevel: member.gradeLevel,
 						team: member.team,
 						accessLevel: member.accessLevel
 					});
@@ -174,17 +174,18 @@ function censorMember(member, level = 0) {
 		firstName: member.firstName,
 		lastName: member.lastName,
 		id: member.id,
-		grade: member.grade,
+		gradeLevel: member.gradeLevel,
 		team: member.team,
 		accessLevel: member.accessLevel,
 		emailAddress: member.emailAddress,
 		experience: member.experience
 	};
 	if (level >= 1) {
-		trimmedMember.phone = found.phone;
-		trimmedMember.parent = found.parent;
-		trimmedMember.shirtSize = found.shirtSize;
+		trimmedMember.phone = member.phone;
+		trimmedMember.parent = member.parent;
+		trimmedMember.shirtSize = member.shirtSize;
 	}
+	return trimmedMember;
 }
 
 app.get('/api/v1/members/me', (req, res) => {
@@ -193,8 +194,8 @@ app.get('/api/v1/members/me', (req, res) => {
 			res.status(400).send({error: 'A valid session token is required to check what member the session is associated with.'});
 		} else {
 			if (session.memberId) {
-				dbs.members.findItemWithValue('id', session.memberid, (member) => {
-					res.status(200).send(censorMember(found, 1));
+				dbs.members.findItemWithValue('id', session.memberId, (member) => {
+					res.status(200).send(censorMember(member, 1));
 				});
 			} else {
 				res.status(404).send({'error': 'There is no member associated with the current session.'});

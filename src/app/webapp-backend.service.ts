@@ -17,20 +17,33 @@ export enum GradeLevel {
   SENIOR = 'Senior'
 }
 
-export interface Member {
+export enum ShirtSize {
+  SMALL = 'S',
+  MEDIUM = 'M',
+  LARGE = 'L',
+  XLARGE = 'XL'
+}
+
+export interface Parent {
   firstName?: string;
   lastName?: string;
   emailAddress?: string;
-  wantsEmails?: boolean;
+  phone?: string;
+}
+
+export interface Member {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  shirtSize?: ShirtSize;
+  emailAddress?: string;
+  sendEmails?: boolean;
   phone?: string;
   gradeLevel?: GradeLevel | '';
-  preferredTeam?: string;
-  pastExperience?: string;
-  parentName?: string;
-  parentPhone?: string;
-  parentEmail?: string;
+  team?: string;
+  experience?: string;
+  parent?: Parent;
   accessLevel?: AccessLevel;
-  profilePicture?: string;
 }
 
 export interface PartVendor {

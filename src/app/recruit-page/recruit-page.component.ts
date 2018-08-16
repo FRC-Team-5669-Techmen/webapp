@@ -23,13 +23,16 @@ export class RecruitPageComponent implements OnInit {
     lastName: '',
     emailAddress: '',
     phone: '',
-    wantsEmails: true,
+    sendEmails: true,
     gradeLevel: null,
-    preferredTeam: null,
-    pastExperience: '',
-    parentName: '',
-    parentEmail: '',
-    parentPhone: '',
+    team: null,
+    experience: '',
+    parent: {
+      firstName: '',
+      lastName: '',
+      emailAddress: '',
+      phone: ''
+    },
     accessLevel: AccessLevel.RESTRICTED
   };
   @ViewChild('signInCheckbox') signInCheckBox: ElementRef;

@@ -15,7 +15,7 @@
 					<input matInput required disabled placeholder='Email Address' [(ngModel)]='member.emailAddress' name='email'>
 					<mat-hint>You must use the email address of the account you signed up with.</mat-hint>
 				</mat-form-field>
-				<mat-checkbox [(ngModel)]='member.wantsEmails' name='wantsEmails'>
+				<mat-checkbox [(ngModel)]='member.sendEmails' name='sendEmails'>
 					<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
 				</mat-checkbox>
 				<mat-form-field>
@@ -30,7 +30,7 @@
 					</mat-select>
 				</mat-form-field>
 				<mat-form-field *ngIf="backend.pollAccessLevel() === AccessLevel.LEADER">
-					<mat-select required placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
+					<mat-select required placeholder='Team' [(ngModel)]='member.team' name='team'>
 						<mat-option value='Design'>Design</mat-option>
 						<mat-option value='Programming'>Programming</mat-option>
 						<mat-option value='Prototyping'>Prototyping</mat-option>
@@ -38,7 +38,7 @@
 					</mat-select>
 				</mat-form-field>
 				<mat-form-field *ngIf="backend.pollAccessLevel() !== AccessLevel.LEADER">
-					<mat-select required disabled placeholder='Team' [(ngModel)]='member.preferredTeam' name='team'>
+					<mat-select required disabled placeholder='Team' [(ngModel)]='member.team' name='team'>
 						<mat-option value='Construction'>Construction</mat-option>
 						<mat-option value='Design'>Design</mat-option>
 						<mat-option value='Programming'>Programming</mat-option>
@@ -47,17 +47,20 @@
 					<mat-hint>Only a leader can switch you from one team to another.</mat-hint>
 				</mat-form-field>
 				<mat-form-field>
-					<textarea matInput placeholder='Previous Experience' [(ngModel)]='member.pastExperience' name='experience' 
+					<textarea matInput placeholder='Previous Experience' [(ngModel)]='member.experience' name='experience' 
 					matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
 				</mat-form-field>
 				<mat-form-field>
-					<input matInput required placeholder='Parent / Guardian Name' [(ngModel)]='member.parentName' name='parentName'>
+					<input matInput required placeholder='Parent / Guardian First Name' [(ngModel)]='member.parent.firstName' name='parentFirstName'>
 				</mat-form-field>
 				<mat-form-field>
-					<input matInput required placeholder='Parent / Guardian Phone Number' [(ngModel)]='member.parentPhone' name='parentPhone'>
+					<input matInput required placeholder='Parent / Guardian Last Name' [(ngModel)]='member.parent.lastName' name='parentLastName'>
+				</mat-form-field>
+				<mat-form-field>
+					<input matInput required placeholder='Parent / Guardian Phone Number' [(ngModel)]='member.parent.phone' name='parentPhone'>
 				</mat-form-field>		
 				<mat-form-field>
-					<input matInput required placeholder='Parent / Guardian Email' [(ngModel)]='member.parentEmail' name='parentEmail'>
+					<input matInput required placeholder='Parent / Guardian Email' [(ngModel)]='member.parent.emailAddress' name='parentEmail'>
 				</mat-form-field>
 				<mat-form-field *ngIf="backend.pollAccessLevel() === AccessLevel.LEADER">
 					<mat-select required placeholder='Access Level' [(ngModel)]='member.accessLevel' name='accessLevel'>
@@ -94,15 +97,15 @@
 			<button mat-button type='submit' [disabled]='!infoForm.form.valid || submitting' class='mat-raised-button mat-accent' color='accent' >{{(submitting) ?  "Applying Changes..." : "Apply Changes"}}</button>
 		</form>
 		<ng-template #justDisplay>
-			<div class="centered"><img [src]="member.profilePicture"></div>
+			<div class="centered"><img [src]="https://placeholder.net/placeholder.jpg"></div> <!-- TODO: Replace with actual profile picture. -->
 			<div class="spacing"></div>
 			<div class="mat-h2 centered">{{member.firstName.toUpperCase()}} {{member.lastName.toUpperCase()}}</div>
-			<div class="mat-h3 centered">A {{member.gradeLevel}} on the {{member.preferredTeam.toLowerCase()}} team.</div>
+			<div class="mat-h3 centered">A {{member.gradeLevel}} on the {{member.team.toLowerCase()}} team.</div>
 			<div class="mat-h3 centered">
 				Email: 
 				<a href="mailto:{{member.emailAddress}}">{{member.emailAddress}}</a>
 			</div>
-			<div class="mat-h3 centered">Previous experience:<br>{{member.pastExperience}}</div>		
+			<div class="mat-h3 centered">Previous experience:<br>{{member.experience}}</div>		
 		</ng-template>	
 	</mat-card>
 </app-centered-layout>

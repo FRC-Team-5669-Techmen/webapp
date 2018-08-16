@@ -36,7 +36,7 @@
 						<input matInput required disabled placeholder='Email Address' [(ngModel)]='data.emailAddress' name='email'>
 						<mat-hint>You must use the email address of the account you selected.</mat-hint>
 					</mat-form-field>
-					<mat-checkbox [(ngModel)]='data.wantsEmails' name='wantsEmails' id='emailConsent'>
+					<mat-checkbox [(ngModel)]='data.sendEmails' name='sendEmails' id='emailConsent'>
 						<span style='white-space: pre-wrap;'>I would like to receive emails about important news or upcoming events.</span>
 					</mat-checkbox>
 					<mat-form-field>
@@ -51,7 +51,7 @@
 						</mat-select>
 					</mat-form-field>
 					<mat-form-field>
-						<mat-select required placeholder='Area of Interest' [(ngModel)]='data.preferredTeam' name='team'>
+						<mat-select required placeholder='Area of Interest' [(ngModel)]='data.team' name='team'>
 							<mat-option value='Design'>Design</mat-option>
 							<mat-option value='Programming'>Programming</mat-option>
 							<mat-option value='Prototyping'>Prototyping</mat-option>
@@ -59,17 +59,20 @@
 						</mat-select>
 					</mat-form-field>
 					<mat-form-field>
-						<textarea matInput placeholder='Previous Experience' [(ngModel)]='data.pastExperience' name='experience' 
+						<textarea matInput placeholder='Previous Experience' [(ngModel)]='data.experience' name='experience' 
 						matTextareaAutosize matAutosizeMinRows='2' matAutosizeMaxRows='10'></textarea>
 					</mat-form-field>
 					<mat-form-field>
-						<input matInput required placeholder='Parent / Guardian Name' [(ngModel)]='data.parentName' name='parentName'>
+						<input matInput required placeholder='Parent / Guardian First Name' [(ngModel)]='data.parent.firstName' name='parentFirstName'>
 					</mat-form-field>
 					<mat-form-field>
-						<input matInput required placeholder='Parent / Guardian Phone Number' [(ngModel)]='data.parentPhone' name='parentPhone'>
+						<input matInput required placeholder='Parent / Guardian Last Name' [(ngModel)]='data.parent.lastName' name='parentLastName'>
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput required placeholder='Parent / Guardian Phone Number' [(ngModel)]='data.parent.phone' name='parentPhone'>
 					</mat-form-field>		
 					<mat-form-field>
-						<input matInput required placeholder='Parent / Guardian Email' [(ngModel)]='data.parentEmail' name='parentEmail'>
+						<input matInput required placeholder='Parent / Guardian Email' [(ngModel)]='data.parent.emailAddress' name='parentEmail'>
 					</mat-form-field>
 				</mat-card-content>
 				<div style='height: 1em'></div>

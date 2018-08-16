@@ -12,7 +12,7 @@ export class ContactInfoComponent implements OnInit {
 
   constructor(private backend: WebappBackendService) {
     backend.getCurrentMemberAsync().then((member) => {
-      this.team = member.preferredTeam;
+      this.team = member.team;
     });
   }
 

@@ -20,7 +20,7 @@ module.exports.members.createMember = function() {
 		emailAddress: null,
 		sendEmails: null,
 		phone: null,
-		grade: null,
+		gradeLevel: null,
 		team: null,
 		experience: null,
 		parent: {
