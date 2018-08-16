@@ -1,6 +1,7 @@
+const changeGuard = require('./changeGuard');
 const fs = require('fs');
 
-const STALE_INTERVAL = 30000; // After 30 seconds, reload data from the file
+const STALE_INTERVAL = 30 * 1000; // After 30 seconds, reload data from the file
 const PUSH_DELAY = 2000; // After 2 seconds of inactivity, save contents to file.
 
 class FileDatabase {
@@ -43,12 +44,17 @@ class FileDatabase {
 			if (err) {
 				// Do nothing, the file does not exist. Do, however, create an empty file in its place.
 				fs.writeFile(this.fileName, '[]', (err, status) => 0);
+				this.lastCacheGet = Date.now();
 				this._endCacheOp(callback);
 			} else {
 				fs.readFile(this.fileName, (err, data) => {
-					this._endCacheOp(callback);
-					if (err) throw err;
+					if (err) {
+						this._endCacheOp(callback);
+						throw err;
+					}
 					this.data = JSON.parse(data);
+					this.lastCacheGet = Date.now();
+					this._endCacheOp(callback);
 				});
 			}
 		})
@@ -70,16 +76,16 @@ class FileDatabase {
 		this.queuedPush = setTimeout(() => {
 			this.queuedPush = null;
 			this._flushToSource(() => null);
-		}, this.pushDelay);
+		}, PUSH_DELAY);
 	}
 	
 	_checkStaleness(callback) { // If we haven't made local changes yet, but the local copy is old, update it.
 		if (Date.now() > this.lastCacheGet + STALE_INTERVAL) {
 			// If the cache was modified after last updating the source
 			if(this.lastCacheChange > this.lastCacheFlush) {
-					// Local copy is old, but changes are in progress.
-					// Later, flushChanges() should be called to update the source.
-					console.warn('Local cache of database file ' + this.fileName + ' is ' + (Date.now() - this.lastCacheGet) + 'ms old but still has unflushed changes!');
+				// Local copy is old, but changes are in progress.
+				// Later, flushChanges() should be called to update the source.
+				console.warn('Local cache of database file ' + this.fileName + ' is ' + (Date.now() - this.lastCacheGet) + 'ms old but still has unflushed changes!');
 				callback();
 			} else {
 				// Grab a more recent copy
@@ -99,7 +105,7 @@ class FileDatabase {
 		this._checkStaleness(() => {
 			let result = [];
 			for (let item of this.data) {
-				result.push(Object.assign({}, item)); // Copy items to prevent overwriting cache data
+				result.push(changeGuard(item, () => this._markDirty())); // Make everything proxied so that changes will trigger cache update.
 			}
 			callback(result);
 		})
@@ -109,7 +115,7 @@ class FileDatabase {
 		this._checkStaleness(() => {
 			let result = [];
 			for (let item of this.data.slice(startIndex, stopIndex)) {
-				result.push(Object.assign({}, item)); // Copy items to prevent overwriting cache data
+				result.push(changeGuard(item, () => this._markDirty())); // Make everything proxied so that changes will trigger cache update.
 			}
 			callback(result);
 		});
@@ -117,7 +123,7 @@ class FileDatabase {
 
 	getItem(index, callback) {
 		this._checkStaleness(() => {
-			callback(Object.assign({}, this.data[index])); // Copy items to prevent overwriting cache data
+			callback(changeGuard(item, () => this._markDirty())); // Make everything proxied so that changes will trigger cache update.
 		});
 	}
 
@@ -147,7 +153,7 @@ class FileDatabase {
 		this._checkStaleness(() => {
 			for (let item of this.data) {
 				if(item[key] === value) {
-					callback(Object.assign({}, item)); // Copy items to prevent overwriting cache data
+					callback(changeGuard(item, () => this._markDirty())); // Make everything proxied so that changes will trigger cache update.
 					return;
 				}
 			}
