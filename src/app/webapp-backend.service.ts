@@ -2,6 +2,7 @@ import { YoloClientService, LoginDetails } from './yolo-client.service';
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie';
 
 export enum AccessLevel {
   VISITOR = 'visitor',
@@ -73,13 +74,27 @@ export function quantifyAccessLevel(level: AccessLevel) {
   return quantifiedAccessLevels[level];
 }
 
+interface TokenResponse {
+  token: string;
+}
+
+interface BackendHTTPOptions {
+  headers: {
+    'content-type'?: string,
+    authorization: string
+  };
+  observe: 'response';
+  responseType: 'json';
+}
+
 @Injectable()
 export class WebappBackendService {
   private currentMember: Promise<Member>; // Resolved whenever someone logs in and is a valid user.
   private resolveCurrentMember: (e: Member) => void;
   private polledCurrentMember: Member = null; // Used for things that only need member details if they are logged in right now, not later.
+  private sessionToken: Promise<string>; // Resolved when one is loaded from a cookie or a new one is created by the server.
 
-  constructor(private client: HttpClient, private yolo: YoloClientService) {
+  constructor(private client: HttpClient, private yolo: YoloClientService, private cookieService: CookieService) {
     this.currentMember = new Promise<Member>((resolve, reject) => {
       this.resolveCurrentMember = (e: Member) => {
         this.polledCurrentMember = e;
@@ -90,62 +105,88 @@ export class WebappBackendService {
     this.yolo.getLoginDetailsAsync().then((details: LoginDetails) => {
       this.loginExistingUser();
     });
+
+    // Get a session token to identify this session.
+    this.sessionToken = new Promise<string>((resolve, reject) => {
+      if (this.cookieService.get('sessionToken')) {
+        const oldToken = this.cookieService.get('sessionToken');
+        // Check if the current session token is valid.
+        this.client.get<{
+          valid: boolean,
+          recommendedToken: string
+        }>(
+          '/api/v1/session/isValid',
+          { headers: { authorization: 'Bearer ' + oldToken } }
+        ).subscribe((data) => {
+          // If old token is invalid, this will be a new token. If the old one was valid, it will be the same token.
+          resolve(data.recommendedToken);
+        });
+      } else {
+        this.get<TokenResponse>('/api/v1/session/new').then((res) => {
+          if (res.ok) {
+            this.cookieService.put('sessionToken', res.body.token);
+            resolve(res.body.token);
+          } else {
+            throw new Error('Error retrieving new session token!');
+          }
+        });
+      }
+    });
+    this.sessionToken.then((token) => this.loginExistingUser());
   }
 
-  private createOptions(contentType?: string): {
-    headers: {
-      'content-type'?: string,
-      authorization?: string
-    },
-    observe: 'response',
-    responseType: 'json'
-  } {
-    const headers = {};
+  private createOptions(contentType?: string): Promise<BackendHTTPOptions> {
+    const headers = { authorization: '' };
     if (contentType) {
       headers['content-type'] = contentType;
     }
-    if (this.yolo.isLoggedIn) {
-      // idToken is already safe to put in a header, no b64llshit necessary.
-      headers['authorization'] = 'Bearer ' + this.yolo.pollLoginDetails().idToken;
-    }
-    return {
-      observe: 'response',
-      headers: headers,
-      responseType: 'json'
-    };
+    return this.sessionToken.then((token) => {
+      headers.authorization = 'Bearer ' + this.yolo.pollLoginDetails().idToken;
+      return {
+        observe: <'response'> 'response',
+        headers: headers,
+        responseType: <'json'> 'json'
+      };
+    });
   }
 
   private patch<T>(url: string, data: any): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
-      this.client.patch<T>(url, data, this.createOptions('application/merge-patch+json'))
-        .subscribe(resolve, reject);
+      this.createOptions('application/merge-patch+json').then((options) => {
+        this.client.patch<T>(url, data, options).subscribe(resolve, reject);
+      });
     });
   }
 
   private post<T>(url: string, data: any): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
-      this.client.post<T>(url, data, this.createOptions('application/json'))
-        .subscribe(resolve, reject);
+      this.createOptions('application/json').then((options) => {
+        this.client.post<T>(url, data, options).subscribe(resolve, reject);
+      });
     });
   }
 
   private get<T>(url: string): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
-      this.client.get<T>(url, this.createOptions())
-        .subscribe(resolve, reject);
+      this.createOptions().then((options) => {
+        this.client.get<T>(url, options).subscribe(resolve, reject);
+      });
     });
   }
 
   // If the user has logged in with their google account, checks if the google account belongs to a valid FRC member. If so, it saves their
   // information, resolves the currentMember promise, etc.
   private loginExistingUser() {
-    if (this.yolo.isLoggedIn) {
-      this.getMember(this.yolo.pollLoginDetails().id).then((res2) => {
-        if (res2.ok) {
-          this.resolveCurrentMember(res2.body);
-        }
-      });
-    }
+    this.get<Member>('/api/v1/members/me').then((res) => {
+      if (res.ok && res.body) {
+        console.log(res.body, 'currently logged in user');
+        this.resolveCurrentMember(res.body);
+      }
+    });
+  }
+
+  getSessionToken(): Promise<string> {
+    return this.sessionToken;
   }
 
   // Returns a promise that is resolved whenever a valid user logs in.
