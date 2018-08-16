@@ -114,6 +114,7 @@ export class WebappBackendService {
           { headers: { authorization: 'Bearer ' + oldToken } }
         ).subscribe((data) => {
           // If old token is invalid, this will be a new token. If the old one was valid, it will be the same token.
+          this.cookieService.put('sessionToken', data.recommendedToken);
           resolve(data.recommendedToken);
         });
       } else {
@@ -164,7 +165,8 @@ export class WebappBackendService {
   private get<T>(url: string): Promise<HttpResponse<T>> {
     return new Promise<HttpResponse<T>>((resolve, reject) => {
       this.createOptions().then((options) => {
-        this.client.get<T>(url, options).subscribe(resolve, reject);
+        const it = this.client.get<T>(url, options);
+        it.subscribe(resolve, reject);
       });
     });
   }
@@ -174,10 +176,9 @@ export class WebappBackendService {
   private loginExistingUser() {
     this.get<Member>('/api/v1/members/me').then((res) => {
       if (res.ok && res.body) {
-        console.log(res.body, 'currently logged in user');
         this.resolveCurrentMember(res.body);
       }
-    });
+    }, (err) => 0); // 404 if there is no associated user.
   }
 
   getSessionToken(): Promise<string> {
