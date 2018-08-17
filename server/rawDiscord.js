@@ -1,7 +1,6 @@
-const fs = require('fs');
 const request = require('request');
 
-const CLIENT_DATA = JSON.parse(fs.readFileSync('../private/discord-app-data.json'));
+const CLIENT_DATA = require('../private/discord-app-data.json');
 const CLIENT_ID = CLIENT_DATA.clientId, CLIENT_SECRET = CLIENT_DATA.clientSecret;
 const SCOPES = 'identify email guilds guilds.join';
 

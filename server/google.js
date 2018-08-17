@@ -4,7 +4,7 @@ const GoogleAuth = require('google-auth-library');
 const path = require('path');
 
 // Service account initialization.
-const sadata = JSON.parse(fs.readFileSync('../private/service-account-data.json'));
+const sadata = require('../private/service-account-data.json');
 const jwtClient = new gapis.auth.JWT(
 		sadata.client_email,
 		null,
