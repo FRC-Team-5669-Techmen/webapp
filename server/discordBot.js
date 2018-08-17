@@ -25,8 +25,8 @@ function DiscordBot() {
 		this.unconfirmedRole = this.mainGuild.roles.get(UNCONFIRMED_ROLE);
 	});
 	this.client.on('message', (message) => this.onMessage(message));
-	console.log(this.client.guilds.first(10))
-	
+	this.client.on('error', console.error);
+	this.client.on('rateLimit', console.error);
 	this.client.login(BOT_TOKEN);
 	DiscordBot.instance = this;
 }
@@ -74,6 +74,19 @@ DiscordBot.prototype.setupUser = function(userId, userToken, nickname) {
 			}, console.error);
 		}
 	});
+}
+
+DiscordBot.prototype.getAllRoles = function() {
+	let out = [];
+	for (let role of this.mainGuild.roles.values()) {
+		if (role.name === '@everyone') continue;
+		out.push({
+			id: role.id,
+			name: role.name,
+			color: role.color
+		});
+	}
+	return out;
 }
 
 module.exports = DiscordBot;

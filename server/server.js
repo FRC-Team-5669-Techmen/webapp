@@ -504,6 +504,12 @@ app.get('/api/v1/discord/authCallback', (req, res) => {
 	});
 });
 
+app.get('/api/v1/discord/roles', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
+		res.status(200).send(bot.getAllRoles());
+	});
+});
+
 //Begin testing area
 let bot = new DiscordBot();
 //End testing area
