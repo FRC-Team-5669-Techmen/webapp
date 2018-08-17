@@ -125,31 +125,25 @@ app.post('/api/v1/members/register', (req, res) => {
 		if (!session || !session.memberId) {
 			res.status(401).send({error: 'A valid session token representing a session with an associated logged in user must be sent in the Authorization header. Either the token was not present, or the session associated with the token does not represent a logged in user.'});		
 		}
-		dbs.members.getAllValues('emailAddress', (values) => {
-			if (values.indexOf(data.emailAddress) !== -1) {
-				res.status(400).send({error: 'A member with that email address already exists.'});
-				return;
-			}
-			dbs.members.findItemWithValue('id', session.memberId, (member) => {				
-				// Only copy data that can be set by a user. This is to prevent the user trying to modify things they normally could not.
-				member.firstName = data.firstName;
-				member.lastName = data.lastName;
-				member.shirtSize = data.shirtSize;
-				member.emailAddress = data.emailAddress;
-				member.sendEmails = data.sendEmails;
-				member.phone = data.phone;
-				member.gradeLevel = data.gradeLevel;
-				member.team = data.team;
-				member.experience = data.experience;
-				member.parent.firstName = data.parent.firstName;
-				member.parent.lastName = data.parent.lastName;
-				member.parent.phone = data.parent.phone;
-				member.parent.emailAddress = data.parent.emailAddress;
-				session.getDiscordAuthToken(getAuthHost(req), (token) => {
-					bot.setupUser(member.connections.discord.id, token, member.firstName + ' ' + member.lastName);
-				})
-				res.status(201).send(member);
-			});
+		dbs.members.findItemWithValue('id', session.memberId, (member) => {				
+			// Only copy data that can be set by a user. This is to prevent the user trying to modify things they normally could not.
+			member.firstName = data.firstName;
+			member.lastName = data.lastName;
+			member.shirtSize = data.shirtSize;
+			member.emailAddress = data.emailAddress;
+			member.sendEmails = data.sendEmails;
+			member.phone = data.phone;
+			member.gradeLevel = data.gradeLevel;
+			member.team = data.team;
+			member.experience = data.experience;
+			member.parent.firstName = data.parent.firstName;
+			member.parent.lastName = data.parent.lastName;
+			member.parent.phone = data.parent.phone;
+			member.parent.emailAddress = data.parent.emailAddress;
+			session.getDiscordAuthToken(getAuthHost(req), (token) => {
+				bot.setupUser(member.connections.discord.id, token, member.firstName + ' ' + member.lastName);
+			})
+			res.status(201).send(member);
 		});
 	});
 });
