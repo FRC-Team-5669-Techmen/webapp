@@ -56,14 +56,24 @@ DiscordBot.prototype.onMessage = function(message) {
 }
 
 DiscordBot.prototype.setupUser = function(userId, userToken, nickname) {
-	let user = this.client.fetchUser(userId);
-	this.mainGuild.addMember(user, {
-		accessToken: userToken,
-		nick: nickname,
-		roles: [ this.unconfirmedRole ]
-	}).then((member) => {
-		this.mainChannel.send(`Please welcome <@${userId}> to the server!\n\nAn admin must confirm they are an actual club member by typing \`!confirm <@${userId}>\`.)`);
-	})
+	this.client.fetchUser(userId).then((user) => {
+		let guildUser = this.mainGuild.member(user);
+		if (guildUser) { // If they are already on the server (they joined before automatic discord login)
+			guildUser.setRoles([this.unconfirmedRole]).then(() => {
+				return guildUser.setNickname(nickname);
+			}).then(() => {
+				this.mainChannel.send(`Please welcome <@${userId}> to the server!\n\nAn admin must confirm they are an actual club member by typing **!confirm <@${userId}>**`);
+			});
+		} else {
+			this.mainGuild.addMember(user, {
+				accessToken: userToken,
+				nick: nickname,
+				roles: [ this.unconfirmedRole ]
+			}).then((member) => {
+				this.mainChannel.send(`Please welcome <@${userId}> to the server!\n\nAn admin must confirm they are an actual club member by typing **!confirm <@${userId}>**`);
+			}, console.error);
+		}
+	});
 }
 
 module.exports = DiscordBot;
