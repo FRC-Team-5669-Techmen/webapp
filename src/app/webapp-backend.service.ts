@@ -131,17 +131,13 @@ export class WebappBackendService {
           resolve(data.recommendedToken);
         });
       } else {
-        this.get<TokenResponse>('/api/v1/session/new').then((res) => {
-          if (res.ok) {
-            this.cookieService.put('sessionToken', res.body.token);
-            resolve(res.body.token);
-          } else {
-            throw new Error('Error retrieving new session token!');
-          }
-        });
+        this.client.get<TokenResponse>('/api/v1/session/new').subscribe((data) => {
+          this.cookieService.put('sessionToken', data.token);
+          resolve(data.token);
+        }, console.error);
       }
     });
-    this.sessionToken.then((token) => this.loginExistingUser());
+    this.sessionToken.then((token) => this.loginExistingUser(), console.error);
   }
 
   private createOptions(contentType?: string): Promise<BackendHTTPOptions> {
