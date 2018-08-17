@@ -14,7 +14,7 @@ const drive = require('./drive')
 const dbs = require('./databases');
 const pdf = require('./pdf');
 const sessionStorage = require('./sessionStorage');
-const discord = require('./discord');
+const rawDiscord = require('./rawDiscord');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
 
@@ -467,9 +467,9 @@ app.get('/api/v1/discord/authCallback', (req, res) => {
 		res.status(400).send({error: 'Must send a valid session token in query string.'});
 		return;
 	}
-	discord.exchangeToken(code, (productionMode ? 'https://' : 'http://') + req.headers.host, (authData) => {
+	rawDiscord.exchangeToken(code, (productionMode ? 'https://' : 'http://') + req.headers.host, (authData) => {
 		authData.receivedOn = Date.now();
-		discord.getUserData(authData.access_token, (userData) => {
+		rawDiscord.getUserData(authData.access_token, (userData) => {
 			dbs.members.getAllItems((users) => {
 				let fillData = (user) => {
 					user.connections.discord.id = userData.id;

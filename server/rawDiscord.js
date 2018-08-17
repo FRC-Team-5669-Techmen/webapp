@@ -23,16 +23,3 @@ module.exports.exchangeToken = function(authToken, redirectHost, callback) {
 		callback(body);
 	});
 }
-
-module.exports.getUserData = function(accessToken, callback) {
-	request({
-		url: 'https://discordapp.com/api/users/@me',
-		headers: {
-			Authorization: `Bearer ${accessToken}`
-		},
-		json: true
-	}, (err, res, body) => {
-		if (err) throw err;
-		callback(body);
-	})
-}
