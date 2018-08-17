@@ -15,6 +15,7 @@ const dbs = require('./databases');
 const pdf = require('./pdf');
 const sessionStorage = require('./sessionStorage');
 const rawDiscord = require('./rawDiscord');
+const DiscordBot = require('./discordBot');
 
 const rootDir = path.resolve(__dirname + '/../dist'); // ../ causes problems, because it is susceptible to exploitation.
 
@@ -97,6 +98,10 @@ function checkLogin(req, res, accessLevel, next) {
 	});
 }
 
+function getAuthHost(req) {
+	return `http${productionMode ? 's' : ''}://${req.headers.host}`;
+}
+
 app.get('/api/v1/accessLevel', (req, res) => {
 	validateSession(req, (session) => {
 		if (!session || !session.memberId) {
@@ -140,6 +145,9 @@ app.post('/api/v1/members/register', (req, res) => {
 				member.parent.lastName = data.parent.lastName;
 				member.parent.phone = data.parent.phone;
 				member.parent.emailAddress = data.parent.emailAddress;
+				session.getDiscordAuthToken(getAuthHost(req), (token) => {
+					bot.setupUser(member.connections.discord.id, token, member.firstName + ' ' + member.lastName);
+				})
 				res.status(201).send(member);
 			});
 		});
@@ -498,6 +506,7 @@ app.get('/api/v1/discord/authCallback', (req, res) => {
 });
 
 //Begin testing area
+let bot = new DiscordBot();
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));
