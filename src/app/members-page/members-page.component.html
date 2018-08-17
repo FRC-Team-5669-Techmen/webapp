@@ -6,7 +6,7 @@
 			<mat-card-header>
 				<img mat-card-avatar [src]="member.profilePicture" class="user-icon">
 				<mat-card-title>{{member.firstName}} {{member.lastName}}</mat-card-title>
-				<mat-card-subtitle>{{member.gradeLevel}}, {{member.preferredTeam}} Team</mat-card-subtitle>
+				<mat-card-subtitle>{{member.gradeLevel}}, {{member.team}} Team</mat-card-subtitle>
 				<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.LEADER) || (backend.pollCurrentMember().id === member.id)">mode_edit</mat-icon>
 				<mat-icon *ngIf="(backend.pollAccessLevel() === AccessLevel.MEMBER) && (backend.pollCurrentMember().id !== member.id)">visibility</mat-icon>
 			</mat-card-header>
@@ -14,7 +14,7 @@
 	</ng-template>
 	<h1 class="mat-h1">Leaders</h1>
 	<app-grid-layout>
-		<ng-container *ngFor="let member of members.concat(members).concat(members)"> 
+		<ng-container *ngFor="let member of members"> 
 			<ng-container *ngIf="member.accessLevel === AccessLevel.LEADER">
 				<ng-container *ngTemplateOutlet="card;context:{member:member}"></ng-container>
 			</ng-container>
