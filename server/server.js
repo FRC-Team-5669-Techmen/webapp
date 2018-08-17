@@ -438,7 +438,6 @@ app.patch('/api/v1/partRequests/:id', (req, res) => {
 	});
 });
 
-//Begin testing area
 app.get('/api/v1/session/new', (req, res) => {
 	res.status(201).send({
 		token: sessionStorage.createNewSession().token
@@ -494,14 +493,11 @@ app.get('/api/v1/discord/authCallback', (req, res) => {
 				}
 				res.redirect('/public/register');
 			});
-			//res.sendStatus(204);
 		});
 	});
 });
 
-app.get('/api/v1/discord/tokenCallback', (req, res) => {
-	console.log(req.body, req.query);
-});
+//Begin testing area
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));

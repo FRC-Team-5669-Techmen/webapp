@@ -1,4 +1,3 @@
-const discord = require('./discord');
 const memberDatabase = require('./databases').members;
 
 var sessions = [];
