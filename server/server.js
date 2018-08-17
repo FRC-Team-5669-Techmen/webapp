@@ -184,6 +184,7 @@ function censorMember(member, level = 0) {
 		trimmedMember.phone = member.phone;
 		trimmedMember.parent = member.parent;
 		trimmedMember.shirtSize = member.shirtSize;
+		trimmedMember.sendEmails = member.sendEmails;
 	}
 	return trimmedMember;
 }

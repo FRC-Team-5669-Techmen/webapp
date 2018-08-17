@@ -59,6 +59,7 @@ export class RecruitPageComponent implements OnInit {
   ngOnInit() {
     // TODO: this used to retrieve data from Google. Make it fill in with whatever we know about the user.
     this.backend.getCurrentMemberAsync().then((member) => {
+      if (!member) { return; }
       this.data.emailAddress = member.emailAddress;
       if (member.team !== null) { // The member has filled out their data. Skip to the last step.
         this.status = Status.Submitted;

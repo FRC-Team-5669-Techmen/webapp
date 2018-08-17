@@ -4,16 +4,10 @@
 	margin: -0.5em; /* To counteract the 0.5em margin of cards, so the margin only adds spacing internally. */
 }
 
-:host /deep/ > mat-card {
-	margin: 0.5em; /* Because flexboxes makes margins act more like padding */
-	flex: 1;
-	min-width: 20em;
-}
-
 div.spacing {
 	flex: 1;
 	/* Act like cards, but have no height */
-	min-width: 20em;
+	min-width: 12em;
 	height: 0;
 	margin: 0;
 	padding-left: 24px;

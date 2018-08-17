@@ -33,7 +33,7 @@ const appRoutes: Routes = [
   { path: 'public/register', component: RecruitPageComponent },
   { path: 'private/contact', component: ContactInfoPageComponent },
   { path: 'private/members', component: MembersPageComponent },
-  { path: 'private/members/:email', component: MemberPageComponent },
+  { path: 'private/members/:id', component: MemberPageComponent },
   { path: 'private/parts', component: PartRequestsPageComponent },
   { path: 'private/parts/generateForm', component: RequestFormPageComponent },
   { path: 'private/parts/:id', component: PartRequestPageComponent }

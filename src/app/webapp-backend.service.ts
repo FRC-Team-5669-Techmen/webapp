@@ -191,7 +191,7 @@ export class WebappBackendService {
       if (res.ok && res.body) {
         this.resolveCurrentMember(res.body);
       }
-    }, (err) => 0); // 404 if there is no associated user.
+    }, (err) => this.resolveCurrentMember(null)); // 404 if there is no associated user.
   }
 
   getSessionToken(): Promise<string> {

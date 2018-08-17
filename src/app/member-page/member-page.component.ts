@@ -19,7 +19,7 @@ export class MemberPageComponent implements OnInit {
 
   ngOnInit() {
     this.backend.getCurrentMemberAsync().then(() => {
-      this.backend.getMember(this.route.snapshot.paramMap.get('email')).then((res) => this.member = res.body);
+      this.backend.getMember(this.route.snapshot.paramMap.get('id')).then(console.log);//(res) => this.member = res.body);
     });
   }
 

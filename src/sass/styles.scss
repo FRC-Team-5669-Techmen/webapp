@@ -8,17 +8,19 @@ div.spacing {
 	height: 1em;
 }
 
-mat-card .mat-icon {
+mat-card > mat-card-header > mat-icon {
 	text-align: right;
-	line-height: 1.5em;
+	margin-left: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.mat-card-header-text {
+	min-width: 0;
 }
 
 mat-card .mat-card-subtitle {
 	margin-bottom: 0;
-}
-
-mat-card:not(.one-line) .mat-card-header-text {
-	width: 100%;
 }
 
 mat-card.one-line .mat-h2 {
@@ -29,4 +31,22 @@ mat-card.one-line .mat-h2 {
 
 mat-card img {
 	margin-right: 0.5em;
+}
+
+.grid-element {
+	flex: 1 0 0;
+	min-width: 12em;
+}
+
+mat-card.grid-element {
+	margin: 0.5em;
+}
+
+mat-card.grid-element mat-card-title, mat-card.grid-element mat-card-subtitle {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+mat-card > .mat-icon {
 }
