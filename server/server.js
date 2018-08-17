@@ -238,71 +238,76 @@ function getTeamFolder(member) {
 	}
 }
 
-app.patch('/api/v1/members/:email', (req, res) => {
+app.patch('/api/v1/members/:id', (req, res) => {
 	const data = req.body;
 	// If the user wants to modify the access level or the team of a member, they must be a leader.
-	checkLogin(req, res, (data.accessLevel || data.preferredTeam) ? ACCESS_LEVEL_LEADER : ACCESS_LEVEL_MEMBER, (member) => {
-		let address = req.params.email;
-		if ((member.emailAddress !== address) && (member.accessLevel != ACCESS_LEVEL_LEADER)) {
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (writer) => {
+		let id = req.params.id;
+		if (writer.id !== id && writer.accessLevel !== ACCESS_LEVEL_LEADER) {
 			res.status(403).send({error: 'Only leaders can edit details of users other than themselves.'});
 		}
-		dbs.members.getAllValues('emailAddress', (values) => {
-			let index = values.indexOf(address);
-			if (index == -1) {
+		dbs.members.findItemWithValue('id', id, (member) => {
+			if (!member) {
 				res.status(404).send({error: 'No members have that email address.'});
-			} else {
-				dbs.members.getItem(index, (item) => {
-					// If their access level was changed, need to change what they have access to on google drive.
-					if ((data.accessLevel) && (data.accessLevel !== item.accessLevel)) {
-						// Handles changing google drive access if access level changes.
-						// If member's team also changes in the same request, that is handled here as well.
-						if (data.accessLevel === ACCESS_LEVEL_RESTRICTED) {
-							if (item.accessLevel === ACCESS_LEVEL_MEMBER) {
-								let teamFolder = getTeamFolder(item); // What team they were
-								if (teamFolder) teamFolder.removeRole(item.emailAddress);
-								drive.COMPETITION_FOLDER.removeRole(item.emailAddress);
-							} else { // Was a leader
-								drive.ROOT_FOLDER.removeRole(item.emailAddress);
-								drive.ADMINISTRATION_FOLDER.removeRole(item.emailAddress);
-							}
-						} else if (data.accessLevel == ACCESS_LEVEL_MEMBER) {
-							if (item.accessLevel === ACCESS_LEVEL_LEADER) {
-								drive.ROOT_FOLDER.removeRole(item.emailAddress);
-								drive.ADMINISTRATION_FOLDER.removeRole(item.emailAddress);
-							}
-							let teamFolder = getTeamFolder({preferredTeam: data.preferredTeam || item.preferredTeam}); // In case their team was also changed.
-							if (teamFolder) teamFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
-									'Your application for FRC has been approved, and you can now create and modify files in your team\'s folder.');
-							drive.COMPETITION_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT, 
-									'Your application for FRC has been approved, and you can now create and modify files in the Competition folder.');
-						} else { // Becoming a leader
-							if (item.accessLevel === ACCESS_LEVEL_MEMBER) {
-								let teamFolder = getTeamFolder(item); // What team they were
-								if (teamFolder) teamFolder.removeRole(item.emailAddress);
-								drive.COMPETITION_FOLDER.removeRole(item.emailAddress);
-							}
-							drive.ROOT_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT,
-									'You have been promoted to a leader of FRC and can now create, edit, and delete files in all folders.');
-							drive.ADMINISTRATION_FOLDER.setRole(item.emailAddress, drive.ROLE_EDIT,
-									'You have been promoted to a leader of FRC and now have access to the (previously hidden) Administration folder.');
-						}
-					} else if ((data.preferredTeam) && (data.preferredTeam !== item.preferredTeam) && (item.accessLevel === ACCESS_LEVEL_MEMBER)) {
-						// Handles gdrive permissions if a member changes teams but not access levels.
-						let oldFolder = getTeamFolder(item);
-						if (oldFolder) oldFolder.removeRole(item.emailAddress);
-						let newFolder = getTeamFolder(data);
-						if (newFolder) newFolder.setRole(item.emailAddress, drive.ROLE_EDIT,
-								'Your FRC subteam has been switched to ' + data.preferredTeam + ', and you have thus been granted access to its folder.');
-					}
-					for(let key in data) {
-						if ((key != 'auth') && (key != 'emailAddress')) {
-							item[key] = data[key];
-						}
-					}
-					dbs.members.setItem(index, item);
-					res.status(200).send(item);
-				});
+				return;
 			}
+			if (data.accessLevel && data.accessLevel !== member.accessLevel) {
+				// Handles changing google drive access if access level changes.
+				// If member's team also changes in the same request, that is handled here as well.
+				if (data.accessLevel === ACCESS_LEVEL_RESTRICTED) {
+					if (member.accessLevel === ACCESS_LEVEL_MEMBER) {
+						let teamFolder = getTeamFolder(member); // What team they were
+						if (teamFolder) teamFolder.removeRole(member.emailAddress);
+						drive.COMPETITION_FOLDER.removeRole(member.emailAddress);
+					} else { // Was a leader
+						drive.ROOT_FOLDER.removeRole(member.emailAddress);
+						drive.ADMINISTRATION_FOLDER.removeRole(member.emailAddress);
+					}
+				} else if (data.accessLevel == ACCESS_LEVEL_MEMBER) {
+					if (member.accessLevel === ACCESS_LEVEL_LEADER) {
+						drive.ROOT_FOLDER.removeRole(member.emailAddress);
+						drive.ADMINISTRATION_FOLDER.removeRole(member.emailAddress);
+					}
+					let teamFolder = getTeamFolder({preferredTeam: data.preferredTeam || member.preferredTeam}); // In case their team was also changed.
+					if (teamFolder) teamFolder.setRole(member.emailAddress, drive.ROLE_EDIT,
+							'Your application for FRC has been approved, and you can now create and modify files in your team\'s folder.');
+					drive.COMPETITION_FOLDER.setRole(member.emailAddress, drive.ROLE_EDIT, 
+							'Your application for FRC has been approved, and you can now create and modify files in the Competition folder.');
+				} else { // Becoming a leader
+					if (member.accessLevel === ACCESS_LEVEL_MEMBER) {
+						let teamFolder = getTeamFolder(member); // What team they were
+						if (teamFolder) teamFolder.removeRole(member.emailAddress);
+						drive.COMPETITION_FOLDER.removeRole(member.emailAddress);
+					}
+					drive.ROOT_FOLDER.setRole(member.emailAddress, drive.ROLE_EDIT,
+							'You have been promoted to a leader of FRC and can now create, edit, and delete files in all folders.');
+					drive.ADMINISTRATION_FOLDER.setRole(member.emailAddress, drive.ROLE_EDIT,
+							'You have been promoted to a leader of FRC and now have access to the (previously hidden) Administration folder.');
+				}
+			} else if ((data.preferredTeam) && (data.preferredTeam !== member.preferredTeam) && (member.accessLevel === ACCESS_LEVEL_MEMBER)) {
+				// Handles gdrive permissions if a member changes teams but not access levels.
+				let oldFolder = getTeamFolder(member);
+				if (oldFolder) oldFolder.removeRole(member.emailAddress);
+				let newFolder = getTeamFolder(data);
+				if (newFolder) newFolder.setRole(member.emailAddress, drive.ROLE_EDIT,
+						'Your FRC subteam has been switched to ' + data.preferredTeam + ', and you have thus been granted access to its folder.');
+			}
+			// Again, security stuff. We want to make sure that only writable data is copied without having to update this when new, unwritable data is added to the database.
+			for (key of ['firstName', 'lastName', 'shirtSize', 'emailAddress', 'sendEmails', 'phone', 'gradeLevel', 'team', 'experience']) {
+				member[key] = data[key] || member[key];
+			}
+			if (data.parent) {
+				for (key of ['firstName', 'lastName', 'phone', 'emailAddress']) {
+					member.parent[key] = data.parent[key] || member.parent[key];
+				}
+			}
+			if (writer.accessLevel === ACCESS_LEVEL_LEADER) {
+				for (key of ['accessLevel']) {
+					member[key] = data[key] || member[key];
+				}
+			}
+			res.status(200).send(censorMember(member, 1));
+			
 		});
 	});	
 });
