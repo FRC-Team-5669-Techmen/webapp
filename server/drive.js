@@ -1,6 +1,7 @@
 const google = require('./google');
 const drive = google.gapis.drive('v3');
 
+module.exports.ROLE_NONE = 'none';
 module.exports.ROLE_COMMENT = 'commenter';
 module.exports.ROLE_VIEW = 'reader';
 module.exports.ROLE_EDIT = 'writer';
@@ -29,7 +30,11 @@ class File {
 	}
 	
 	setRole(email, role, message) {
-		if(!role) role = ROLE_VIEW;		
+		if (role === ROLE_NONE) {
+			this.removeRole(email);
+			return;
+		}
+		if(!role) role = ROLE_VIEW;
 		this._apiCall(drive.permissions.create, {
 			sendNotificationEmail: !!message,
 			emailMessage: message ,
