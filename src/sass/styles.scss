@@ -33,9 +33,12 @@ mat-card img {
 	margin-right: 0.5em;
 }
 
-.grid-element {
-	flex: 1 0 0;
-	min-width: 12em;
+app-grid-layout .grid-element {
+	flex: 1 1 12em;
+}
+
+app-grid-layout.bigger .grid-element {
+	flex: 1 1 20em;
 }
 
 mat-card.grid-element {
