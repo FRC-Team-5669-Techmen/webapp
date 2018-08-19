@@ -75,6 +75,17 @@ export interface PartRequest {
   status?: PartRequestStatus;
 }
 
+export interface DiscordRole {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface DiscordDefaultRoles {
+  restricted?: string;
+  member?: string;
+}
+
 const quantifiedAccessLevels = {
   visitor: 0,
   restricted: 1,
@@ -271,5 +282,17 @@ export class WebappBackendService {
     url += '&authorization=';
     url += encodeURIComponent(''); // TODO: promise stuff and session token
     return url;
+  }
+
+  getDiscordRoles(): Promise<HttpResponse<DiscordRole[]>> {
+    return this.get<DiscordRole[]>('/api/v1/discord/roles');
+  }
+
+  getDiscordDefaultRoles(): Promise<HttpResponse<DiscordDefaultRoles>> {
+    return this.get<DiscordDefaultRoles>('/api/v1/discord/defaultRoles');
+  }
+
+  patchDiscordDefaultRoles(data: DiscordDefaultRoles): Promise<HttpResponse<DiscordDefaultRoles>> {
+    return this.patch<DiscordDefaultRoles>('/api/v1/discord/defaultRoles', data);
   }
 }

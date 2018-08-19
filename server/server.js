@@ -510,6 +510,28 @@ app.get('/api/v1/discord/roles', (req, res) => {
 	});
 });
 
+app.get('/api/v1/discord/defaultRoles', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+		dbs.miscConfig.get('discord', (dconfig) => {
+			res.status(200).send(dconfig.defaultRoles);
+		});
+	});
+});
+
+app.patch('/api/v1/discord/defaultRoles', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+		dbs.miscConfig.get('discord', (dconfig) => {
+			if (req.body.restricted) {
+				dconfig.defaultRoles.restricted = req.body.restricted;
+			}
+			if (req.body.member) {
+				dconfig.defaultRoles.member = req.body.member;
+			}
+			res.status(200).send(dconfig.defaultRoles);
+		});
+	});
+});
+
 //Begin testing area
 let bot = new DiscordBot();
 //End testing area
