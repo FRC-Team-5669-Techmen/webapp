@@ -529,6 +529,7 @@ app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 			}
 			res.status(200).send(dconfig.defaultRoles);
 		});
+		bot.updateDefaultRoles();
 	});
 });
 

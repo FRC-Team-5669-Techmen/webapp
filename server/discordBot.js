@@ -7,8 +7,6 @@ const BOT_TOKEN = CLIENT_DATA.botToken;
 const MAIN_GUILD = CLIENT_DATA.botGuild;
 const MAIN_CHANNEL = CLIENT_DATA.botChannel;
 const LEAD_ROLES = CLIENT_DATA.leadRoles;
-const CONFIRMED_ROLE = CLIENT_DATA.confirmedRole;
-const UNCONFIRMED_ROLE = CLIENT_DATA.unconfirmedRole;
 
 class DiscordBot {
 	constructor() {
@@ -22,14 +20,20 @@ class DiscordBot {
 			for (let id of LEAD_ROLES) {
 				this.leadRoles.push(this.mainGuild.roles.get(id));
 			}
-			this.confirmedRole = this.mainGuild.roles.get(CONFIRMED_ROLE);
-			this.unconfirmedRole = this.mainGuild.roles.get(UNCONFIRMED_ROLE);
+			this.updateDefaultRoles();
 		});
 		this.client.on('message', (message) => this.onMessage(message));
 		this.client.on('error', console.error);
 		this.client.on('rateLimit', console.error);
 		this.client.login(BOT_TOKEN);
 		DiscordBot.instance = this;
+	}
+	
+	updateDefaultRoles() {
+		dbs.miscConfig.get('discord', (dconfig) => {
+			this.confirmedRole = this.mainGuild.roles.get(dconfig.defaultRoles.member);
+			this.unconfirmedRole = this.mainGuild.roles.get(dconfig.defaultRoles.restricted);
+		})
 	}
 
 	onMessage(message) {
