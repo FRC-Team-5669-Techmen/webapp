@@ -1,0 +1,45 @@
+<h1 class="mat-h1">Access Levels</h1>
+<app-grid-layout class="bigger">
+	<mat-card class="grid-element">
+		<h2 class="mat-h2">Visitor</h2>
+		<mat-card-content>
+			This access level is applied to anyone visiting the website without logging in.
+		</mat-card-content>
+	</mat-card>
+	<mat-card class="grid-element">
+		<h2 class="mat-h2">Restricted</h2>
+		<mat-card-content>
+			This access level is applied to anyone who has just signed up. This can be used to restrict items
+			until it has been confirmed that the person who signed up should have access to them. All members
+			with this access level will automatically be given this Discord role: 
+			<div class="spacing"></div>
+			<mat-select [(value)]="restrictedRole" placeholder="Choose Discord role">
+				<ng-container *ngFor="let role of roles">
+					<mat-option [value]="role.id">@{{role.name}}</mat-option>
+				</ng-container>
+			</mat-select>
+		</mat-card-content>
+	</mat-card>
+	<mat-card class="grid-element">
+		<h2 class="mat-h2">Member</h2>
+		<mat-card-content>
+			This level should be granted to anyone who is participating in the team. It allows them to participate
+			in the Discord server. People with this access level should be given read-only access to most data
+			as well as write access to data for their particular team. All members with this access level will
+			automatically be given this Discord role: 
+			<div class="spacing"></div>
+			<mat-select [(value)]="memberRole" placeholder="Choose Discord role">
+				<ng-container *ngFor="let role of roles">
+					<mat-option [value]="role.id">@{{role.name}}</mat-option>
+				</ng-container>
+			</mat-select>
+		</mat-card-content>
+	</mat-card>
+	<mat-card class="grid-element">
+		<h2 class="mat-h2">Leader</h2>
+		<mat-card-content>
+			This level should be reserved for club officers and mentors. It allows unlimited priviledges on the
+			Discord server. All members in this role will automatically receive the same Discord role as members.
+		</mat-card-content>
+	</mat-card>
+</app-grid-layout>
