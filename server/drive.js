@@ -1,5 +1,6 @@
 const google = require('./google');
 const drive = google.gapis.drive('v3');
+const miscConfig = require('./databases').miscConfig;
 
 module.exports.ROLE_NONE = 'none';
 module.exports.ROLE_COMMENT = 'commenter';
@@ -13,20 +14,16 @@ class File {
 		this.id = fileId;
 	}
 	
-	_apiCall(func, data, callback) {
+	_apiCall(func, data) {
 		data.auth = google.jwtClient;
 		data.fileId = this.id;
-		func(data, (err, res) => {
-			if(err) {
-				console.error('Error in Drive API call: ' + err);
-			} else {
-				callback(res);
-			}
-		})
+		let promise = func(data);
+		promise.catch(console.error);
+		return promise;
 	}
 	
 	setDefaultRole(role) {
-		throw new Exception('NYI');
+		throw new Error('NYI');
 	}
 	
 	setRole(email, role, message) {
@@ -34,47 +31,58 @@ class File {
 			this.removeRole(email);
 			return;
 		}
-		if(!role) role = ROLE_VIEW;
-		this._apiCall(drive.permissions.create, {
+		if (!role) role = ROLE_VIEW;
+		return this._apiCall(drive.permissions.create, {
 			sendNotificationEmail: !!message,
 			emailMessage: message ,
 			resource: {
 				role: role,
 				type: 'user',
 				emailAddress: email
-			}}, (res) => {
-				// For some reason, demoting privilege only works with an update.
-				if(res && res.role != role) {
-					this._apiCall(drive.permissions.update, {
-						permissionId: res.id,
-						resource: {role: role}
-					}, (res) => console.log(res));
-				}
-			});
+			}
+		}).then((res) => {
+			// For some reason, demoting privilege only works with an update.
+			if(res && res.role != role) {
+				return this._apiCall(drive.permissions.update, {
+					permissionId: res.id,
+					resource: {role: role}
+				});
+			} else {
+				return res;
+			}
+		});
 	}
 	
-	listPerms(callback) {
-		this._apiCall(drive.permissions.list, {
+	listPerms() {
+		return this._apiCall(drive.permissions.list, {
 			fields: 'permissions(id,type,emailAddress,role)'
-		}, (res) => callback(res.permissions));
+		}).then((res) => res.permissions);
 	}
 	
 	removeRole(email) {
-		this.listPerms((perms) => {
-			if(!perms.find) console.log(perms)
+		this.listPerms().then((perms) => {
+			if(!perms.find) console.error(perms, 'Does not have attribute "find".');
 			let perm = perms.find((perm) => (perm.emailAddress)? perm.emailAddress.toLowerCase() === email : false);
 			if(perm) {
-				this._apiCall(drive.permissions.delete, {
+				return this._apiCall(drive.permissions.delete, {
 					permissionId: perm.id
-				}, () => null);				
+				});				
 			}
+			return Promise.reject('Promise not found.');
+		});
+	}
+	
+	listChildren() {
+		return this._apiCall(drive.files.list, {
+			q: `${this.id} in parents`
 		});
 	}
 }
 
-module.exports.ROOT_FOLDER = new File('1epAk56th7SwpM4cX-jl1eQyE2wFjymHJ'); // FRC Team 5669
-module.exports.DESIGN_FOLDER = new File('1U0mZv2FaLM0Mu6iHfG0h3AHSaecAHxir'); // root/Design
-module.exports.PROGRAMMING_FOLDER = new File('1YzGIFPZuyARPF9a8r6ha2jjnvdYuMA6o'); // root/Programming
-module.exports.PUBLICITY_FOLDER = new File('1CUyQJF8mMs2Jl7dAAzWPGmo3kKq2z8yA'); // root/Publicity
-module.exports.COMPETITION_FOLDER = new File('1uF-6xoBytWaicepNX0d0VkzByG7xcTzE'); // root/Competition
-module.exports.ADMINISTRATION_FOLDER = new File('1ZiM6qKk5s__Ip1bItigVgn-jEzreLPod'); // root/Administration
+module.exports.getRootFolder = function() {
+	return new Promise((resolve, reject) => {
+		miscConfig.get('google', (gconfig) => {
+			resolve(new File(gconfig.rootFolder));
+		})
+	});
+}
