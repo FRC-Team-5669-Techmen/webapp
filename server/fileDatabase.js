@@ -123,7 +123,7 @@ class FileDatabase {
 
 	getItem(index, callback) {
 		this._checkStaleness(() => {
-			callback(changeGuard(item, () => this._markDirty())); // Make everything proxied so that changes will trigger cache update.
+			callback(changeGuard(this.data[index], () => this._markDirty())); // Make everything proxied so that changes will trigger cache update.
 		});
 	}
 
