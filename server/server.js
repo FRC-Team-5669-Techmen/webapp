@@ -467,6 +467,8 @@ app.get('/api/v1/session/isValid', (req, res) => {
 	});
 });
 
+let bot = new DiscordBot();
+
 app.get('/api/v1/discord/authCallback', (req, res) => {
 	let sessionToken = req.query.state, code = req.query.code;
 	if (!sessionStorage.sessionExists(sessionToken)) {
@@ -533,8 +535,31 @@ app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 	});
 });
 
+app.get('/api/v1/folders', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+		let tr = [];
+		drive.getRootFolder().then((root) => {
+			tr.push({
+				id: root.id,
+				name: root.name
+			});
+			return root.listChildren();
+		}).then((children) => {
+			for (let child of children) {
+				tr.push({ // Only send useful data.
+					id: child.id,
+					name: child.name
+				});
+			}
+			res.status(200).send(tr);
+		});
+	});
+});
+
 //Begin testing area
-let bot = new DiscordBot();
+drive.getRootFolder().then((root) => {
+	root.listChildren().then(console.log);
+})
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));

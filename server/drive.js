@@ -10,14 +10,26 @@ module.exports.ROLE_ORGANIZE = 'organizer';
 module.exports.ROLE_OWNER = 'owner';
 
 class File {
-	constructor(fileId) {
+	constructor(fileId, fileName) {
 		this.id = fileId;
+		this.name = (fileName) ? fileName : null;
+		if (!fileName) {
+			this.getName();
+		}
 	}
 	
 	_apiCall(func, data) {
 		data.auth = google.jwtClient;
 		data.fileId = this.id;
-		let promise = func(data);
+		let promise = new Promise((resolve, reject) => {
+			func(data, (err, res) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(res);
+				}
+			});
+		});
 		promise.catch(console.error);
 		return promise;
 	}
@@ -74,7 +86,26 @@ class File {
 	
 	listChildren() {
 		return this._apiCall(drive.files.list, {
-			q: `${this.id} in parents`
+			q: `"${this.id}" in parents`
+		}).then((res) => {
+			let parsed = [];
+			for (let file of res.files) {
+				parsed.push(new File(file.id, file.name));
+			}
+			return parsed;
+		});
+	}
+	
+	pollName() {
+		return this.name;
+	}
+	
+	getName() {
+		return this._apiCall(drive.files.get, {
+			fileId: this.id
+		}).then((file) => {
+			this.name = file.name;
+			return file.name;
 		});
 	}
 }
@@ -82,7 +113,7 @@ class File {
 module.exports.getRootFolder = function() {
 	return new Promise((resolve, reject) => {
 		miscConfig.get('google', (gconfig) => {
-			resolve(new File(gconfig.rootFolder));
+			resolve(new File(gconfig.rootFolder, '[Root Folder]'));
 		})
 	});
 }
