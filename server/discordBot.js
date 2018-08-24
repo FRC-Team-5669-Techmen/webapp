@@ -37,7 +37,6 @@ class DiscordBot {
 	}
 
 	onMessage(message) {
-		console.log(message.content);
 		if (message.content[0] === '!') { // Command prefix.
 			let command = message.content.substr(1);
 			command = command.split(' ');
