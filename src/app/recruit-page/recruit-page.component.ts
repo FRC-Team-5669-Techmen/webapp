@@ -1,5 +1,5 @@
 import { DiscordService } from '../discord.service';
-import { Member, WebappBackendService, AccessLevel } from '../webapp-backend.service';
+import { Member, Partial, WebappBackendService, AccessLevel } from '../webapp-backend.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatInput, MatCheckbox } from '@angular/material';
 
@@ -19,7 +19,7 @@ enum Status {
 })
 export class RecruitPageComponent implements OnInit {
   status: Status = Status.Login;
-  data: Member = {
+  data: Partial<Member> = {
     firstName: '',
     lastName: '',
     emailAddress: '',

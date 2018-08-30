@@ -1,4 +1,4 @@
-import { WebappBackendService, PartRequest, AccessLevel, PartVendor, PartRequestStatus } from '../webapp-backend.service';
+import { WebappBackendService, PartRequest, AccessLevel, PartVendor, PartRequestStatus, Partial } from '../webapp-backend.service';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -9,7 +9,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class PartRequestPageComponent implements OnInit {
   vendors: Array<PartVendor>;
-  partRequest: PartRequest;
+  partRequest: Partial<PartRequest>;
   isNew = false;
   canEdit = false;
   isLeader = false;

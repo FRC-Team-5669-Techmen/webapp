@@ -3,6 +3,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie';
 
+export type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
+
 export enum AccessLevel {
   VISITOR = 'visitor',
   RESTRICTED = 'restricted',
@@ -25,35 +29,35 @@ export enum ShirtSize {
 }
 
 export interface Parent {
-  firstName?: string;
-  lastName?: string;
-  emailAddress?: string;
-  phone?: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  phone: string;
 }
 
 export interface Member {
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  shirtSize?: ShirtSize;
-  emailAddress?: string;
-  sendEmails?: boolean;
-  phone?: string;
-  gradeLevel?: GradeLevel | '';
-  team?: string;
-  experience?: string;
-  parent?: Parent;
-  accessLevel?: AccessLevel;
+  id: string;
+  firstName: string;
+  lastName: string;
+  shirtSize: ShirtSize;
+  emailAddress: string;
+  sendEmails: boolean;
+  phone: string;
+  gradeLevel: GradeLevel | '';
+  team: string;
+  experience: string;
+  parent: Parent;
+  accessLevel: AccessLevel;
 }
 
 export interface PartVendor {
-  vendorName?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
-  phone?: string;
-  email?: string;
+  vendorName: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  phone: string;
+  email: string;
 }
 
 export enum PartRequestStatus {
@@ -63,16 +67,16 @@ export enum PartRequestStatus {
 }
 
 export interface PartRequest {
-  requestId?: string;
-  vendorName?: string;
-  itemDescription?: string;
-  itemNumber?: string;
-  taxExempt?: boolean;
-  quantity?: number;
-  price?: number;
-  requestedBy?: string;
-  dateRequested?: string;
-  status?: PartRequestStatus;
+  requestId: string;
+  vendorName: string;
+  itemDescription: string;
+  itemNumber: string;
+  taxExempt: boolean;
+  quantity: number;
+  price: number;
+  requestedBy: string;
+  dateRequested: string;
+  status: PartRequestStatus;
 }
 
 export interface DiscordRole {
@@ -82,8 +86,8 @@ export interface DiscordRole {
 }
 
 export interface DiscordDefaultRoles {
-  restricted?: string;
-  member?: string;
+  restricted: string;
+  member: string;
 }
 
 const quantifiedAccessLevels = {
@@ -236,11 +240,11 @@ export class WebappBackendService {
     return quantifyAccessLevel(this.pollAccessLevel()) >= quantifyAccessLevel(minimumRequired);
   }
 
-  registerMember(memberData: Member): Promise<HttpResponse<Member>> {
+  registerMember(memberData: Partial<Member>): Promise<HttpResponse<Member>> {
     return this.post<Member>('/api/v1/members/register', memberData);
   }
 
-  patchMember(email: string, memberData: Member): Promise<HttpResponse<Member>> {
+  patchMember(email: string, memberData: Partial<Member>): Promise<HttpResponse<Member>> {
     return this.patch<Member>('/api/v1/members/' + email, memberData);
   }
 
@@ -268,11 +272,11 @@ export class WebappBackendService {
     return this.get<PartRequest>('/api/v1/partRequests/' + id);
   }
 
-  createPartRequest(partRequest: PartRequest): Promise<HttpResponse<PartRequest>> {
+  createPartRequest(partRequest: Partial<PartRequest>): Promise<HttpResponse<PartRequest>> {
     return this.post<PartRequest>('/api/v1/partRequests/create', partRequest);
   }
 
-  patchPartRequest(id: string, requestData: PartRequest): Promise<HttpResponse<PartRequest>> {
+  patchPartRequest(id: string, requestData: Partial<PartRequest>): Promise<HttpResponse<PartRequest>> {
     return this.patch<PartRequest>('/api/v1/partRequests/' + id, requestData);
   }
 
@@ -292,7 +296,7 @@ export class WebappBackendService {
     return this.get<DiscordDefaultRoles>('/api/v1/discord/defaultRoles');
   }
 
-  patchDiscordDefaultRoles(data: DiscordDefaultRoles): Promise<HttpResponse<DiscordDefaultRoles>> {
+  patchDiscordDefaultRoles(data: Partial<DiscordDefaultRoles>): Promise<HttpResponse<DiscordDefaultRoles>> {
     return this.patch<DiscordDefaultRoles>('/api/v1/discord/defaultRoles', data);
   }
 }
