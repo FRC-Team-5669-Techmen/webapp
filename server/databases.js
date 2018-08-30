@@ -61,7 +61,22 @@ module.exports.roleExtras.createRole = function(options) {
 		role[key] = options[key];
 	}
 	this.push(role);
-	return changeGuard(role, () => this._markDirty())
+	return changeGuard(role, () => this._markDirty());
+}
+module.exports.roleExtras.setRoles = function(roleIds, callback) {
+	this._checkStaleness(() => {
+		for (let i = this.data.length - 1; i >= 0; i--) {
+			let roleIndex = roleIds.indexOf(this.data[i]);
+			if (roleIndex === -1) {
+				this.data.splice(i, 1);
+			} else {
+				roleIds.splice(roleIndex, 1);
+			}
+		}
+		for (let roleId of roleIds) {
+			this.createRole({ discordId: roleId });
+		}
+	});
 }
 module.exports.partVendors = new FileDatabase('../private/partVendors.json');
 module.exports.partRequests = new FileDatabase('../private/partRequests.json');

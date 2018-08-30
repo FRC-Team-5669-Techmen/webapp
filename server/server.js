@@ -506,12 +506,6 @@ app.get('/api/v1/discord/authCallback', (req, res) => {
 	});
 });
 
-app.get('/api/v1/discord/roles', (req, res) => {
-	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
-		res.status(200).send(bot.getAllRoles());
-	});
-});
-
 app.get('/api/v1/discord/defaultRoles', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.miscConfig.get('discord', (dconfig) => {
@@ -532,6 +526,42 @@ app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 			res.status(200).send(dconfig.defaultRoles);
 		});
 		bot.updateDefaultRoles();
+	});
+});
+
+app.get('/api/v1/discord/roles', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
+		let roles = bot.getAllRoles();
+		// Unify role data and roleExtra data for the end user. They should be treated as a single piece of data.
+		dbs.roleExtras.getAllItems((roleExtras) => {
+			for (let role of roles) {
+				role.googleDriveAccess = [];
+				role.minimumAccessLevel = ACCESS_LEVEL_RESTRICTED;
+				for (let extra of roleExtras) {
+					if (extra.discordId === role.id) {
+						role.googleDriveAccess = extra.googleDriveAccess;
+						role.minimumAccessLevel = extra.minimumAccessLevel;
+						break;
+					}
+				}
+			}
+			res.status(200).send(roles);
+		});
+	});
+});
+
+app.patch('/api/v1/discord/roles/:discordId', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+		dbs.roleExtras.findItemWithValue('discordId', req.params.discordId, (result) => {
+			if (typeof(req.body.googleDriveAccess) === typeof([])) {
+				result.googleDriveAccess = req.body.googleDriveAccess;
+				// TODO: Update GDrive permissions for individual users upon this change.
+			}
+			if (typeof(req.body.minimumAccessLevel) == typeof('')) {
+				result.minimumAccessLevel = req.body.minimumAccessLevel;
+			}
+			res.status(200).send(result);
+		});
 	});
 });
 
