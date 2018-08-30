@@ -1,4 +1,4 @@
-import { WebappBackendService, DiscordRole, DiscordDefaultRoles } from '../webapp-backend.service';
+import { WebappBackendService, DiscordRole, DiscordDefaultRoles, AccessLevel } from '../webapp-backend.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -9,6 +9,11 @@ import { Component, OnInit } from '@angular/core';
 export class RolesPageComponent implements OnInit {
   roles: DiscordRole[];
   defaultRoles: DiscordDefaultRoles = { restricted: null, member: null };
+
+  // For templates
+  get AccessLevel() {
+    return AccessLevel;
+  }
 
   constructor(private backend: WebappBackendService) {
     backend.getDiscordRoles().then((res) => {

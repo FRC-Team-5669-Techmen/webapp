@@ -43,3 +43,23 @@
 		</mat-card-content>
 	</mat-card>
 </app-grid-layout>
+<div class="spacing"></div>
+<h1 class="mat-h1">Discord Roles</h1>
+<app-grid-layout class="bigger">
+	<mat-card class="grid-element clickable" *ngFor="let role of roles">
+		<div class="role-text">
+			<h2 class="mat-h2" [ngStyle]="{'color': '#' + role.color.toString(16)}">@{{role.name}}</h2>
+			<mat-card-content>
+					{{role.googleDriveAccess.length}} Drive permissions set. 
+					<br>
+					Minimum access level {{role.minimumAccessLevel == AccessLevel.VISITOR ? 'not' : ''}} set.
+			</mat-card-content>
+		</div>
+		<mat-icon class="edit-icon">mode_edit</mat-icon>
+	</mat-card>
+	<mat-card class="grid-element">
+		<mat-card-content>
+			Visit Discord to create, delete, rename, recolor, and rearrange roles.
+		</mat-card-content>
+	</mat-card>
+</app-grid-layout>
