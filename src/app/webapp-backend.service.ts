@@ -28,6 +28,15 @@ export enum ShirtSize {
   XLARGE = 'XL'
 }
 
+export enum GoogleDriveRole {
+  NONE = 'none',
+  COMMENT = 'commenter',
+  VIEW = 'reader',
+  EDIT = 'writer',
+  ORGANIZE = 'organizer',
+  OWNER = 'owner'
+}
+
 export interface Parent {
   firstName: string;
   lastName: string;
@@ -79,10 +88,17 @@ export interface PartRequest {
   status: PartRequestStatus;
 }
 
+export interface DrivePermission {
+  fileId: string;
+  access: GoogleDriveRole;
+}
+
 export interface DiscordRole {
   id: string;
   name: string;
   color: string;
+  minimumAccessLevel: AccessLevel;
+  googleDriveAccess: DrivePermission[];
 }
 
 export interface DiscordDefaultRoles {
@@ -290,6 +306,10 @@ export class WebappBackendService {
 
   getDiscordRoles(): Promise<HttpResponse<DiscordRole[]>> {
     return this.get<DiscordRole[]>('/api/v1/discord/roles');
+  }
+
+  patchDiscordRole(id: string, data: Partial<DiscordRole>): Promise<HttpResponse<DiscordRole>> {
+    return this.patch<DiscordRole>('/api/v1/discord/roles/' + id, data);
   }
 
   getDiscordDefaultRoles(): Promise<HttpResponse<DiscordDefaultRoles>> {
