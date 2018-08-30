@@ -21,7 +21,11 @@ class DiscordBot {
 				this.leadRoles.push(this.mainGuild.roles.get(id));
 			}
 			this.updateDefaultRoles();
+			this.updateRoleIds();
 		});
+		this.client.on('roleCreate', () => this.updateRoleIds());
+		this.client.on('roleDelete', () => this.updateRoleIds());
+		this.client.on('roleUpdate', () => this.updateRoleIds());
 		this.client.on('message', (message) => this.onMessage(message));
 		this.client.on('error', console.error);
 		this.client.on('rateLimit', console.error);
@@ -34,6 +38,14 @@ class DiscordBot {
 			this.confirmedRole = this.mainGuild.roles.get(dconfig.defaultRoles.member);
 			this.unconfirmedRole = this.mainGuild.roles.get(dconfig.defaultRoles.restricted);
 		})
+	}
+	
+	updateRoleIds() {
+		let roleIds = [];
+		for (let role of this.mainGuild.roles.values()) {
+			roleIds.push(role.id);
+		}
+		dbs.roleExtras.setRoles(roleIds, () => 0);
 	}
 
 	onMessage(message) {
