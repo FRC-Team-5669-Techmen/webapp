@@ -106,6 +106,11 @@ export interface DiscordDefaultRoles {
   member: string;
 }
 
+export interface DriveFile {
+  id: string;
+  name: string;
+}
+
 const quantifiedAccessLevels = {
   visitor: 0,
   restricted: 1,
@@ -322,5 +327,9 @@ export class WebappBackendService {
 
   patchDiscordDefaultRoles(data: Partial<DiscordDefaultRoles>): Promise<HttpResponse<DiscordDefaultRoles>> {
     return this.patch<DiscordDefaultRoles>('/api/v1/discord/defaultRoles', data);
+  }
+
+  getDriveFiles(): Promise<HttpResponse<DriveFile[]>> {
+    return this.get<DriveFile[]>('/api/v1/folders');
   }
 }
