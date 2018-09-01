@@ -43,6 +43,7 @@ class DiscordBot {
 	updateRoleIds() {
 		let roleIds = [];
 		for (let role of this.mainGuild.roles.values()) {
+			if (role.name === '@everyone') continue;
 			roleIds.push(role.id);
 		}
 		dbs.roleExtras.setRoles(roleIds, () => 0);
