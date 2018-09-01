@@ -308,6 +308,10 @@ export class WebappBackendService {
     return this.get<DiscordRole[]>('/api/v1/discord/roles');
   }
 
+  getDiscordRole(discordId: string): Promise<HttpResponse<DiscordRole>> {
+    return this.get<DiscordRole>('/api/v1/discord/roles/' + discordId);
+  }
+
   patchDiscordRole(id: string, data: Partial<DiscordRole>): Promise<HttpResponse<DiscordRole>> {
     return this.patch<DiscordRole>('/api/v1/discord/roles/' + id, data);
   }
