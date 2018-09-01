@@ -550,6 +550,23 @@ app.get('/api/v1/discord/roles', (req, res) => {
 	});
 });
 
+app.get('/api/v1/discord/roles/:discordId', (req, res) => {
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+		dbs.roleExtras.findItemWithValue('discordId', req.params.discordId, (result) => {
+			let roles = bot.getAllRoles();
+			for (let role of roles) {
+				if (role.id === req.params.discordId) {
+					role.googleDriveAccess = result.googleDriveAccess;
+					role.minimumAccessLevel = result.minimumAccessLevel;
+					res.status(200).send(role);
+					return;
+				}
+			}
+			res.sendStatus(404);
+		});
+	});
+});
+
 app.patch('/api/v1/discord/roles/:discordId', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.roleExtras.findItemWithValue('discordId', req.params.discordId, (result) => {
@@ -587,9 +604,6 @@ app.get('/api/v1/folders', (req, res) => {
 });
 
 //Begin testing area
-drive.getRootFolder().then((root) => {
-	root.listChildren().then(console.log);
-})
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));
