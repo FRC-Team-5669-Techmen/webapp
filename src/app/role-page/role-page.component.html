@@ -1,0 +1,41 @@
+<app-page-guard loadingMessage="Loading role..." [loaded]="role && (files.length > 0)" [accessLevel]="AccessLevel.LEADER" #guard>
+</app-page-guard>
+<app-centered-layout *ngIf="guard.show">
+    <mat-card id="root" class="mat-typography">
+        <h2>@{{role.name}}</h2>
+        <mat-form-field class="full-width">
+            <mat-select placeholder="Minimum Access Level" [(ngModel)]="role.minimumAccessLevel" name="accessLevel">
+                <mat-option [value]="AccessLevel.VISITOR">Visitor</mat-option>
+                <mat-option [value]="AccessLevel.RESTRICTED">Restricted</mat-option>
+                <mat-option [value]="AccessLevel.MEMBER">Member</mat-option>
+                <mat-option [value]="AccessLevel.LEADER">Leader</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <h2>Google Drive Permissions</h2>
+        <div *ngFor="let perm of role.googleDriveAccess; let i = index" class="perm-box">
+            <mat-form-field>
+                <mat-select required [(ngModel)]="perm.fileId">
+                    <mat-option *ngFor="let file of files" [value]="file.id">{{file.name}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <span class="spacer"></span>
+            <mat-form-field>
+                <mat-select required [(ngModel)]="perm.access">
+                    <mat-option [value]="GoogleDriveRole.NONE">No Access</mat-option>
+                    <mat-option [value]="GoogleDriveRole.VIEW">View Only</mat-option>
+                    <mat-option [value]="GoogleDriveRole.EDIT">View and Edit</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <span class="spacer"></span>
+            <mat-icon class="icon-button" (click)="removeFile(i)">remove_circle</mat-icon>
+        </div>
+        <mat-form-field class="full-width">
+            <mat-select (selectionChange)="addFile($event)" placeholder="Add File">
+                <mat-option *ngFor="let file of files" [value]="file.id">{{file.name}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button mat-button class="mat-raised-button" color="accent" [disabled]="submitting" (click)="submit()">
+            {{submitting ? 'Applying Changes...' : 'Apply Changes'}}
+        </button>
+    </mat-card>
+</app-centered-layout>

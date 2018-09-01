@@ -27,6 +27,7 @@ import { PlatformIdService } from './platform-id.service';
 import { PartRequestPageComponent } from './part-request-page/part-request-page.component';
 import { RequestFormPageComponent } from './request-form-page/request-form-page.component';
 import { RolesPageComponent } from './roles-page/roles-page.component';
+import { RolePageComponent } from './role-page/role-page.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/public/home', pathMatch: 'full'},
@@ -38,7 +39,8 @@ const appRoutes: Routes = [
   { path: 'private/parts', component: PartRequestsPageComponent },
   { path: 'private/parts/generateForm', component: RequestFormPageComponent },
   { path: 'private/parts/:id', component: PartRequestPageComponent },
-  { path: 'private/roles', component: RolesPageComponent }
+  { path: 'private/roles', component: RolesPageComponent },
+  { path: 'private/roles/:id', component: RolePageComponent }
 ];
 
 @NgModule({
@@ -58,7 +60,8 @@ const appRoutes: Routes = [
     ContactInfoPageComponent,
     PartRequestPageComponent,
     RequestFormPageComponent,
-    RolesPageComponent
+    RolesPageComponent,
+    RolePageComponent
   ],
   imports: [
     BrowserModule,

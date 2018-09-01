@@ -39,14 +39,14 @@
 		<h2 class="mat-h2">Leader</h2>
 		<mat-card-content>
 			This level should be reserved for club officers and mentors. It allows unlimited priviledges on the
-			Discord server. All members in this role will automatically receive the same Discord role as members.
+			website. All members in this role will automatically receive the same Discord role as members.
 		</mat-card-content>
 	</mat-card>
 </app-grid-layout>
 <div class="spacing"></div>
 <h1 class="mat-h1">Discord Roles</h1>
 <app-grid-layout class="bigger">
-	<mat-card class="grid-element clickable" *ngFor="let role of roles">
+	<mat-card class="grid-element clickable" *ngFor="let role of roles" routerLink="/private/roles/{{role.id}}">
 		<div class="role-text">
 			<h2 class="mat-h2" [ngStyle]="{'color': '#' + role.color.toString(16)}">@{{role.name}}</h2>
 			<mat-card-content>

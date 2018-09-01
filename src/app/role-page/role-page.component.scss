@@ -1,0 +1,24 @@
+.full-width {
+    width: 100%;
+}
+
+div.perm-box {
+    display: flex;
+}
+
+div.perm-box > mat-form-field {
+    flex: 1;
+}
+
+div.perm-box > mat-icon {
+    margin: auto;
+}
+
+div.perm-box > span.spacer {
+    width: 1em;
+}
+
+.icon-button {
+    cursor: pointer;
+    user-select: none;
+}
