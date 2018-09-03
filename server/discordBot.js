@@ -129,10 +129,12 @@ class DiscordBot {
 					faculty: this.facultyRole,
 					other: this.otherRole
 				}[found.gradeLevel.toLowerCase()]);
-				roles.push(this.teamRoles[member.team]);
-				console.log(roles);
-				member.addRoles(roles).catch(console.error);
-				member.removeRole(this.unconfirmedRole);
+				roles.push(this.teamRoles[found.team]);
+				let p = member.addRoles(roles);
+				p.catch(console.error);
+				p.then(() => {
+					member.removeRole(this.unconfirmedRole);
+				});
 			});
 		});
 	}
