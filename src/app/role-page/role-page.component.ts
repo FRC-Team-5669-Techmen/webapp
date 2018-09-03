@@ -9,7 +9,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class RolePageComponent implements OnInit {
   public role: DiscordRole = null;
-  public files: DriveFile[] = [];
+  public drives: DriveFile[] = [];
   public submitting = false;
 
   get AccessLevel() { // For the template
@@ -27,8 +27,8 @@ export class RolePageComponent implements OnInit {
       this.backend.getDiscordRole(this.route.snapshot.paramMap.get('id')).then((res) => {
         this.role = res.body;
       });
-      this.backend.getDriveFiles().then((res) => {
-        this.files = res.body;
+      this.backend.getDrives().then((res) => {
+        this.drives = res.body;
       });
     });
   }
@@ -43,7 +43,7 @@ export class RolePageComponent implements OnInit {
     });
   }
 
-  addFile(selectEvent: any) {
+  addDrive(selectEvent: any) {
     selectEvent.source.value = null;
     this.role.googleDriveAccess.push({
       fileId: selectEvent.value,
@@ -51,7 +51,7 @@ export class RolePageComponent implements OnInit {
     });
   }
 
-  removeFile(index: number) {
+  removeDrive(index: number) {
     console.log(index);
     this.role.googleDriveAccess.splice(index, 1);
   }

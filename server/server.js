@@ -589,7 +589,7 @@ app.get('/api/v1/drives', (req, res) => {
 			for (let drive of drives) {
 				tr.push({
 					id: drive.id,
-					name: child.name
+					name: drive.name
 				});
 			}
 			res.status(200).send(tr);

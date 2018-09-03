@@ -329,7 +329,7 @@ export class WebappBackendService {
     return this.patch<DiscordDefaultRoles>('/api/v1/discord/defaultRoles', data);
   }
 
-  getDriveFiles(): Promise<HttpResponse<DriveFile[]>> {
-    return this.get<DriveFile[]>('/api/v1/folders');
+  getDrives(): Promise<HttpResponse<DriveFile[]>> {
+    return this.get<DriveFile[]>('/api/v1/drives');
   }
 }

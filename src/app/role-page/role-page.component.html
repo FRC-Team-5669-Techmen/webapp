@@ -1,4 +1,4 @@
-<app-page-guard loadingMessage="Loading role..." [loaded]="role && (files.length > 0)" [accessLevel]="AccessLevel.LEADER" #guard>
+<app-page-guard loadingMessage="Loading role..." [loaded]="role && (drives.length > 0)" [accessLevel]="AccessLevel.LEADER" #guard>
 </app-page-guard>
 <app-centered-layout *ngIf="guard.show">
     <mat-card id="root" class="mat-typography">
@@ -15,7 +15,7 @@
         <div *ngFor="let perm of role.googleDriveAccess; let i = index" class="perm-box">
             <mat-form-field>
                 <mat-select required [(ngModel)]="perm.fileId">
-                    <mat-option *ngFor="let file of files" [value]="file.id">{{file.name}}</mat-option>
+                    <mat-option *ngFor="let drive of drives" [value]="drive.id">{{drive.name}}</mat-option>
                 </mat-select>
             </mat-form-field>
             <span class="spacer"></span>
@@ -23,15 +23,17 @@
                 <mat-select required [(ngModel)]="perm.access">
                     <mat-option [value]="GoogleDriveRole.NONE">No Access</mat-option>
                     <mat-option [value]="GoogleDriveRole.VIEW">View Only</mat-option>
-                    <mat-option [value]="GoogleDriveRole.EDIT">View and Edit</mat-option>
+                    <mat-option [value]="GoogleDriveRole.COMMENT">Comment Only</mat-option>
+                    <mat-option [value]="GoogleDriveRole.EDIT">View, Create, and Edit</mat-option>
+                    <mat-option [value]="GoogleDriveRole.ORGANIZE">Full Priviledges</mat-option>
                 </mat-select>
             </mat-form-field>
             <span class="spacer"></span>
-            <mat-icon class="icon-button" (click)="removeFile(i)">remove_circle</mat-icon>
+            <mat-icon class="icon-button" (click)="removeDrive(i)">remove_circle</mat-icon>
         </div>
         <mat-form-field class="full-width">
-            <mat-select (selectionChange)="addFile($event)" placeholder="Add File">
-                <mat-option *ngFor="let file of files" [value]="file.id">{{file.name}}</mat-option>
+            <mat-select (selectionChange)="addDrive($event)" placeholder="Add Team Drive">
+                <mat-option *ngFor="let drive of drives" [value]="drive.id">{{drive.name}}</mat-option>
             </mat-select>
         </mat-form-field>
         <button mat-button class="mat-raised-button" color="accent" [disabled]="submitting" (click)="submit()">
