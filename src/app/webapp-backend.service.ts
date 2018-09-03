@@ -18,7 +18,10 @@ export enum GradeLevel {
   FRESHMAN = 'Freshman',
   SOPHOMORE = 'Sophomore',
   JUNIOR = 'Junior',
-  SENIOR = 'Senior'
+  SENIOR = 'Senior',
+  ALUMNUS = 'Alumnus',
+  FACULTY = 'Faculty',
+  OTHER = 'Other'
 }
 
 export enum ShirtSize {
@@ -104,6 +107,14 @@ export interface DiscordRole {
 export interface DiscordDefaultRoles {
   restricted: string;
   member: string;
+  leader: string;
+  freshman: string;
+  sophomore: string;
+  junior: string;
+  senior: string;
+  alumni: string;
+  faculty: string;
+  other: string;
 }
 
 export interface DriveFile {

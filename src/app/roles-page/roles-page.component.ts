@@ -1,5 +1,5 @@
 import { WebappBackendService, DiscordRole, DiscordDefaultRoles, AccessLevel } from '../webapp-backend.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-roles-page',
@@ -8,14 +8,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RolesPageComponent implements OnInit {
   roles: DiscordRole[];
-  defaultRoles: DiscordDefaultRoles = { restricted: null, member: null };
+  _defaultRoles: DiscordDefaultRoles = { restricted: null, member: null, leader: null, freshman: null, sophomore: null, junior: null,
+    senior: null, alumni: null, faculty: null, other: null };
+  public defaultRoles: any = {};
 
   // For templates
   get AccessLevel() {
     return AccessLevel;
   }
 
-  constructor(private backend: WebappBackendService) {
+  constructor(private backend: WebappBackendService, private cdr: ChangeDetectorRef) {
     backend.getDiscordRoles().then((res) => {
       if (res.ok) {
         this.roles = res.body;
@@ -25,30 +27,26 @@ export class RolesPageComponent implements OnInit {
     });
     backend.getDiscordDefaultRoles().then((res) => {
       if (res.ok) {
-        this.defaultRoles = res.body;
+        this._defaultRoles = res.body;
       } else {
         throw new Error('Could not retrieve Discord default roles!');
       }
+      this.cdr.markForCheck();
     });
+    for (const key of Object.keys(this._defaultRoles)) {
+      Object.defineProperty(this.defaultRoles, key + 'Role', {
+        set: (role) => {
+          this._defaultRoles[key] = role;
+          const patchData = {};
+          patchData[key] = role;
+          this.backend.patchDiscordDefaultRoles(patchData);
+        },
+        get: () => {
+          return this._defaultRoles[key];
+        }
+      });
+    }
   }
 
   ngOnInit() { }
-
-  get restrictedRole() {
-    return this.defaultRoles.restricted;
-  }
-
-  set restrictedRole(role) {
-    this.defaultRoles.restricted = role;
-    this.backend.patchDiscordDefaultRoles({ restricted: role });
-  }
-
-  get memberRole() {
-    return this.defaultRoles.member;
-  }
-
-  set memberRole(role) {
-    this.defaultRoles.member = role;
-    this.backend.patchDiscordDefaultRoles({ member: role });
-  }
 }

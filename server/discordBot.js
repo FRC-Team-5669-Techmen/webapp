@@ -37,6 +37,15 @@ class DiscordBot {
 		dbs.miscConfig.get('discord', (dconfig) => {
 			this.confirmedRole = this.mainGuild.roles.get(dconfig.defaultRoles.member);
 			this.unconfirmedRole = this.mainGuild.roles.get(dconfig.defaultRoles.restricted);
+			this.leaderRole = this.mainGuild.roles.get(dconfig.defaultRoles.leader);
+
+			this.freshmanRole = this.mainGuild.roles.get(dconfig.defaultRoles.freshman);
+			this.sophomoreRole = this.mainGuild.roles.get(dconfig.defaultRoles.sophomore);
+			this.juniorRole = this.mainGuild.roles.get(dconfig.defaultRoles.junior);
+			this.seniorRole = this.mainGuild.roles.get(dconfig.defaultRoles.senior);
+			this.alumnusRole = this.mainGuild.roles.get(dconfig.defaultRoles.alumnus);
+			this.facultyRole = this.mainGuild.roles.get(dconfig.defaultRoles.faculty);
+			this.otherRole = this.mainGuild.roles.get(dconfig.defaultRoles.other);
 		})
 	}
 	
@@ -104,6 +113,23 @@ class DiscordBot {
 			});
 		}
 		return out;
+	}
+
+	updateDrivePermissions() {
+		let users = [];
+		this.mainGuild.fetchMembers().then((res) => {
+			for (let member of res.members) {
+				member = member[1];
+				let user = member.user;
+				users.push({
+					id: user.id,
+					name: user.username,
+					roles: member._roles,
+					realname: member.nickname || user.username
+				});
+			}
+			console.log(users);
+		});
 	}
 }
 

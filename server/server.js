@@ -517,15 +517,14 @@ app.get('/api/v1/discord/defaultRoles', (req, res) => {
 app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.miscConfig.get('discord', (dconfig) => {
-			if (req.body.restricted) {
-				dconfig.defaultRoles.restricted = req.body.restricted;
+			for (let key of ['restricted', 'member', 'leader', 'freshman', 'sophomore', 'junior', 'senior', 'alumnus', 'faculty', 'other']) {
+				if (req.body[key]) {
+					dconfig.defaultRoles[key] = req.body[key];
+				}
 			}
-			if (req.body.member) {
-				dconfig.defaultRoles.member = req.body.member;
-			}
+			bot.updateDefaultRoles();
 			res.status(200).send(dconfig.defaultRoles);
 		});
-		bot.updateDefaultRoles();
 	});
 });
 
@@ -598,6 +597,9 @@ app.get('/api/v1/drives', (req, res) => {
 });
 
 //Begin testing area
+bot.client.on('ready', () => {
+	bot.updateDrivePermissions();
+});
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));

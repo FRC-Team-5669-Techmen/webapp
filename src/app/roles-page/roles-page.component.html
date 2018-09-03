@@ -13,7 +13,7 @@
 			until it has been confirmed that the person who signed up should have access to them. All members
 			with this access level will automatically be given this Discord role: 
 			<div class="spacing"></div>
-			<mat-select [(value)]="restrictedRole" placeholder="Choose Discord role">
+			<mat-select [(value)]="defaultRoles.restrictedRole" placeholder="Choose Discord role">
 				<ng-container *ngFor="let role of roles">
 					<mat-option [value]="role.id">@{{role.name}}</mat-option>
 				</ng-container>
@@ -28,7 +28,7 @@
 			as well as write access to data for their particular team. All members with this access level will
 			automatically be given this Discord role: 
 			<div class="spacing"></div>
-			<mat-select [(value)]="memberRole" placeholder="Choose Discord role">
+			<mat-select [(value)]="defaultRoles.memberRole" placeholder="Choose Discord role">
 				<ng-container *ngFor="let role of roles">
 					<mat-option [value]="role.id">@{{role.name}}</mat-option>
 				</ng-container>
@@ -39,20 +39,42 @@
 		<h2 class="mat-h2">Leader</h2>
 		<mat-card-content>
 			This level should be reserved for club officers and mentors. It allows unlimited priviledges on the
-			website. All members in this role will automatically receive the same Discord role as members.
+			website. All members in this role will automatically be given this Discord role:
+			<div class="spacing"></div>
+			<mat-select [(value)]="defaultRoles.leaderRole" placeholder="Choose Discord role">
+				<ng-container *ngFor="let role of roles">
+					<mat-option [value]="role.id">@{{role.name}}</mat-option>
+				</ng-container>
+			</mat-select>
+		</mat-card-content>
+	</mat-card>
+</app-grid-layout>
+<div class="spacing"></div>
+<h1 class="mat-h1">Grade Levels</h1>
+<app-grid-layout>
+	<mat-card class="grid-element" *ngFor="let a of [['Freshmen', 'freshmanRole'], ['Sophomores', 'sophomoreRole'], ['Juniors', 'juniorRole'], ['Seniors', 'seniorRole'], ['Alumni', 'alumnusRole'], ['Faculty', 'facultyRole'], ['Others', 'otherRole']]">
+		<h2 class="mat-h2">{{a[0]}}</h2>
+		<mat-card-content>
+			All {{a[0].toLowerCase()}} will automatically be given this Discord role:
+			<div class="spacing"></div>
+			<mat-select [(value)]="defaultRoles[a[1]]" placeholder="Choose Discord role">
+				<ng-container *ngFor="let role of roles">
+					<mat-option [value]="role.id">@{{role.name}}</mat-option>
+				</ng-container>
+			</mat-select>
 		</mat-card-content>
 	</mat-card>
 </app-grid-layout>
 <div class="spacing"></div>
 <h1 class="mat-h1">Discord Roles</h1>
-<app-grid-layout class="bigger">
+<app-grid-layout>
 	<mat-card class="grid-element clickable" *ngFor="let role of roles" routerLink="/private/roles/{{role.id}}">
 		<div class="role-text">
 			<h2 class="mat-h2" [ngStyle]="{'color': '#' + role.color.toString(16)}">@{{role.name}}</h2>
 			<mat-card-content>
 					{{role.googleDriveAccess.length}} Drive permissions set. 
 					<br>
-					Minimum access level {{role.minimumAccessLevel == AccessLevel.VISITOR ? 'not' : ''}} set.
+					Access level {{role.minimumAccessLevel == AccessLevel.VISITOR ? 'not' : ''}} set.
 			</mat-card-content>
 		</div>
 		<mat-icon class="edit-icon">mode_edit</mat-icon>
