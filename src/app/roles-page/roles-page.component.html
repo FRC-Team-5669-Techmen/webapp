@@ -66,6 +66,22 @@
 	</mat-card>
 </app-grid-layout>
 <div class="spacing"></div>
+<h1 class="mat-h1">Subteams</h1>
+<app-grid-layout>
+	<mat-card class="grid-element" *ngFor="let a of teams">
+		<h2 class="mat-h2">{{a}} Team</h2>
+		<mat-card-content>
+			Members of the {{a.toLowerCase()}} team will automatically be given this Discord role:
+			<div class="spacing"></div>
+			<mat-select [(value)]="defaultRoles[a + 'TeamRole']" placeholder="Choose Discord role">
+				<ng-container *ngFor="let role of roles">
+					<mat-option [value]="role.id">@{{role.name}}</mat-option>
+				</ng-container>
+			</mat-select>
+		</mat-card-content>
+	</mat-card>
+</app-grid-layout>
+<div class="spacing"></div>
 <h1 class="mat-h1">Discord Roles</h1>
 <app-grid-layout>
 	<mat-card class="grid-element clickable" *ngFor="let role of roles" routerLink="/private/roles/{{role.id}}">

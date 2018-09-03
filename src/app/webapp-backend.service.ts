@@ -115,10 +115,6 @@ export interface DiscordDefaultRoles {
   alumnus: string;
   faculty: string;
   other: string;
-  designTeam: string;
-  programmingTeam: string;
-  prototypingTeam: string;
-  publicityTeam: string;
 }
 
 export interface DriveFile {

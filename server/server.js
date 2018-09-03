@@ -521,17 +521,23 @@ app.get('/api/v1/discord/defaultRoles', (req, res) => {
 });
 
 app.patch('/api/v1/discord/defaultRoles', (req, res) => {
-	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+	//checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.miscConfig.get('discord', (dconfig) => {
-			for (let key of ['restricted', 'member', 'leader', 'freshman', 'sophomore', 'junior', 'senior', 'alumnus', 'faculty', 'other', 'designTeam', 'programmingTeam', 'buildTeam', 'publicityTeam', 'driveTeam']) {
-				if (req.body[key]) {
-					dconfig.defaultRoles[key] = req.body[key];
+			let teamRoles = [];
+			dbs.miscConfig.get('teams', (tlist) => {
+				for (let team of tlist) {
+					teamRoles.push(team + 'Team');
 				}
-			}
-			bot.updateDefaultRoles();
-			res.status(200).send(dconfig.defaultRoles);
+				for (let key of ['restricted', 'member', 'leader', 'freshman', 'sophomore', 'junior', 'senior', 'alumnus', 'faculty', 'other'].concat(teamRoles)) {
+					if (req.body[key]) {
+						dconfig.defaultRoles[key] = req.body[key];
+					}
+				}
+				bot.updateDefaultRoles();
+				res.status(200).send(dconfig.defaultRoles);
+			})
 		});
-	});
+	//});
 });
 
 app.get('/api/v1/discord/roles', (req, res) => {

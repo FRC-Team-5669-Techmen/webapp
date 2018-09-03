@@ -46,7 +46,14 @@ class DiscordBot {
 			this.alumnusRole = this.mainGuild.roles.get(dconfig.defaultRoles.alumnus);
 			this.facultyRole = this.mainGuild.roles.get(dconfig.defaultRoles.faculty);
 			this.otherRole = this.mainGuild.roles.get(dconfig.defaultRoles.other);
-		})
+
+			this.teamRoles = {};
+			dbs.miscConfig.get('teams', (tlist) => {
+				for (let team of tlist) {
+					this.teamRoles[team] = this.mainGuild.roles.get(dconfig.defaultRoles[team + 'Team']);
+				}
+			});
+		});
 	}
 	
 	updateRoleIds() {
@@ -76,9 +83,102 @@ class DiscordBot {
 					message.channel.send(list);
 				});
 			} else if (command === 'test') {
-				DiscordBot.instance.mainChannel.send('This is another test.');
+				this.mainChannel.send('This is another test.');
+			} else if (command === 'confirm') {
+				if (args.length !== 1) {
+					message.channel.send('Usage: !confirm [@username#nmbr]');
+					return;
+				} else {
+					let userId = args[0];
+					if (userId[0] === '<' && userId[1] === '@') {
+						userId = userId.slice(3).slice(0, -1);
+						this.confirm(userId);
+						message.channel.send(args[0] + ' is now confirmed.');
+					} else {
+						message.channel.send('Usage: !confirm [@username#nmbr]')
+					}
+				}
 			}
 		}
+	}
+
+	confirm(userId) {
+		dbs.members.getAllItems((members) => {
+			let found = null;
+			for (let member of members) {
+				if (member.connections.discord.id === userId) {
+					found = member;
+					break;
+				}
+			}
+			if (found.accessLevel === 'restricted') {
+				found.accessLevel = 'member';
+			} else {
+				return;
+			}
+			this.client.fetchUser(userId).then((user) => {
+				return this.mainGuild.fetchMember(user);
+			}).then((member) => {
+				let roles = [this.confirmedRole];
+				roles.push({
+					freshman: this.freshmanRole,
+					sophomore: this.sophomoreRole,
+					junior: this.juniorRole,
+					senior: this.seniorRole,
+					alumnus: this.alumnusRole,
+					faculty: this.facultyRole,
+					other: this.otherRole
+				}[found.gradeLevel.toLowerCase()]);
+				roles.push(this.teamRoles[member.team]);
+				console.log(roles);
+				member.addRoles(roles).catch(console.error);
+				member.removeRole(this.unconfirmedRole);
+			});
+		});
+	}
+
+	makeLeader(userId) {
+		dbs.members.getAllItems((members) => {
+			let found = null;
+			for (let member of members) {
+				if (member.connections.discord.id === userId) {
+					found = member;
+					break;
+				}
+			}
+			if (found.accessLevel !== 'leader') {
+				found.accessLevel = 'leader';
+			} else {
+				return;
+			}
+			this.client.fetchUser(userId).then((user) => {
+				return this.mainGuild.fetchMember(user);
+			}).then((member) => {
+				member.addRole(this.leaderRole);
+			});
+		});
+	}
+
+	revokeLeader(userId) {
+		dbs.members.getAllItems((members) => {
+			let found = null;
+			for (let member of members) {
+				if (member.connections.discord.id === userId) {
+					found = member;
+					break;
+				}
+			}
+			if (found.accessLevel === 'leader') {
+				found.accessLevel = 'member';
+			} else {
+				return;
+			}
+			this.client.fetchUser(userId).then((user) => {
+				return this.mainGuild.fetchMember(user);
+			}).then((member) => {
+				member.removeRole(this.leaderRole);
+			});
+		});
 	}
 	
 	setupUser(userId, userToken, nickname) {
