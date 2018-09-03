@@ -43,15 +43,15 @@
 							<mat-option value='Sophomore'>Sophomore</mat-option>
 							<mat-option value='Junior'>Junior</mat-option>
 							<mat-option value='Senior'>Senior</mat-option>
+							<mat-option value='Alumnus'>Alumnus</mat-option>
+							<mat-option value='Faculty'>Faculty Member</mat-option>
+							<mat-option value='Other'>Other</mat-option>
 						</mat-select>
 						<mat-hint>If you are registering during summer, pick the grade you will be going into.</mat-hint>
 					</mat-form-field>
 					<mat-form-field>
-						<mat-select required placeholder='Area of Interest' [(ngModel)]='data.team' name='team'>
-							<mat-option value='Design'>Design</mat-option>
-							<mat-option value='Programming'>Programming</mat-option>
-							<mat-option value='Prototyping'>Prototyping</mat-option>
-							<mat-option value='Publicity'>Publicity</mat-option>
+						<mat-select required placeholder='Preferred Team' [(ngModel)]='data.team' name='team'>
+							<mat-option *ngFor='let team of teams' value='{{team}}'>{{team}} Team</mat-option>
 						</mat-select>
 					</mat-form-field>
 					<mat-form-field>

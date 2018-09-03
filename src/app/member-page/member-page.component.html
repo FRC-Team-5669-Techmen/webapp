@@ -27,24 +27,15 @@
 						<mat-option value='Sophomore'>Sophomore</mat-option>
 						<mat-option value='Junior'>Junior</mat-option>
 						<mat-option value='Senior'>Senior</mat-option>
+						<mat-option value='Alumnus'>Alumnus</mat-option>
+						<mat-option value='Faculty'>Faculty Member</mat-option>
+						<mat-option value='Other'>Other</mat-option>
 					</mat-select>
 				</mat-form-field>
-				<mat-form-field *ngIf="backend.pollAccessLevel() === AccessLevel.LEADER">
-					<mat-select required placeholder='Team' [(ngModel)]='member.team' name='team'>
-						<mat-option value='Design'>Design</mat-option>
-						<mat-option value='Programming'>Programming</mat-option>
-						<mat-option value='Prototyping'>Prototyping</mat-option>
-						<mat-option value='Publicity'>Publicity</mat-option>
+				<mat-form-field>
+					<mat-select required placeholder='Preferred Team' [(ngModel)]='member.team' name='team'>
+						<mat-option *ngFor='let team of teams' value='{{team}}'>{{team}} Team</mat-option>
 					</mat-select>
-				</mat-form-field>
-				<mat-form-field *ngIf="backend.pollAccessLevel() !== AccessLevel.LEADER">
-					<mat-select required disabled placeholder='Team' [(ngModel)]='member.team' name='team'>
-						<mat-option value='Construction'>Construction</mat-option>
-						<mat-option value='Design'>Design</mat-option>
-						<mat-option value='Programming'>Programming</mat-option>
-						<mat-option value='Publicity'>Publicity</mat-option>
-					</mat-select>
-					<mat-hint>Only a leader can switch you from one team to another.</mat-hint>
 				</mat-form-field>
 				<mat-form-field>
 					<textarea matInput placeholder='Previous Experience' [(ngModel)]='member.experience' name='experience' 

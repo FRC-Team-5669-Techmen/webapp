@@ -112,9 +112,13 @@ export interface DiscordDefaultRoles {
   sophomore: string;
   junior: string;
   senior: string;
-  alumni: string;
+  alumnus: string;
   faculty: string;
   other: string;
+  designTeam: string;
+  programmingTeam: string;
+  prototypingTeam: string;
+  publicityTeam: string;
 }
 
 export interface DriveFile {
@@ -286,6 +290,10 @@ export class WebappBackendService {
 
   getMemberList(): Promise<HttpResponse<Array<Member>>> {
     return this.get<Array<Member>>('/api/v1/members/list');
+  }
+
+  getTeamList(): Promise<HttpResponse<string[]>> {
+    return this.get<string[]>('/api/v1/teams');
   }
 
   getVendors(): Promise<HttpResponse<Array<PartVendor>>> {

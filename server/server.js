@@ -312,6 +312,12 @@ app.patch('/api/v1/members/:id', (req, res) => {
 	});	
 });
 
+app.get('/api/v1/teams', (req, res) => {
+	dbs.miscConfig.get('teams', (tlist) => {
+		res.status(200).send(tlist);
+	})
+})
+
 app.get('/api/v1/vendors/list', (req, res) => {
 	dbs.partVendors.getAllItems((items) => {
 		res.status(200).send(items);
@@ -517,7 +523,7 @@ app.get('/api/v1/discord/defaultRoles', (req, res) => {
 app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.miscConfig.get('discord', (dconfig) => {
-			for (let key of ['restricted', 'member', 'leader', 'freshman', 'sophomore', 'junior', 'senior', 'alumnus', 'faculty', 'other']) {
+			for (let key of ['restricted', 'member', 'leader', 'freshman', 'sophomore', 'junior', 'senior', 'alumnus', 'faculty', 'other', 'designTeam', 'programmingTeam', 'buildTeam', 'publicityTeam', 'driveTeam']) {
 				if (req.body[key]) {
 					dconfig.defaultRoles[key] = req.body[key];
 				}
@@ -597,9 +603,6 @@ app.get('/api/v1/drives', (req, res) => {
 });
 
 //Begin testing area
-bot.client.on('ready', () => {
-	bot.updateDrivePermissions();
-});
 //End testing area
 
 app.get('/public/*', (req, res) => res.sendFile(rootDir + '/index.html'));

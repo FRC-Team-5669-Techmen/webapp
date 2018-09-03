@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class MemberPageComponent implements OnInit {
   public member: Member = null;
   public submitting = false;
+  teams: string[] = [];
 
   get AccessLevel() { // For *ngIfs
     return AccessLevel;
@@ -20,6 +21,9 @@ export class MemberPageComponent implements OnInit {
   ngOnInit() {
     this.backend.getCurrentMemberAsync().then(() => {
       this.backend.getMember(this.route.snapshot.paramMap.get('id')).then((res) => this.member = res.body);
+    });
+    this.backend.getTeamList().then((teams) => {
+      this.teams = teams.body;
     });
   }
 

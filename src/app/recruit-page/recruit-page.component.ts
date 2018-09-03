@@ -37,6 +37,7 @@ export class RecruitPageComponent implements OnInit {
     },
     accessLevel: AccessLevel.RESTRICTED
   };
+  teams: string[] = [];
   @ViewChild('signInCheckbox') signInCheckBox: ElementRef;
   @ViewChild('formCheckbox') formCheckbox: ElementRef;
 
@@ -66,6 +67,9 @@ export class RecruitPageComponent implements OnInit {
       } else {
         this.status = Status.GettingData;
       }
+    });
+    this.backend.getTeamList().then((teams) => {
+      this.teams = teams.body;
     });
   }
 
