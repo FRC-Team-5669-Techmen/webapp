@@ -582,19 +582,13 @@ app.patch('/api/v1/discord/roles/:discordId', (req, res) => {
 	});
 });
 
-app.get('/api/v1/folders', (req, res) => {
+app.get('/api/v1/drives', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
-		let tr = [];
-		drive.getRootFolder().then((root) => {
-			tr.push({
-				id: root.id,
-				name: root.name
-			});
-			return root.listChildren();
-		}).then((children) => {
-			for (let child of children) {
-				tr.push({ // Only send useful data.
-					id: child.id,
+		drive.getDrives().then((drives) => {
+			let tr = [];
+			for (let drive of drives) {
+				tr.push({
+					id: drive.id,
 					name: child.name
 				});
 			}

@@ -43,6 +43,7 @@ class File {
 			this.removeRole(email);
 			return;
 		}
+		// TODO: Read existing permissions.
 		if (!role) role = ROLE_VIEW;
 		return this._apiCall(drive.permissions.create, {
 			sendNotificationEmail: !!message,
@@ -50,14 +51,16 @@ class File {
 			resource: {
 				role: role,
 				type: 'user',
-				emailAddress: email
+				emailAddress: email,
+				supportsTeamDrives: true
 			}
 		}).then((res) => {
 			// For some reason, demoting privilege only works with an update.
 			if(res && res.role != role) {
 				return this._apiCall(drive.permissions.update, {
 					permissionId: res.id,
-					resource: {role: role}
+					resource: {role: role},
+					supportsTeamDrives: true
 				});
 			} else {
 				return res;
@@ -67,7 +70,9 @@ class File {
 	
 	listPerms() {
 		return this._apiCall(drive.permissions.list, {
-			fields: 'permissions(id,type,emailAddress,role)'
+			fields: 'permissions(id,type,emailAddress,role)',
+			pageSize: 100,
+			supportsTeamDrives: true
 		}).then((res) => res.permissions);
 	}
 	
@@ -77,7 +82,8 @@ class File {
 			let perm = perms.find((perm) => (perm.emailAddress)? perm.emailAddress.toLowerCase() === email : false);
 			if(perm) {
 				return this._apiCall(drive.permissions.delete, {
-					permissionId: perm.id
+					permissionId: perm.id,
+					supportsTeamDrives: true
 				});				
 			}
 			return Promise.reject('Promise not found.');
@@ -86,7 +92,8 @@ class File {
 	
 	listChildren() {
 		return this._apiCall(drive.files.list, {
-			q: `"${this.id}" in parents`
+			q: `"${this.id}" in parents`,
+			supportsTeamDrives: true
 		}).then((res) => {
 			let parsed = [];
 			for (let file of res.files) {
@@ -110,10 +117,15 @@ class File {
 	}
 }
 
-module.exports.getRootFolder = function() {
-	return new Promise((resolve, reject) => {
-		miscConfig.get('google', (gconfig) => {
-			resolve(new File(gconfig.rootFolder, '[Root Folder]'));
-		})
+module.exports.getDrives = function() {
+	return File.prototype._apiCall(drive.teamdrives.list, {
+		pageSize: 100,
+		supportsTeamDrives: true
+	}).then((res) => {
+		let out = [];
+		for (let item of res.teamDrives) {
+			out.push(new File(item.id, item.name));
+		}
+		return out;
 	});
 }
