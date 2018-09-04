@@ -65,6 +65,14 @@ class DiscordBot {
 		dbs.roleExtras.setRoles(roleIds, () => 0);
 	}
 
+	leaderCheck(message) {
+		for (let role of message.member.roles.values()) {
+			if (role.id === this.leaderRole.id) return true;
+		}
+		message.channel.send('You must be a leader to use that command.');
+		return false;
+	}
+
 	onMessage(message) {
 		if (message.content[0] === '!') { // Command prefix.
 			let command = message.content.substr(1);
@@ -83,26 +91,57 @@ class DiscordBot {
 					message.channel.send(list);
 				});
 			} else if (command === 'test') {
+				for (let role of message.member.roles.values()) {
+					console.log(role.id);
+				}
 				this.mainChannel.send('This is another test.');
 			} else if (command === 'confirm') {
+				if (!this.leaderCheck(message)) return;
 				if (args.length !== 1) {
 					message.channel.send('Usage: !confirm [@username#nmbr]');
 					return;
 				} else {
 					let userId = args[0];
-					if (userId[0] === '<' && userId[1] === '@') {
+					if (userId[0] === '<' && userId[1] === '@' && userId[2] === '!') {
 						userId = userId.slice(3).slice(0, -1);
-						this.confirm(userId);
-						message.channel.send(args[0] + ' is now confirmed.');
+						this.confirm(userId, message.channel);
 					} else {
 						message.channel.send('Usage: !confirm [@username#nmbr]')
+					}
+				}
+			} else if (command === 'makeLeader') {
+				if (!this.leaderCheck(message)) return;
+				if (args.length !== 1) {
+					message.channel.send('Usage: !makeLeader [@username#nmbr]');
+					return;
+				} else {
+					let userId = args[0];
+					if (userId[0] === '<' && userId[1] === '@' && userId[2] === '!') {
+						userId = userId.slice(3).slice(0, -1);
+						this.makeLeader(userId, message.channel);
+					} else {
+						message.channel.send('Usage: !confirm [@username#nmbr]')
+					}
+				}
+			} else if (command === 'revokeLeader') {
+				if (!this.leaderCheck(message)) return;
+				if (args.length !== 1) {
+					message.channel.send('Usage: !revokeLeader [@username#nmbr]');
+					return;
+				} else {
+					let userId = args[0];
+					if (userId[0] === '<' && userId[1] === '@' && userId[2] === '!') {
+						userId = userId.slice(3).slice(0, -1);
+						this.revokeLeader(userId, message.channel);
+					} else {
+						message.channel.send('Usage: !revokeLeader [@username#nmbr]')
 					}
 				}
 			}
 		}
 	}
 
-	confirm(userId) {
+	confirm(userId, channel) {
 		dbs.members.getAllItems((members) => {
 			let found = null;
 			for (let member of members) {
@@ -114,6 +153,7 @@ class DiscordBot {
 			if (found.accessLevel === 'restricted') {
 				found.accessLevel = 'member';
 			} else {
+				channel.send('<@!' + userId + '> is already a confirmed member.');
 				return;
 			}
 			this.client.fetchUser(userId).then((user) => {
@@ -135,11 +175,12 @@ class DiscordBot {
 				p.then(() => {
 					member.removeRole(this.unconfirmedRole);
 				});
+				channel.send('<@!' + userId + '> is now a confirmed member.');
 			});
 		});
 	}
 
-	makeLeader(userId) {
+	makeLeader(userId, channel) {
 		dbs.members.getAllItems((members) => {
 			let found = null;
 			for (let member of members) {
@@ -148,9 +189,14 @@ class DiscordBot {
 					break;
 				}
 			}
-			if (found.accessLevel !== 'leader') {
+			if (found.accessLevel === 'member') {
 				found.accessLevel = 'leader';
 			} else {
+				if (found.accessLevel === 'leader') {
+					channel.send('<@!' + userId + '> is already a leader.');
+				} else if (found.accessLevel === 'restricted') {
+					channel.send('<@!' + userId + '> has not yet been confirmed as a member. Type !confirm <@!' + userId + '> to do so.');
+				}
 				return;
 			}
 			this.client.fetchUser(userId).then((user) => {
@@ -158,10 +204,11 @@ class DiscordBot {
 			}).then((member) => {
 				member.addRole(this.leaderRole);
 			});
+			channel.send('<@!' + userId + '> is now a leader.');
 		});
 	}
 
-	revokeLeader(userId) {
+	revokeLeader(userId, channel) {
 		dbs.members.getAllItems((members) => {
 			let found = null;
 			for (let member of members) {
@@ -173,12 +220,14 @@ class DiscordBot {
 			if (found.accessLevel === 'leader') {
 				found.accessLevel = 'member';
 			} else {
+				channel.send('<@!' + userId + '> is already not a leader.');
 				return;
 			}
 			this.client.fetchUser(userId).then((user) => {
 				return this.mainGuild.fetchMember(user);
 			}).then((member) => {
 				member.removeRole(this.leaderRole);
+				channel.send('<@!' + userId + '> is now no longer a leader.');
 			});
 		});
 	}
