@@ -6,6 +6,7 @@ const CLIENT_DATA = require('../private/discord-app-data.json');
 const BOT_TOKEN = CLIENT_DATA.botToken;
 const MAIN_GUILD = CLIENT_DATA.botGuild;
 const MAIN_CHANNEL = CLIENT_DATA.botChannel;
+const LIMBO_CHANNEL = CLIENT_DATA.limboChannel;
 const LEAD_ROLES = CLIENT_DATA.leadRoles;
 
 class DiscordBot {
@@ -16,6 +17,7 @@ class DiscordBot {
 			console.log('Bot connected!');
 			this.mainGuild = this.client.guilds.get(MAIN_GUILD);
 			this.mainChannel = this.client.channels.get(MAIN_CHANNEL);
+			this.limboChannel = this.client.channels.get(LIMBO_CHANNEL);
 			this.leadRoles = [];
 			for (let id of LEAD_ROLES) {
 				this.leadRoles.push(this.mainGuild.roles.get(id));
@@ -73,6 +75,15 @@ class DiscordBot {
 		return false;
 	}
 
+	parseUserIdArg(arg) {
+		// https://discordapp.com/developers/docs/reference#message-formatting
+		if (arg[0] === '<' && arg[1] === '@') {
+			if (arg[2] === '!') return arg.slice(3).slice(0, -1);
+			if (arg[2].match(/[0-9]/)) return arg.slice(2).slice(0, -1);
+		}
+		return null;
+	}
+
 	onMessage(message) {
 		if (message.content[0] === '!') { // Command prefix.
 			let command = message.content.substr(1);
@@ -97,45 +108,27 @@ class DiscordBot {
 				this.mainChannel.send('This is another test.');
 			} else if (command === 'confirm') {
 				if (!this.leaderCheck(message)) return;
-				if (args.length !== 1) {
+				if (args.length !== 1 || this.parseUserIdArg(args[0]) === null) {
 					message.channel.send('Usage: !confirm [@username#nmbr]');
 					return;
 				} else {
-					let userId = args[0];
-					if (userId[0] === '<' && userId[1] === '@' && userId[2] === '!') {
-						userId = userId.slice(3).slice(0, -1);
-						this.confirm(userId, message.channel);
-					} else {
-						message.channel.send('Usage: !confirm [@username#nmbr]')
-					}
+					this.confirm(this.parseUserIdArg(args[0]), message.channel);
 				}
 			} else if (command === 'makeLeader') {
 				if (!this.leaderCheck(message)) return;
-				if (args.length !== 1) {
+				if (args.length !== 1 || this.parseUserIdArg(args[0]) === null) {
 					message.channel.send('Usage: !makeLeader [@username#nmbr]');
 					return;
 				} else {
-					let userId = args[0];
-					if (userId[0] === '<' && userId[1] === '@' && userId[2] === '!') {
-						userId = userId.slice(3).slice(0, -1);
-						this.makeLeader(userId, message.channel);
-					} else {
-						message.channel.send('Usage: !confirm [@username#nmbr]')
-					}
+					this.makeLeader(this.parseUserIdArgs(args[0]), message.channel);
 				}
 			} else if (command === 'revokeLeader') {
 				if (!this.leaderCheck(message)) return;
-				if (args.length !== 1) {
+				if (args.length !== 1 || this.parseUserIdArg(args[0]) === null) {
 					message.channel.send('Usage: !revokeLeader [@username#nmbr]');
 					return;
 				} else {
-					let userId = args[0];
-					if (userId[0] === '<' && userId[1] === '@' && userId[2] === '!') {
-						userId = userId.slice(3).slice(0, -1);
-						this.revokeLeader(userId, message.channel);
-					} else {
-						message.channel.send('Usage: !revokeLeader [@username#nmbr]')
-					}
+					this.revokeLeader(this.parseUserIdArgs(args[0]), message.channel);
 				}
 			}
 		}
@@ -239,7 +232,8 @@ class DiscordBot {
 				guildUser.setRoles([this.unconfirmedRole]).then(() => {
 					return guildUser.setNickname(nickname);
 				}, console.error).then(() => {
-					this.mainChannel.send(`Please welcome <@${userId}> to the server!\n\nAn admin must confirm they are an actual club member by typing **!confirm <@${userId}>**`);
+					this.mainChannel.send(`Please welcome <@${userId}> to the server!`);
+					this.limboChannel.send(`<@${userId}>, your information has been received. Please wait for a club member to confirm your identity.`);
 				}, console.error);
 			} else {
 				this.mainGuild.addMember(user, {
@@ -247,7 +241,8 @@ class DiscordBot {
 					nick: nickname,
 					roles: [ this.unconfirmedRole ]
 				}, console.error).then((member) => {
-					this.mainChannel.send(`Please welcome <@${userId}> to the server!\n\nAn admin must confirm they are an actual club member by typing **!confirm <@${userId}>**`);
+					this.mainChannel.send(`Please welcome <@${userId}> to the server!`);
+					this.limboChannel.send(`<@${userId}>, your information has been received. Please wait for a club member to confirm your identity.`);
 				}, console.error);
 			}
 		});
