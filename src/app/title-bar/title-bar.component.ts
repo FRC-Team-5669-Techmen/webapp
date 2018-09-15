@@ -1,5 +1,5 @@
 import { PlatformIdService } from '../platform-id.service';
-import { WebappBackendService } from '../webapp-backend.service';
+import { WebappBackendService, AccessLevel } from '../webapp-backend.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -14,9 +14,16 @@ export class TitleBarComponent implements OnInit {
   signedInButtons = [
     {text: 'Info', url: '/private/contact'},
     {text: 'Members', url: '/private/members'},
-    {text: 'Part Requests', url: '/private/parts'},
+    {text: 'My Profile', url: '/private/members/me'}
+  ];
+  leaderButtons = [
+    {text: 'Part Requests [WIP]', url: '/private/parts'},
     {text: 'Roles', url: '/private/roles'}
   ];
+
+  get AccessLevel() { // for *ngIf s
+    return AccessLevel;
+  }
 
   constructor(public backend: WebappBackendService, public platformId: PlatformIdService) { }
 

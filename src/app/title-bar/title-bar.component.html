@@ -4,10 +4,17 @@
 		<li *ngFor="let button of (backend.pollCurrentMember()) ? signedInButtons : signedOutButtons">
 			<a mat-button [routerLink]="button.url">{{button.text}}</a>
 		</li>
+		<li *ngFor="let button of (backend.pollAccessLevel() == AccessLevel.LEADER) ? leaderButtons : []">
+			<a mat-button [routerLink]="button.url">{{button.text}}</a>
+		</li>
 	</ul>
 	<mat-menu id="mobile-menu" #mobileMenu>
 		<button mat-menu-item routerLink="/">Home</button>
 		<button *ngFor="let button of (backend.pollCurrentMember()) ? signedInButtons : signedOutButtons"
+			mat-menu-item [routerLink]="button.url">
+			{{button.text}}
+		</button>
+		<button *ngFor="let button of (backend.pollAccessLevel() == AccessLevel.LEADER) ? leaderButtons : []"
 			mat-menu-item [routerLink]="button.url">
 			{{button.text}}
 		</button>
