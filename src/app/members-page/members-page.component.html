@@ -16,7 +16,7 @@
 		</mat-card>
 	</ng-template>
 	<h1 class="mat-h1">Leaders</h1>
-	<app-grid-layout>
+	<app-grid-layout class="bigger">
 		<ng-container *ngFor="let member of members"> 
 			<ng-container *ngIf="member.accessLevel === AccessLevel.LEADER">
 				<ng-container *ngTemplateOutlet="card;context:{member:member}"></ng-container>
