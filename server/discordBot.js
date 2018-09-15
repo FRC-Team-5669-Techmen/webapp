@@ -120,7 +120,7 @@ class DiscordBot {
 					message.channel.send('Usage: !makeLeader [@username#nmbr]');
 					return;
 				} else {
-					this.makeLeader(this.parseUserIdArgs(args[0]), message.channel);
+					this.makeLeader(this.parseUserIdArg(args[0]), message.channel);
 				}
 			} else if (command === 'revokeLeader') {
 				if (!this.leaderCheck(message)) return;
@@ -128,7 +128,7 @@ class DiscordBot {
 					message.channel.send('Usage: !revokeLeader [@username#nmbr]');
 					return;
 				} else {
-					this.revokeLeader(this.parseUserIdArgs(args[0]), message.channel);
+					this.revokeLeader(this.parseUserIdArg(args[0]), message.channel);
 				}
 			}
 		}
