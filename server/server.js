@@ -207,6 +207,21 @@ app.get('/api/v1/members/me', (req, res) => {
 	});
 });
 
+app.get('/api/v1/members/exportXls', (req, res) => {
+	let data = 'Name\tEmail Address\tPhone Number\tGrade Level\tTeam\tShirt Size\tE.C. Name\tE.C. Phone\tE.C. Email\n';
+	dbs.members.getAllItems((items) => {
+		for (let member of items) {
+			data += member.firstName + ' ' + member.lastName + '\t';
+			for (let key of ['emailAddress', 'phone', 'gradeLevel', 'team', 'shirtSize']) {
+				data += member[key] + '\t';
+			}
+			data += member.parent.firstName + ' ' + member.parent.lastName + '\t' + member.parent.phone;
+			data += '\t' + member.parent.emailAddress + '\n';
+		}
+		res.status(200).attachment('Members.xls').type('application/vnd.ms-excel').send(data);
+	});
+});
+
 app.get('/api/v1/members/:id', (req, res) => {
 	checkLogin(req, res, ACCESS_LEVEL_RESTRICTED, (member) => {
 		let id = req.params.id;
@@ -248,49 +263,8 @@ app.patch('/api/v1/members/:id', (req, res) => {
 		}
 		dbs.members.findItemWithValue('id', id, (member) => {
 			if (!member) {
-				res.status(404).send({error: 'No members have that email address.'});
+				res.status(404).send({error: 'No members have that id.'});
 				return;
-			}
-			if (data.accessLevel && data.accessLevel !== member.accessLevel) {
-				// Handles changing google drive access if access level changes.
-				// If member's team also changes in the same request, that is handled here as well.
-				if (data.accessLevel === ACCESS_LEVEL_RESTRICTED) {
-					if (member.accessLevel === ACCESS_LEVEL_MEMBER) {
-						let teamFolder = getTeamFolder(member); // What team they were
-						if (teamFolder) teamFolder.removeRole(member.emailAddress);
-						drive.COMPETITION_FOLDER.removeRole(member.emailAddress);
-					} else { // Was a leader
-						drive.ROOT_FOLDER.removeRole(member.emailAddress);
-						drive.ADMINISTRATION_FOLDER.removeRole(member.emailAddress);
-					}
-				} else if (data.accessLevel == ACCESS_LEVEL_MEMBER) {
-					if (member.accessLevel === ACCESS_LEVEL_LEADER) {
-						drive.ROOT_FOLDER.removeRole(member.emailAddress);
-						drive.ADMINISTRATION_FOLDER.removeRole(member.emailAddress);
-					}
-					let teamFolder = getTeamFolder({preferredTeam: data.preferredTeam || member.preferredTeam}); // In case their team was also changed.
-					if (teamFolder) teamFolder.setRole(member.emailAddress, drive.ROLE_EDIT,
-							'Your application for FRC has been approved, and you can now create and modify files in your team\'s folder.');
-					drive.COMPETITION_FOLDER.setRole(member.emailAddress, drive.ROLE_EDIT, 
-							'Your application for FRC has been approved, and you can now create and modify files in the Competition folder.');
-				} else { // Becoming a leader
-					if (member.accessLevel === ACCESS_LEVEL_MEMBER) {
-						let teamFolder = getTeamFolder(member); // What team they were
-						if (teamFolder) teamFolder.removeRole(member.emailAddress);
-						drive.COMPETITION_FOLDER.removeRole(member.emailAddress);
-					}
-					drive.ROOT_FOLDER.setRole(member.emailAddress, drive.ROLE_EDIT,
-							'You have been promoted to a leader of FRC and can now create, edit, and delete files in all folders.');
-					drive.ADMINISTRATION_FOLDER.setRole(member.emailAddress, drive.ROLE_EDIT,
-							'You have been promoted to a leader of FRC and now have access to the (previously hidden) Administration folder.');
-				}
-			} else if ((data.preferredTeam) && (data.preferredTeam !== member.preferredTeam) && (member.accessLevel === ACCESS_LEVEL_MEMBER)) {
-				// Handles gdrive permissions if a member changes teams but not access levels.
-				let oldFolder = getTeamFolder(member);
-				if (oldFolder) oldFolder.removeRole(member.emailAddress);
-				let newFolder = getTeamFolder(data);
-				if (newFolder) newFolder.setRole(member.emailAddress, drive.ROLE_EDIT,
-						'Your FRC subteam has been switched to ' + data.preferredTeam + ', and you have thus been granted access to its folder.');
 			}
 			// Again, security stuff. We want to make sure that only writable data is copied without having to update this when new, unwritable data is added to the database.
 			for (key of ['firstName', 'lastName', 'shirtSize', 'emailAddress', 'sendEmails', 'phone', 'gradeLevel', 'team', 'experience']) {

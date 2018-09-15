@@ -1,6 +1,9 @@
 <app-page-guard loadingMessage="Loading member list..." [loaded]="!!members" [accessLevel]="AccessLevel.MEMBER" #guard>
 </app-page-guard>
 <ng-container *ngIf="guard.show">
+	<div id="action-box" *ngIf="backend.pollAccessLevel() === AccessLevel.LEADER">
+		<a mat-button class="mat-raised-button mat-accent" href="/api/v1/members/exportXls">Download as .xls</a>
+	</div>
 	<ng-template #card let-member="member">
 		<mat-card routerLink="/private/members/{{member.id}}" class="two-line grid-element">
 			<mat-card-header>
