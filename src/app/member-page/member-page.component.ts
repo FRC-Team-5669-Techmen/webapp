@@ -16,7 +16,12 @@ export class MemberPageComponent implements OnInit {
     return AccessLevel;
   }
 
-  constructor(public backend: WebappBackendService, private router: Router, private route: ActivatedRoute) { }
+  constructor(public backend: WebappBackendService, private router: Router, private route: ActivatedRoute) { 
+    this.route.params.subscribe((params) => {
+      this.member = null;
+      this.ngOnInit();
+    });
+  }
 
   ngOnInit() {
     this.backend.getCurrentMemberAsync().then(() => {
