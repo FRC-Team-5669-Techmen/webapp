@@ -142,6 +142,7 @@ app.post('/api/v1/members/register', (req, res) => {
 			member.parent.emailAddress = data.parent.emailAddress;
 			session.getDiscordAuthToken(getAuthHost(req), (token) => {
 				bot.setupUser(member.connections.discord.id, token, member.firstName + ' ' + member.lastName);
+				bot.updateMembersDrivePermissions([member.connections.discord.id]);
 			})
 			res.status(201).send(member);
 		});
@@ -240,19 +241,6 @@ app.get('/api/v1/members/:id', (req, res) => {
 	});	
 });
 
-function getTeamFolder(member) {
-	switch (member.preferredTeam) {
-	case 'Design':
-		return drive.DESIGN_FOLDER;
-	case 'Programming':
-		return drive.PROGRAMMING_FOLDER;
-	case 'Publicity':
-		return drive.RESOURCES_FOLDER;
-	default:
-		return null;
-	}
-}
-
 app.patch('/api/v1/members/:id', (req, res) => {
 	const data = req.body;
 	// If the user wants to modify the access level or the team of a member, they must be a leader.
@@ -280,6 +268,7 @@ app.patch('/api/v1/members/:id', (req, res) => {
 					member[key] = data[key] || member[key];
 				}
 			}
+			bot.updateMembersDrivePermissions([member.connections.discord.id]);
 			res.status(200).send(censorMember(member, 1));
 			
 		});
@@ -495,7 +484,7 @@ app.get('/api/v1/discord/defaultRoles', (req, res) => {
 });
 
 app.patch('/api/v1/discord/defaultRoles', (req, res) => {
-	//checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
+	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.miscConfig.get('discord', (dconfig) => {
 			let teamRoles = [];
 			dbs.miscConfig.get('teams', (tlist) => {
@@ -508,13 +497,15 @@ app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 					}
 				}
 				bot.updateDefaultRoles();
+				bot.updateMembersDrivePermissions();
 				res.status(200).send(dconfig.defaultRoles);
 			})
 		});
-	//});
+	});
 });
 
 app.get('/api/v1/discord/roles', (req, res) => {
+	console.log('asdf');
 	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
 		let roles = bot.getAllRoles();
 		// Unify role data and roleExtra data for the end user. They should be treated as a single piece of data.
@@ -536,6 +527,8 @@ app.get('/api/v1/discord/roles', (req, res) => {
 });
 
 app.get('/api/v1/discord/roles/:discordId', (req, res) => {
+	bot.getMembersWithRole(req.params.discordId).then(console.log);
+	console.log(req.params.discordId);
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.roleExtras.findItemWithValue('discordId', req.params.discordId, (result) => {
 			let roles = bot.getAllRoles();
@@ -557,7 +550,9 @@ app.patch('/api/v1/discord/roles/:discordId', (req, res) => {
 		dbs.roleExtras.findItemWithValue('discordId', req.params.discordId, (result) => {
 			if (typeof(req.body.googleDriveAccess) === typeof([])) {
 				result.googleDriveAccess = req.body.googleDriveAccess;
-				// TODO: Update GDrive permissions for individual users upon this change.
+				bot.getMembersWithRole(req.params.discordId).then((members) => {
+					bot.updateMembersDrivePermissions(members.map(x => x.connections && x.connections.discord.id));
+				});
 			}
 			if (typeof(req.body.minimumAccessLevel) == typeof('')) {
 				result.minimumAccessLevel = req.body.minimumAccessLevel;
