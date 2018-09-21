@@ -1,6 +1,7 @@
 const rawDiscord = require('./rawDiscord');
 const discord = require('discord.js');
 const dbs = require('./databases');
+const drive = require('./drive');
 
 const CLIENT_DATA = require('../private/discord-app-data.json');
 const BOT_TOKEN = CLIENT_DATA.botToken;
@@ -65,6 +66,7 @@ class DiscordBot {
 			roleIds.push(role.id);
 		}
 		dbs.roleExtras.setRoles(roleIds, () => 0);
+		this.updateMembersDrivePermissions([member.connections.discord.id]);
 	}
 
 	leaderCheck(message) {
@@ -261,20 +263,76 @@ class DiscordBot {
 		return out;
 	}
 
-	updateDrivePermissions() {
-		let users = [];
-		this.mainGuild.fetchMembers().then((res) => {
-			for (let member of res.members) {
-				member = member[1];
-				let user = member.user;
-				users.push({
-					id: user.id,
-					name: user.username,
-					roles: member._roles,
-					realname: member.nickname || user.username
-				});
+	getMembersWithRole(roleId) {
+		return this.mainGuild.fetchMembers().then((guild) => {
+			let output = [];
+			for (let duser of guild.members.values()) {
+				for (let sroleId of duser.roles.keys()) {
+					if (sroleId === roleId) output.push(duser.id);
+				}
 			}
-			console.log(users);
+			return output;
+		}).then((ids) => {
+			let output = [];
+			dbs.members.getAllItems((members) => {
+				for (let id of ids) {
+					output.push(members.filter(x => x.connections.discord.id === id)[0]);
+				}
+			});
+			return output;
+		});
+	}
+
+	updateMembersDrivePermissions(discordIds) {
+		return drive.getDrives().then((drives) => {
+			let discordMembers = [];
+			for (let dmember of this.mainGuild.members.values()) {
+				if (!discordIds || discordIds.find(x => x === dmember.user.id)) {
+					discordMembers.push(dmember);
+				}
+			}
+			dbs.members.getAllItems((members) => {
+				for (let dmember of discordMembers) {
+					dmember.realMember = members.find(x => x.connections.discord.id === dmember.id);
+				}
+			});
+			dbs.roleExtras.getAllItems((roleExtras) => {
+				let index = {};
+				for (let roleExtra of roleExtras) index[roleExtra.discordId] = roleExtra;
+				let permissionChanges = [];
+				for (let member of discordMembers) {
+					let memberPermissions = {};
+					let roleIndexes = {};
+					for (let role of member.roles.values()) {
+						if (role.name === '@everyone') continue;
+						for (let permission of roleExtras.find(x => x.discordId === role.id).googleDriveAccess) {
+							if (role.position < roleIndexes[permission.fileId]) continue;
+							memberPermissions[permission.fileId] = permission.access;
+							roleIndexes[permission.fileId] = role.position;
+						}
+					}
+					permissionChanges.push([member, memberPermissions]);
+				}
+				let timeout = 0;
+				for (let change of permissionChanges) {
+					let email = change[0].realMember.emailAddress;
+					let domain = email.split('@')[1];
+					if (domain !== 'gmail.com' && domain !== 'boscotech.net') {
+						console.warn('WARNING: Email ' + email + ' does not appear to be a google or gsuite account.');
+						console.warn('WARNING: Skipping setting Drive permissions for them.');
+						continue;
+					}
+					// TODO: Change to a promise-based system that is stored outside the method so that if more changes
+					// are requested, they will start after the previous ones.
+					for (let tdrive of drives) {
+						setTimeout(() => {
+							tdrive.setRole(email, change[1][tdrive.id] || drive.ROLE_NONE);
+						}, timeout);
+						timeout += 250;
+					}
+				}
+				console.log('Updating Google Drive permissions, it is scheduled to take ' + timeout + 'ms.');
+			});
 		});
 	}
 }
