@@ -66,7 +66,7 @@ class DiscordBot {
 			roleIds.push(role.id);
 		}
 		dbs.roleExtras.setRoles(roleIds, () => 0);
-		this.updateMembersDrivePermissions([member.connections.discord.id]);
+		this.updateMembersDrivePermissions();
 	}
 
 	leaderCheck(message) {
@@ -291,16 +291,18 @@ class DiscordBot {
 					discordMembers.push(dmember);
 				}
 			}
+			let memberList = [];
 			dbs.members.getAllItems((members) => {
 				for (let dmember of discordMembers) {
 					dmember.realMember = members.find(x => x.connections.discord.id === dmember.id);
+					if (dmember.realMember) memberList.push(dmember);
 				}
 			});
 			dbs.roleExtras.getAllItems((roleExtras) => {
 				let index = {};
 				for (let roleExtra of roleExtras) index[roleExtra.discordId] = roleExtra;
 				let permissionChanges = [];
-				for (let member of discordMembers) {
+				for (let member of memberList) {
 					let memberPermissions = {};
 					let roleIndexes = {};
 					for (let role of member.roles.values()) {
