@@ -66,7 +66,7 @@ module.exports.roleExtras.createRole = function(options) {
 module.exports.roleExtras.setRoles = function(roleIds, callback) {
 	this._checkStaleness(() => {
 		for (let i = this.data.length - 1; i >= 0; i--) {
-			let roleIndex = roleIds.indexOf(this.data[i]);
+			let roleIndex = roleIds.indexOf(this.data[i].discordId);
 			if (roleIndex === -1) {
 				this.data.splice(i, 1);
 			} else {
