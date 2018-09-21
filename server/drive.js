@@ -21,7 +21,7 @@ class File {
 	
 	_apiCall(func, data) {
 		data.auth = google.jwtClient;
-		data.fileId = '0AJgNHQkGIBW8Uk9PVA';
+		data.fileId = this.id;
 		data.supportsTeamDrives = true;
 		let promise = new Promise((resolve, reject) => {
 			func(data, (err, res) => {
@@ -59,10 +59,11 @@ class File {
 		return this._apiCall(drive.permissions.create, body).then((res) => {
 			// For some reason, demoting privilege only works with an update.
 			if(res && res.role != role) {
+				console.log('Submitting update request.');
 				return this._apiCall(drive.permissions.update, {
 					permissionId: res.id,
 					requestBody: {role: role}
-				});
+				}).catch(console.error);
 			} else {
 				return res;
 			}
@@ -85,7 +86,7 @@ class File {
 					permissionId: perm.id
 				});				
 			}
-			return Promise.reject('Promise not found.');
+			// return Promise.reject('Permission not found.');
 		});
 	}
 	
