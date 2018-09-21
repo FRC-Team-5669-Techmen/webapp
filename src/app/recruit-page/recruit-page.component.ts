@@ -80,7 +80,6 @@ export class RecruitPageComponent implements OnInit {
   submit(): void {
     this.status = Status.Submitting;
     this.backend.registerMember(this.data).then((res) => {
-      console.log(res);
       if (res.ok) {
         this.backend.setMember(res.body);
         this.status = Status.Submitted;

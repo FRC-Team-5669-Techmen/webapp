@@ -505,7 +505,6 @@ app.patch('/api/v1/discord/defaultRoles', (req, res) => {
 });
 
 app.get('/api/v1/discord/roles', (req, res) => {
-	console.log('asdf');
 	checkLogin(req, res, ACCESS_LEVEL_MEMBER, (member) => {
 		let roles = bot.getAllRoles();
 		// Unify role data and roleExtra data for the end user. They should be treated as a single piece of data.
@@ -528,7 +527,6 @@ app.get('/api/v1/discord/roles', (req, res) => {
 
 app.get('/api/v1/discord/roles/:discordId', (req, res) => {
 	bot.getMembersWithRole(req.params.discordId).then(console.log);
-	console.log(req.params.discordId);
 	checkLogin(req, res, ACCESS_LEVEL_LEADER, (member) => {
 		dbs.roleExtras.findItemWithValue('discordId', req.params.discordId, (result) => {
 			let roles = bot.getAllRoles();

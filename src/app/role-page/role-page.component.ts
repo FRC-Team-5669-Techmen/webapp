@@ -52,7 +52,6 @@ export class RolePageComponent implements OnInit {
   }
 
   removeDrive(index: number) {
-    console.log(index);
     this.role.googleDriveAccess.splice(index, 1);
   }
 }

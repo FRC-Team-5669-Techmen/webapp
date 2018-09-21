@@ -13,11 +13,9 @@ export class DiscordService {
   getAuthUrl(): Promise<string> {
     return this.backend.getSessionToken().then((token) => {
       let redirect = window.location.protocol + '//' + window.location.hostname;
-      console.log(redirect, window.location.protocol);
       if (window.location.protocol === 'http:') {
         redirect += ':4200';
       }
-      console.log(redirect, window.location.protocol);
       redirect += REDIRECT_URI;
       return AUTH_URI + '&redirect_uri=' + encodeURIComponent(redirect) + '&state=' + token;
     });

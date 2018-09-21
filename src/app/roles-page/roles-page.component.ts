@@ -58,7 +58,6 @@ export class RolesPageComponent implements OnInit {
   }
 
   setRole(event) {
-    console.log(event);
   }
 
   ngOnInit() { }

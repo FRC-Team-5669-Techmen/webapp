@@ -59,7 +59,6 @@ class File {
 		return this._apiCall(drive.permissions.create, body).then((res) => {
 			// For some reason, demoting privilege only works with an update.
 			if(res && res.role != role) {
-				console.log('Submitting update request.');
 				return this._apiCall(drive.permissions.update, {
 					permissionId: res.id,
 					requestBody: {role: role}
