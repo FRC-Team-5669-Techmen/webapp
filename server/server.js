@@ -3,8 +3,9 @@ global.authDisabled = process.argv.indexOf('--noauth') !== -1;
 if (global.productionMode && global.authDisabled) {
 	throw new Error('Cannot have authorization disabled in production mode.')
 }
-global.port = global.productionMode ? 443 : 4200;
-global.useHttp = process.argv.indexOf('--no-reroute-http') === -1;
+global.forceHttp = process.argv.indexOf('--force-http') !== -1;
+global.redirectHttp = process.argv.indexOf('--no-reroute-http') === -1 && !global.forceHttp;
+global.port = global.productionMode ? (global.forceHttp ? 80 : 443) : 4200;
 if (!global.productionMode && ! global.useHttp) {
 	throw new Error('HTTP Rerouting can only be disabled in production mode.');
 }
@@ -610,18 +611,23 @@ if (authDisabled) {
 if (productionMode) {
 	// Just bumps the user to HTTPS. Serves no content.
 	console.log('Starting in production mode.');
-	if (useHttp) {
+	if (redirectHttp) {
 		var redirector = express();
 		redirector.get('*', (req, res) => {
 			res.redirect('https://' + req.headers.host + req.url);
 		});
 		redirector.listen(80);
 	}
-
-	https.createServer({
-		key: fs.readFileSync('../private/key.pem'),
-		cert: fs.readFileSync('../private/cert.pem')
-	}, app).listen(port);	
+	if (forceHttp) {
+		console.log('WARNING: Serving over HTTP in production mode! This should only be used in conjunction with an'
+		          + 'HTTPS proxy or HTTPS Virtual Hosting server.');
+		app.listen(port);
+	} else {
+		https.createServer({
+			key: fs.readFileSync('../private/key.pem'),
+			cert: fs.readFileSync('../private/cert.pem')
+		}, app).listen(port);	
+	}
 } else {
 	console.log('Starting in development mode');
 	app.listen(port);
